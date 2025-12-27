@@ -3,7 +3,8 @@
 import { GET_PRODUCT_BY_HANDLE_QUERY } from "@/graphql/products";
 import { DocumentNode } from "graphql";
 
-const endpoint = "/api/shopify/auth";
+
+const endpoint = `https://palshop.app/api/2024-01/graphql.json`;
 
 export const fetchShopify = async <T = any>(
   query: any,
@@ -17,6 +18,8 @@ export const fetchShopify = async <T = any>(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "X-Shopify-Storefront-Access-Token":
+          process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN! || "08f8598a76c5b5e5eeaf77543d5b2d2d",
       },
       body: JSON.stringify({
         endpointType,
