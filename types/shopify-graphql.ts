@@ -22,8 +22,8 @@ export type MakeEmpty<
 export type Incremental<T> =
   | T
   | {
-      [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
-    };
+    [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
+  };
 
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
@@ -8664,104 +8664,104 @@ export type GetCartQuery = {
       edges: Array<{
         __typename?: "BaseCartLineEdge";
         node:
-          | {
-              __typename?: "CartLine";
+        | {
+          __typename?: "CartLine";
+          id: string;
+          quantity: number;
+          cost: {
+            __typename?: "CartLineCost";
+            totalAmount: {
+              __typename?: "MoneyV2";
+              amount: any;
+              currencyCode: CurrencyCode;
+            };
+          };
+          merchandise: {
+            __typename?: "ProductVariant";
+            id: string;
+            title: string;
+            selectedOptions: Array<{
+              __typename?: "SelectedOption";
+              name: string;
+              value: string;
+            }>;
+            price: {
+              __typename?: "MoneyV2";
+              amount: any;
+              currencyCode: CurrencyCode;
+            };
+            product: {
+              __typename?: "Product";
               id: string;
-              quantity: number;
-              cost: {
-                __typename?: "CartLineCost";
-                totalAmount: {
-                  __typename?: "MoneyV2";
-                  amount: any;
-                  currencyCode: CurrencyCode;
-                };
-              };
-              merchandise: {
-                __typename?: "ProductVariant";
-                id: string;
-                title: string;
-                selectedOptions: Array<{
-                  __typename?: "SelectedOption";
-                  name: string;
-                  value: string;
-                }>;
-                price: {
-                  __typename?: "MoneyV2";
-                  amount: any;
-                  currencyCode: CurrencyCode;
-                };
-                product: {
-                  __typename?: "Product";
-                  id: string;
-                  title: string;
-                  vendor: string;
-                  handle: string;
-                  description: string;
-                  images: {
-                    __typename?: "ImageConnection";
-                    edges: Array<{
-                      __typename?: "ImageEdge";
-                      node: {
-                        __typename?: "Image";
-                        url: any;
-                        altText?: string | null;
-                        width?: number | null;
-                        height?: number | null;
-                      };
-                    }>;
+              title: string;
+              vendor: string;
+              handle: string;
+              description: string;
+              images: {
+                __typename?: "ImageConnection";
+                edges: Array<{
+                  __typename?: "ImageEdge";
+                  node: {
+                    __typename?: "Image";
+                    url: any;
+                    altText?: string | null;
+                    width?: number | null;
+                    height?: number | null;
                   };
-                };
-              };
-            }
-          | {
-              __typename?: "ComponentizableCartLine";
-              id: string;
-              quantity: number;
-              cost: {
-                __typename?: "CartLineCost";
-                totalAmount: {
-                  __typename?: "MoneyV2";
-                  amount: any;
-                  currencyCode: CurrencyCode;
-                };
-              };
-              merchandise: {
-                __typename?: "ProductVariant";
-                id: string;
-                title: string;
-                selectedOptions: Array<{
-                  __typename?: "SelectedOption";
-                  name: string;
-                  value: string;
                 }>;
-                price: {
-                  __typename?: "MoneyV2";
-                  amount: any;
-                  currencyCode: CurrencyCode;
-                };
-                product: {
-                  __typename?: "Product";
-                  id: string;
-                  title: string;
-                  vendor: string;
-                  handle: string;
-                  description: string;
-                  images: {
-                    __typename?: "ImageConnection";
-                    edges: Array<{
-                      __typename?: "ImageEdge";
-                      node: {
-                        __typename?: "Image";
-                        url: any;
-                        altText?: string | null;
-                        width?: number | null;
-                        height?: number | null;
-                      };
-                    }>;
-                  };
-                };
               };
             };
+          };
+        }
+        | {
+          __typename?: "ComponentizableCartLine";
+          id: string;
+          quantity: number;
+          cost: {
+            __typename?: "CartLineCost";
+            totalAmount: {
+              __typename?: "MoneyV2";
+              amount: any;
+              currencyCode: CurrencyCode;
+            };
+          };
+          merchandise: {
+            __typename?: "ProductVariant";
+            id: string;
+            title: string;
+            selectedOptions: Array<{
+              __typename?: "SelectedOption";
+              name: string;
+              value: string;
+            }>;
+            price: {
+              __typename?: "MoneyV2";
+              amount: any;
+              currencyCode: CurrencyCode;
+            };
+            product: {
+              __typename?: "Product";
+              id: string;
+              title: string;
+              vendor: string;
+              handle: string;
+              description: string;
+              images: {
+                __typename?: "ImageConnection";
+                edges: Array<{
+                  __typename?: "ImageEdge";
+                  node: {
+                    __typename?: "Image";
+                    url: any;
+                    altText?: string | null;
+                    width?: number | null;
+                    height?: number | null;
+                  };
+                }>;
+              };
+            };
+          };
+        };
       }>;
     };
   } | null;
@@ -8784,26 +8784,26 @@ export type AddToCartMutation = {
         edges: Array<{
           __typename?: "BaseCartLineEdge";
           node:
-            | {
-                __typename?: "CartLine";
-                id: string;
-                quantity: number;
-                merchandise: {
-                  __typename?: "ProductVariant";
-                  id: string;
-                  title: string;
-                };
-              }
-            | {
-                __typename?: "ComponentizableCartLine";
-                id: string;
-                quantity: number;
-                merchandise: {
-                  __typename?: "ProductVariant";
-                  id: string;
-                  title: string;
-                };
-              };
+          | {
+            __typename?: "CartLine";
+            id: string;
+            quantity: number;
+            merchandise: {
+              __typename?: "ProductVariant";
+              id: string;
+              title: string;
+            };
+          }
+          | {
+            __typename?: "ComponentizableCartLine";
+            id: string;
+            quantity: number;
+            merchandise: {
+              __typename?: "ProductVariant";
+              id: string;
+              title: string;
+            };
+          };
         }>;
       };
     } | null;
@@ -8827,26 +8827,26 @@ export type UpdateCartItemsMutation = {
         edges: Array<{
           __typename?: "BaseCartLineEdge";
           node:
-            | {
-                __typename?: "CartLine";
-                id: string;
-                quantity: number;
-                merchandise: {
-                  __typename?: "ProductVariant";
-                  id: string;
-                  title: string;
-                };
-              }
-            | {
-                __typename?: "ComponentizableCartLine";
-                id: string;
-                quantity: number;
-                merchandise: {
-                  __typename?: "ProductVariant";
-                  id: string;
-                  title: string;
-                };
-              };
+          | {
+            __typename?: "CartLine";
+            id: string;
+            quantity: number;
+            merchandise: {
+              __typename?: "ProductVariant";
+              id: string;
+              title: string;
+            };
+          }
+          | {
+            __typename?: "ComponentizableCartLine";
+            id: string;
+            quantity: number;
+            merchandise: {
+              __typename?: "ProductVariant";
+              id: string;
+              title: string;
+            };
+          };
         }>;
       };
     } | null;
@@ -8870,26 +8870,26 @@ export type RemoveFromCartMutation = {
         edges: Array<{
           __typename?: "BaseCartLineEdge";
           node:
-            | {
-                __typename?: "CartLine";
-                id: string;
-                quantity: number;
-                merchandise: {
-                  __typename?: "ProductVariant";
-                  id: string;
-                  title: string;
-                };
-              }
-            | {
-                __typename?: "ComponentizableCartLine";
-                id: string;
-                quantity: number;
-                merchandise: {
-                  __typename?: "ProductVariant";
-                  id: string;
-                  title: string;
-                };
-              };
+          | {
+            __typename?: "CartLine";
+            id: string;
+            quantity: number;
+            merchandise: {
+              __typename?: "ProductVariant";
+              id: string;
+              title: string;
+            };
+          }
+          | {
+            __typename?: "ComponentizableCartLine";
+            id: string;
+            quantity: number;
+            merchandise: {
+              __typename?: "ProductVariant";
+              id: string;
+              title: string;
+            };
+          };
         }>;
       };
     } | null;
@@ -8913,26 +8913,26 @@ export type CreateCartMutation = {
         edges: Array<{
           __typename?: "BaseCartLineEdge";
           node:
-            | {
-                __typename?: "CartLine";
-                id: string;
-                quantity: number;
-                merchandise: {
-                  __typename?: "ProductVariant";
-                  id: string;
-                  title: string;
-                };
-              }
-            | {
-                __typename?: "ComponentizableCartLine";
-                id: string;
-                quantity: number;
-                merchandise: {
-                  __typename?: "ProductVariant";
-                  id: string;
-                  title: string;
-                };
-              };
+          | {
+            __typename?: "CartLine";
+            id: string;
+            quantity: number;
+            merchandise: {
+              __typename?: "ProductVariant";
+              id: string;
+              title: string;
+            };
+          }
+          | {
+            __typename?: "ComponentizableCartLine";
+            id: string;
+            quantity: number;
+            merchandise: {
+              __typename?: "ProductVariant";
+              id: string;
+              title: string;
+            };
+          };
         }>;
       };
     } | null;
@@ -9091,6 +9091,7 @@ export type GetProductByHandleQuery = {
     __typename?: "Product";
     id: string;
     title: string;
+    handle: string;
     description: string;
     descriptionHtml: any;
     productType: string;
@@ -9341,15 +9342,15 @@ export const useCustomerAccessTokenCreateMutation = <
     TError,
     CustomerAccessTokenCreateMutationVariables,
     TContext
-  >(
-    ["customerAccessTokenCreate"],
-    (variables?: CustomerAccessTokenCreateMutationVariables) =>
+  >({
+    mutationKey: ["customerAccessTokenCreate"],
+    mutationFn: (variables?: CustomerAccessTokenCreateMutationVariables) =>
       fetcher<
         CustomerAccessTokenCreateMutation,
         CustomerAccessTokenCreateMutationVariables
       >(CustomerAccessTokenCreateDocument, variables)(),
-    options
-  );
+    ...options
+  });
 };
 
 export const CustomerCreateDocument = `
@@ -9384,15 +9385,15 @@ export const useCustomerCreateMutation = <TError = unknown, TContext = unknown>(
     TError,
     CustomerCreateMutationVariables,
     TContext
-  >(
-    ["customerCreate"],
-    (variables?: CustomerCreateMutationVariables) =>
+  >({
+    mutationKey: ["customerCreate"],
+    mutationFn: (variables?: CustomerCreateMutationVariables) =>
       fetcher<CustomerCreateMutation, CustomerCreateMutationVariables>(
         CustomerCreateDocument,
         variables
       )(),
-    options
-  );
+    ...options
+  });
 };
 
 export const GetCartDocument = `
@@ -9455,11 +9456,11 @@ export const useGetCartQuery = <TData = GetCartQuery, TError = unknown>(
   variables: GetCartQueryVariables,
   options?: UseQueryOptions<GetCartQuery, TError, TData>
 ) => {
-  return useQuery<GetCartQuery, TError, TData>(
-    ["getCart", variables],
-    fetcher<GetCartQuery, GetCartQueryVariables>(GetCartDocument, variables),
-    options
-  );
+  return useQuery<GetCartQuery, TError, TData>({
+    queryKey: ["getCart", variables],
+    queryFn: fetcher<GetCartQuery, GetCartQueryVariables>(GetCartDocument, variables),
+    ...options
+  });
 };
 
 export const AddToCartDocument = `
@@ -9499,15 +9500,15 @@ export const useAddToCartMutation = <TError = unknown, TContext = unknown>(
     TError,
     AddToCartMutationVariables,
     TContext
-  >(
-    ["addToCart"],
-    (variables?: AddToCartMutationVariables) =>
+  >({
+    mutationKey: ["addToCart"],
+    mutationFn: (variables?: AddToCartMutationVariables) =>
       fetcher<AddToCartMutation, AddToCartMutationVariables>(
         AddToCartDocument,
         variables
       )(),
-    options
-  );
+    ...options
+  });
 };
 
 export const UpdateCartItemsDocument = `
@@ -9550,15 +9551,15 @@ export const useUpdateCartItemsMutation = <
     TError,
     UpdateCartItemsMutationVariables,
     TContext
-  >(
-    ["updateCartItems"],
-    (variables?: UpdateCartItemsMutationVariables) =>
+  >({
+    mutationKey: ["updateCartItems"],
+    mutationFn: (variables?: UpdateCartItemsMutationVariables) =>
       fetcher<UpdateCartItemsMutation, UpdateCartItemsMutationVariables>(
         UpdateCartItemsDocument,
         variables
       )(),
-    options
-  );
+    ...options
+  });
 };
 
 export const RemoveFromCartDocument = `
@@ -9598,15 +9599,15 @@ export const useRemoveFromCartMutation = <TError = unknown, TContext = unknown>(
     TError,
     RemoveFromCartMutationVariables,
     TContext
-  >(
-    ["removeFromCart"],
-    (variables?: RemoveFromCartMutationVariables) =>
+  >({
+    mutationKey: ["removeFromCart"],
+    mutationFn: (variables?: RemoveFromCartMutationVariables) =>
       fetcher<RemoveFromCartMutation, RemoveFromCartMutationVariables>(
         RemoveFromCartDocument,
         variables
       )(),
-    options
-  );
+    ...options
+  });
 };
 
 export const CreateCartDocument = `
@@ -9647,15 +9648,15 @@ export const useCreateCartMutation = <TError = unknown, TContext = unknown>(
     TError,
     CreateCartMutationVariables,
     TContext
-  >(
-    ["createCart"],
-    (variables?: CreateCartMutationVariables) =>
+  >({
+    mutationKey: ["createCart"],
+    mutationFn: (variables?: CreateCartMutationVariables) =>
       fetcher<CreateCartMutation, CreateCartMutationVariables>(
         CreateCartDocument,
         variables
       )(),
-    options
-  );
+    ...options
+  });
 };
 
 export const GetCollectionsDocument = `
@@ -9687,16 +9688,16 @@ export const useGetCollectionsQuery = <
   variables?: GetCollectionsQueryVariables,
   options?: UseQueryOptions<GetCollectionsQuery, TError, TData>
 ) => {
-  return useQuery<GetCollectionsQuery, TError, TData>(
-    variables === undefined
+  return useQuery<GetCollectionsQuery, TError, TData>({
+    queryKey: variables === undefined
       ? ["GetCollections"]
       : ["GetCollections", variables],
-    fetcher<GetCollectionsQuery, GetCollectionsQueryVariables>(
+    queryFn: fetcher<GetCollectionsQuery, GetCollectionsQueryVariables>(
       GetCollectionsDocument,
       variables
     ),
-    options
-  );
+    ...options
+  });
 };
 
 export const GetCollectionByHandleDocument = `
@@ -9802,14 +9803,14 @@ export const useGetCollectionByHandleQuery = <
   variables: GetCollectionByHandleQueryVariables,
   options?: UseQueryOptions<GetCollectionByHandleQuery, TError, TData>
 ) => {
-  return useQuery<GetCollectionByHandleQuery, TError, TData>(
-    ["GetCollectionByHandle", variables],
-    fetcher<GetCollectionByHandleQuery, GetCollectionByHandleQueryVariables>(
+  return useQuery<GetCollectionByHandleQuery, TError, TData>({
+    queryKey: ["GetCollectionByHandle", variables],
+    queryFn: fetcher<GetCollectionByHandleQuery, GetCollectionByHandleQueryVariables>(
       GetCollectionByHandleDocument,
       variables
     ),
-    options
-  );
+    ...options
+  });
 };
 
 export const GetProductByHandleDocument = `
@@ -9817,6 +9818,7 @@ export const GetProductByHandleDocument = `
   product(handle: $handle) {
     id
     title
+    handle
     description
     descriptionHtml
     productType
@@ -9895,14 +9897,14 @@ export const useGetProductByHandleQuery = <
   variables: GetProductByHandleQueryVariables,
   options?: UseQueryOptions<GetProductByHandleQuery, TError, TData>
 ) => {
-  return useQuery<GetProductByHandleQuery, TError, TData>(
-    ["GetProductByHandle", variables],
-    fetcher<GetProductByHandleQuery, GetProductByHandleQueryVariables>(
+  return useQuery<GetProductByHandleQuery, TError, TData>({
+    queryKey: ["GetProductByHandle", variables],
+    queryFn: fetcher<GetProductByHandleQuery, GetProductByHandleQueryVariables>(
       GetProductByHandleDocument,
       variables
     ),
-    options
-  );
+    ...options
+  });
 };
 
 export const CustomerUpdateDocument = `
@@ -9937,15 +9939,15 @@ export const useCustomerUpdateMutation = <TError = unknown, TContext = unknown>(
     TError,
     CustomerUpdateMutationVariables,
     TContext
-  >(
-    ["customerUpdate"],
-    (variables?: CustomerUpdateMutationVariables) =>
+  >({
+    mutationKey: ["customerUpdate"],
+    mutationFn: (variables?: CustomerUpdateMutationVariables) =>
       fetcher<CustomerUpdateMutation, CustomerUpdateMutationVariables>(
         CustomerUpdateDocument,
         variables
       )(),
-    options
-  );
+    ...options
+  });
 };
 
 export const GetCustomerOrdersDocument = `
@@ -10010,14 +10012,14 @@ export const useGetCustomerOrdersQuery = <
   variables: GetCustomerOrdersQueryVariables,
   options?: UseQueryOptions<GetCustomerOrdersQuery, TError, TData>
 ) => {
-  return useQuery<GetCustomerOrdersQuery, TError, TData>(
-    ["getCustomerOrders", variables],
-    fetcher<GetCustomerOrdersQuery, GetCustomerOrdersQueryVariables>(
+  return useQuery<GetCustomerOrdersQuery, TError, TData>({
+    queryKey: ["getCustomerOrders", variables],
+    queryFn: fetcher<GetCustomerOrdersQuery, GetCustomerOrdersQueryVariables>(
       GetCustomerOrdersDocument,
       variables
     ),
-    options
-  );
+    ...options
+  });
 };
 
 export const GetCustomerDocument = `
@@ -10036,12 +10038,12 @@ export const useGetCustomerQuery = <TData = GetCustomerQuery, TError = unknown>(
   variables: GetCustomerQueryVariables,
   options?: UseQueryOptions<GetCustomerQuery, TError, TData>
 ) => {
-  return useQuery<GetCustomerQuery, TError, TData>(
-    ["getCustomer", variables],
-    fetcher<GetCustomerQuery, GetCustomerQueryVariables>(
+  return useQuery<GetCustomerQuery, TError, TData>({
+    queryKey: ["getCustomer", variables],
+    queryFn: fetcher<GetCustomerQuery, GetCustomerQueryVariables>(
       GetCustomerDocument,
       variables
     ),
-    options
-  );
+    ...options
+  });
 };

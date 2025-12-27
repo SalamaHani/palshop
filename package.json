@@ -33,6 +33,7 @@
     "react-hook-form": "^7.69.0",
     "sonner": "^1.7.2",
     "tailwind-merge": "^3.4.0",
+    "use-debounce": "^10.0.6",
     "zod": "^4.2.1"
   },
   "devDependencies": {
@@ -40,7 +41,9 @@
     "@graphql-codegen/typescript": "^4.1.2",
     "@graphql-codegen/typescript-operations": "^4.4.0",
     "@graphql-codegen/typescript-react-query": "^6.1.0",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/postcss": "^4",
+    "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20",
     "@types/nookies": "^1.1.0",
     "@types/react": "^19",

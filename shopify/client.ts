@@ -44,6 +44,7 @@ export const fetchGraphQL = async <T = any>(
 };
 
 export const getProduct = async (handle: string) => {
+
   const data = await fetchGraphQL(GET_PRODUCT_BY_HANDLE_QUERY, { handle });
   return data?.product;
 };

@@ -12,7 +12,8 @@ interface ProductCardProps {
 export default function ProductCardHero({ product, className = '' }: ProductCardProps) {
     const { isInWishlist, toggleWishlist } = useWishlist();
     const isSaved = isInWishlist(product.id.toString());
-    const discount = product.id % 3 === 0 ? 40 : product.id % 2 === 0 ? 15 : null;
+    const idNum = parseInt(product.id.split('/').pop() || '0');
+    const discount = idNum % 3 === 0 ? 40 : idNum % 2 === 0 ? 15 : null;
 
     const toggleSave = (e: React.MouseEvent) => {
         e.preventDefault();
