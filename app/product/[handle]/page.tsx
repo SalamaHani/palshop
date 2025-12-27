@@ -98,7 +98,7 @@ const Product = () => {
     if (product) {
       toggleWishlist({
         id: product.id,
-        handle: product.handle,
+        handle: product?.handle,
         title: product.title,
         featuredImage: product.images.edges[0]?.node ? { url: product.images.edges[0].node.url, altText: product.images.edges[0].node.altText ?? undefined } : undefined,
         priceRange: product.priceRange,
