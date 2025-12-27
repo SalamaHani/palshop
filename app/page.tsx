@@ -10,7 +10,8 @@ import { Search, ArrowRight } from 'lucide-react';
 import ProductCardHero from '@/components/Home/Cardhero';
 import AllCollections from '@/components/view/AllCollections';
 import Image from 'next/image';
-import ShopifySearchInput from '@/components/search/search';
+import ShopifySearchInput from '@/components/Home/search';
+
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
