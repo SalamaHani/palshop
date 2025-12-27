@@ -60,13 +60,12 @@ export default function AutoPaginationSlider({
             {slides.map((slide, index) => (
               <div
                 key={slide.id}
-                className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                  index === currentSlide
-                    ? 'opacity-100 translate-x-0'
-                    : index < currentSlide
+                className={`absolute inset-0 transition-all duration-700 ease-in-out ${index === currentSlide
+                  ? 'opacity-100 translate-x-0'
+                  : index < currentSlide
                     ? 'opacity-0 -translate-x-full'
                     : 'opacity-0 translate-x-full'
-                }`}
+                  }`}
               >
                 <div className={`h-full bg-gradient-to-br ${slide.color} flex flex-col items-center justify-center text-white p-8`}>
                   <h2 className="text-5xl font-bold mb-4">{slide.title}</h2>
@@ -88,9 +87,8 @@ export default function AutoPaginationSlider({
                 {/* Dot for inactive/upcoming slides */}
                 {index !== currentSlide && (
                   <div
-                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                      index < currentSlide ? dotCompletedColor : dotInactiveColor
-                    }`}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${index < currentSlide ? dotCompletedColor : dotInactiveColor
+                      }`}
                   />
                 )}
 
