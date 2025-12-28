@@ -1,13 +1,17 @@
 'use client';
+
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
-    const [step, setStep] = useState('email');
+    const [step, setStep] = useState<'email' | 'code'>('email');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -70,47 +74,39 @@ export default function LoginPage() {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             disabled={loading}
-                            className="input-field"
                         />
 
-                        <button type="submit" disabled={loading} className="btn-primary">
+                        <button type="submit" disabled={loading}>
                             {loading ? 'Sending...' : 'Continue'}
                         </button>
 
-                        {error && <p className="error-message">{error}</p>}
+                        {error && <p>{error}</p>}
                     </form>
                 ) : (
                     <form onSubmit={handleVerifyCode} className="login-form">
                         <h1>Enter Verification Code</h1>
-                        <p>We sent a 6-digit code to <strong>{email}</strong></p>
+                        <p>We sent a code to <strong>{email}</strong></p>
 
                         <input
                             type="text"
-                            placeholder="000000"
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
                             maxLength={6}
                             pattern="[0-9]{6}"
                             required
-                            disabled={loading}
                             autoFocus
-                            className="input-field code-input"
+                            disabled={loading}
                         />
 
-                        <button type="submit" disabled={loading} className="btn-primary">
+                        <button type="submit" disabled={loading}>
                             {loading ? 'Verifying...' : 'Verify & Sign In'}
                         </button>
 
-                        <button
-                            type="button"
-                            onClick={() => setStep('email')}
-                            disabled={loading}
-                            className="btn-secondary"
-                        >
+                        <button type="button" onClick={() => setStep('email')} disabled={loading}>
                             Change email
                         </button>
 
-                        {error && <p className="error-message">{error}</p>}
+                        {error && <p>{error}</p>}
                     </form>
                 )}
             </div>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { User, Heart, Bookmark, CreditCard, Package, Settings, HelpCircle, LogOut, ChevronRight, Calendar, ShoppingBag, Zap, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 
 export default function AccountPage() {
