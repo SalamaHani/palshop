@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const sessionId = crypto.randomUUID();
-    const resend = new Resend(process.env.RSEND_API_KEY);
+    const resend = new Resend(process.env.RSEND_API_KEY!);
     await storeVerificationCode(sessionId, email, code);
     console.log(sessionId, email, code);
     console.log(email);
