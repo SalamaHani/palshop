@@ -1,12 +1,11 @@
 
-import { generateCode, storeCode, trackAttempt } from '@/lib/verification-codes';
+
+import { generateCode, storeCode, trackAttempt } from '@/lib/auth/verification-codes';
 import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(request: Request) {
   try {
     const { email } = await request.json();
+    const resend = new Resend(process.env.RESEND_API_KEY!);
 
     // Validate email
     if (!email || !email.includes('@')) {
