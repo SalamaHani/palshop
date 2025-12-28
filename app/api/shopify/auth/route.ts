@@ -65,14 +65,14 @@ export async function POST(req: NextRequest) {
         // --- Configuration (Prioritize Server-side environment variables) ---
         const RAW_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN ||
             process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN ||
-            'palshop-9445.myshopify.com';
+            'palshop.app';
         let SHOPIFY_DOMAIN = cleanDomain(RAW_DOMAIN);
 
         // CRITICAL: Prevent self-referential loops
         if (SHOPIFY_DOMAIN === 'palshop.app' ||
             SHOPIFY_DOMAIN === 'www.palshop.app' ||
             !SHOPIFY_DOMAIN) {
-            SHOPIFY_DOMAIN = 'palshop-9445.myshopify.com';
+            SHOPIFY_DOMAIN = 'palshop.app';
         }
 
         const CLIENT_ID = process.env.SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID ||
