@@ -1,12 +1,10 @@
-
-
+import { NextResponse } from 'next/server';
 import { exchangeCodeForToken } from '@/lib/auth/customer-auth';
 import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
-    const code = searchParams.get('code');
+    const code = searchParams.get('code') as string;
     if (!code) {
         return NextResponse.redirect(new URL('/account/login?error=no_code', request.url));
     }
