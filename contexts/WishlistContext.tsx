@@ -8,7 +8,7 @@ import {
     GET_WISHLIST_PRODUCTS,
 } from '@/graphql/wishlist';
 import { useAuth } from './AuthContext';
-import { getStoredAccessToken } from '@/lib/auth/shopify-auth';
+
 import { toast } from 'sonner';
 
 interface WishlistItem {
