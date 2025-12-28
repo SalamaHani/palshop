@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { User, Heart, Bookmark, CreditCard, Package, Settings, HelpCircle, LogOut, ChevronRight, Calendar, ShoppingBag, Zap, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getCustomerOrders, getStoredAccessToken } from '@/lib/auth/shopify-auth';
+
 
 export default function AccountPage() {
     const { customer, isAuthenticated, isLoading, signOut } = useAuth();
@@ -22,11 +22,6 @@ export default function AccountPage() {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            const token = getStoredAccessToken();
-            if (token) {
-                const orderData = await getCustomerOrders(token);
-                setOrders(orderData);
-            }
             setIsOrdersLoading(false);
         };
 
