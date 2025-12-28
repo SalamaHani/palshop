@@ -1,4 +1,5 @@
 
+
 import { exchangeCodeForToken } from '@/lib/auth/customer-auth';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
@@ -9,7 +10,6 @@ export async function GET(request: Request) {
     if (!code) {
         return NextResponse.redirect(new URL('/account/login?error=no_code', request.url));
     }
-
     try {
         // Exchange authorization code for tokens
         const tokens = await exchangeCodeForToken(code);
