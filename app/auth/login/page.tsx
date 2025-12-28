@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import Login from "@/components/view/Auth/Login";
+
 import { ArrowLeft, ShieldCheck, Zap, Globe } from "lucide-react";
 import Link from "next/link";
 
@@ -111,7 +111,7 @@ function LoginContent() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="w-full max-w-md bg-white dark:bg-[#0a0a0a] lg:shadow-none shadow-2xl rounded-[3rem] p-8 lg:p-0"
                     >
-                        <Login />
+
 
                         <div className="mt-12 pt-8 border-t border-gray-100 dark:border-white/5 text-center">
                             <p className="text-xs text-gray-400 font-medium">
