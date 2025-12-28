@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import Login from '../view/Auth/Login';
+import { useRouter } from 'next/navigation';
+import CustomSignInForm from '../CustomSignInForm';
 
 interface SignInModalProps {
     isOpen: boolean;
@@ -11,6 +12,12 @@ interface SignInModalProps {
 }
 
 export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
+    const router = useRouter();
+    const handleSignInSuccess = (customer: any) => {
+        console.log('Signed in:', customer);
+        // Redirect to account page
+        router.push('/account');
+    };
     if (!isOpen) return null;
 
     return (
@@ -43,7 +50,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                             </button>
 
                             <div className="p-10 pb-6 overflow-y-auto">
-                                <Login onClose={onClose} />
+                                <CustomSignInForm onSuccess={handleSignInSuccess} />
                             </div>
 
                             {/* Footer / Policy Info */}

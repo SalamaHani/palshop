@@ -33,6 +33,16 @@ const Login = ({ onClose }: LoginFormProps) => {
 
     setIsLoading(true);
     try {
+      const authUrl = `shopify.com/97977303354/auth/oauth/authorize?` +
+        new URLSearchParams({
+          client_id: '6db50d1a-0c00-4921-8057-35d9b4963233',
+          scope: "openid email customer_read",
+          redirect_uri: 'https://shopify.com/97977303354/account',
+          response_type: "code",
+          state: "random_state_string",
+        }).toString();
+
+      window.location.href = authUrl;
       const response = await sendVerificationCode(email);
 
       if (response.success) {

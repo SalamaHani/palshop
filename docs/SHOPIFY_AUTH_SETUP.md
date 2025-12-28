@@ -31,15 +31,27 @@ This guide explains how to integrate the Sign-In Modal with Shopify's Headless C
 
 ### Step 2: Add Environment Variables
 
-Create or update `.env.local`:
+For the authentication to work in production, you MUST set the following environment variables in your hosting provider (e.g. Vercel) or `.env.local`:
 
 ```env
-NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
-NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN=your_storefront_access_token
-NEXT_PUBLIC_SHOPIFY_API_VERSION=2024-01
+# --- SHOP CONFIGURATION ---
+SHOPIFY_STORE_DOMAIN=your-shop.myshopify.com
+SHOPIFY_SHOP_ID=your_numeric_shop_id
+SHOPIFY_CUSTOMER_ACCOUNT_CLIENT_ID=your_client_id
+SHOPIFY_STOREFRONT_ACCESS_TOKEN=your_token
+
+# --- PUBLIC OPTIONS (Optional fallbacks) ---
+NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN=your-shop.myshopify.com
+NEXT_PUBLIC_SHOPIFY_CLIENT_ID=your_client_id
 ```
 
-### Step 3: Update Authentication Functions
+**How to find your SHOP_ID:**
+1. Log in to your Shopify Admin.
+2. Look at the URL. It usually contains `admin.shopify.com/store/YOUR_SHOP_NAME/` or check the Settings > General for the unique ID.
+3. If you get a **502 Bad Gateway**, it usually means one of these values is incorrect or missing.
+
+### Step 3: Verify the Proxy API
+The project uses a proxy at `/api/shopify/auth` to handle GraphQL requests securely. If this returns a 502 error, check your server-side logs for specific "Fetch Fatal Error" details.
 
 In `lib/auth/shopify-auth.ts`, replace the placeholder functions with real Shopify API calls:
 

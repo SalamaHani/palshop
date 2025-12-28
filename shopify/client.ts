@@ -10,13 +10,23 @@ export const fetchShopify = async <T = any>(
   variables: Record<string, any> = {},
   endpointType: "storefront" | "customer-account" = "customer-account"
 ): Promise<T> => {
-  const queryString = typeof query === "string" ? query : query.loc?.source.body;
+  const queryString = typeof query === "string" ? query : (query.loc?.source.body || "");
+  const isAuthMutation = queryString.includes('customerSendLoginCode') ||
+    queryString.includes('customerVerifyCode') ||
+    queryString.includes('customerAccessTokenCreateWithCode');
 
   try {
+    // Extract access token from cookies if available (for authenticated requests to the proxy)
+    // Only send the token if it's NOT an auth mutation to avoid "Invalid Token" errors from old cookies
+    const accessToken = (!isAuthMutation && typeof window !== "undefined")
+      ? document.cookie.split('; ').find(row => row.startsWith('customerAccessToken='))?.split('=')[1]
+      : null;
+
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        ...(accessToken ? { "Authorization": `Bearer ${accessToken}` } : {})
       },
       body: JSON.stringify({
         endpointType,
@@ -25,10 +35,17 @@ export const fetchShopify = async <T = any>(
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.errors?.[0]?.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
     const data = await response.json();
+
     if (data.errors) {
       throw new Error(data.errors[0].message);
     }
+
     return data.data;
   } catch (error) {
     console.error(`Shopify ${endpointType} Request Error:`, error);
@@ -47,11 +64,3 @@ export const getProduct = async (handle: string) => {
   const data = await fetchGraphQL(GET_PRODUCT_BY_HANDLE_QUERY, { handle });
   return data?.product;
 };
-// export const signInWithEmail = async (email: string) => {
-//   const data = await fetchGraphQL(CUSTOMER_SEND_LOGIN_CODE, { email });
-//   return data?.customerSendLoginCode;
-// };
-// export const verifyCode = async (email: string, code: string) => {
-//   const data = await fetchGraphQL(CUSTOMER_VERIFY_CODE, { email, code });
-//   return data?.customerVerifyCode;
-// };

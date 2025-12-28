@@ -1,7 +1,6 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { getCurrentCustomer, getStoredAccessToken, signOut as shopifySignOut } from '@/lib/auth/shopify-auth';
 
 interface Customer {
     id: string;
@@ -26,19 +25,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     const loadCustomer = async () => {
-        const token = getStoredAccessToken();
 
-        if (!token) {
-            setCustomer(null);
-            setIsLoading(false);
-            return;
-        }
 
         try {
-            const response = await getCurrentCustomer(token);
+            const response = await fetch('/api/customer/me');
+            const data = await response.json();
 
-            if (response.success && response.customer) {
-                setCustomer(response.customer);
+            if (response.ok && data.authenticated && data.customer) {
+                setCustomer(data.customer);
             } else {
                 setCustomer(null);
             }
@@ -51,9 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const handleSignOut = async () => {
-        const token = getStoredAccessToken();
-        if (token) {
-            await shopifySignOut(token);
+        try {
+            await fetch('/api/auth/signout', { method: 'POST' });
+            setCustomer(null);
+        } catch (error) {
+            console.error('Sign out error:', error);
+            // Still clear local state even if API call fails
+            setCustomer(null);
         }
         setCustomer(null);
     };

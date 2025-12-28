@@ -5,9 +5,14 @@ import { ShoppingBag, Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
 
 export default function CartPage() {
-    const { cart, isLoading, updateItem, removeItem, cartCount } = useCart();
+    const { cart, isLoading, updateItem, removeItem, cartCount, refreshCart } = useCart();
+
+    useEffect(() => {
+        refreshCart();
+    }, []);
 
     if (isLoading && !cart) {
         return (
