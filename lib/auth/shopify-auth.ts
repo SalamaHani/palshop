@@ -13,7 +13,7 @@ export async function authenticateWithShopify(email: string): Promise<{ authUrl:
 
     // Get environment variables with validation
     const clientId = process.env.CUSTOMER_API_CLIENT_ID || process.env.NEXT_PUBLIC_SHOPIFY_CLIENT_ID;
-    const callbackUrl = process.env.CUSTOMER_API_URL || process.env.SHOPIFY_CALLBACK_URL || 'http://localhost:3000/api/auth/callback';
+    const callbackUrl = process.env.CUSTOMER_API_URL || process.env.SHOPIFY_CALLBACK_URL || 'http://palshop.app/api/auth/callback';
     const shopId = process.env.SHOP_ID || process.env.SHOPIFY_SHOP_ID || '97977303354';
 
     if (!clientId) {

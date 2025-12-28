@@ -1,17 +1,29 @@
-// components/CustomSignInForm.jsx
+// components/CustomSignInForm.tsx
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
 
-export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: any) => void }) {
-    const [step, setStep] = useState('email'); // 'email' or 'code'
-    const [email, setEmail] = useState('');
-    const [code, setCode] = useState(['', '', '', '', '', '']);
-    const [sessionId, setSessionId] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const [resendTimer, setResendTimer] = useState(0);
+interface Customer {
+    id: string;
+    email: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+}
 
-    const inputRefs = useRef([]);
+interface CustomSignInFormProps {
+    onSuccess?: (customer: Customer) => void;
+}
+
+export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
+    const [step, setStep] = useState<'email' | 'code'>('email');
+    const [email, setEmail] = useState<string>('');
+    const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
+    const [sessionId, setSessionId] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string>('');
+    const [resendTimer, setResendTimer] = useState<number>(0);
+
+    const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     // Resend timer countdown
     useEffect(() => {
@@ -22,7 +34,7 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
     }, [resendTimer]);
 
     // Send verification code
-    const handleSendCode = async (e?: React.FormEvent) => {
+    const handleSendCode = async (e?: FormEvent<HTMLFormElement>): Promise<void> => {
         e?.preventDefault();
         setLoading(true);
         setError('');
@@ -39,8 +51,8 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
             if (data.success) {
                 setSessionId(data.sessionId);
                 setStep('code');
-                setResendTimer(60); // 60 seconds cooldown
-                setTimeout(() => inputRefs.current[0], 100);
+                setResendTimer(60);
+                setTimeout(() => inputRefs.current[0]?.focus(), 100);
             } else {
                 setError(data.error || 'Failed to send verification code');
             }
@@ -52,7 +64,7 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
     };
 
     // Handle code input change
-    const handleCodeChange = (index: number, value: string) => {
+    const handleCodeChange = (index: number, value: string): void => {
         // Only allow digits
         if (!/^\d*$/.test(value)) return;
 
@@ -67,9 +79,8 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
             });
             setCode(newCode);
 
-            // Focus last filled input or verify if complete
             const lastFilledIndex = Math.min(index + pastedCode.length, 5);
-            inputRefs.current[lastFilledIndex];
+            inputRefs.current[lastFilledIndex]?.focus();
 
             if (newCode.every(d => d !== '')) {
                 handleVerifyCode(newCode.join(''));
@@ -84,7 +95,7 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
 
         // Auto-focus next input
         if (value && index < 5) {
-            inputRefs.current[index + 1];
+            inputRefs.current[index + 1]?.focus();
         }
 
         // Auto-verify when all 6 digits entered
@@ -94,13 +105,11 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
     };
 
     // Handle backspace
-    const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>): void => {
         if (e.key === 'Backspace') {
             if (!code[index] && index > 0) {
-                // Move to previous input if current is empty
-                inputRefs.current[index - 1];
+                inputRefs.current[index - 1]?.focus();
             } else {
-                // Clear current input
                 const newCode = [...code];
                 newCode[index] = '';
                 setCode(newCode);
@@ -109,7 +118,7 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
     };
 
     // Verify code
-    const handleVerifyCode = async (codeString: string) => {
+    const handleVerifyCode = async (codeString: string = ''): Promise<void> => {
         const finalCode = codeString || code.join('');
 
         if (finalCode.length !== 6) {
@@ -130,26 +139,25 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
             const data = await response.json();
 
             if (data.success) {
-                // Success! Call callback
                 if (onSuccess) {
                     onSuccess(data.customer);
                 }
             } else {
                 setError(data.error || 'Invalid verification code');
                 setCode(['', '', '', '', '', '']);
-                inputRefs.current[0];
+                inputRefs.current[0]?.focus();
             }
         } catch (err) {
             setError('Verification failed. Please try again.');
             setCode(['', '', '', '', '', '']);
-            inputRefs.current[0];
+            inputRefs.current[0]?.focus();
         } finally {
             setLoading(false);
         }
     };
 
     // Resend code
-    const handleResendCode = async () => {
+    const handleResendCode = async (): Promise<void> => {
         if (resendTimer > 0) return;
 
         setCode(['', '', '', '', '', '']);
@@ -158,7 +166,7 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
     };
 
     // Change email
-    const handleChangeEmail = () => {
+    const handleChangeEmail = (): void => {
         setStep('email');
         setCode(['', '', '', '', '', '']);
         setError('');
@@ -206,7 +214,7 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
                             id="email"
                             type="email"
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent outline-none transition text-base"
                             placeholder="you@example.com"
                             required
@@ -242,7 +250,6 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
             {/* Code Verification Step */}
             {step === 'code' && (
                 <div className="space-y-6">
-                    {/* Code Input */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-4 text-center">
                             Enter 6-digit code
@@ -251,12 +258,15 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
                             {code.map((digit, index) => (
                                 <input
                                     key={index}
+                                    ref={(el) => {
+                                        inputRefs.current[index] = el;
+                                    }}
                                     type="text"
                                     inputMode="numeric"
                                     maxLength={1}
                                     value={digit}
-                                    onChange={(e) => handleCodeChange(index, e.target.value)}
-                                    onKeyDown={(e) => handleKeyDown(index, e)}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => handleCodeChange(index, e.target.value)}
+                                    onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
                                     className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-black focus:ring-2 focus:ring-black outline-none transition"
                                     disabled={loading}
                                 />
@@ -264,9 +274,8 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
                         </div>
                     </div>
 
-                    {/* Verify Button */}
                     <button
-                        onClick={() => handleVerifyCode(code.join(''))}
+                        onClick={() => handleVerifyCode()}
                         disabled={loading || code.join('').length !== 6}
                         className="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-[0.98]"
                     >
@@ -283,9 +292,9 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
                         )}
                     </button>
 
-                    {/* Actions */}
                     <div className="flex flex-col gap-3 text-center">
                         <button
+                            type="button"
                             onClick={handleResendCode}
                             disabled={resendTimer > 0}
                             className="text-sm text-gray-600 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed transition"
@@ -297,6 +306,7 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
                         </button>
 
                         <button
+                            type="button"
                             onClick={handleChangeEmail}
                             className="text-sm text-gray-600 hover:text-black transition"
                         >
@@ -308,4 +318,6 @@ export default function CustomSignInForm({ onSuccess }: { onSuccess: (customer: 
         </div>
     );
 }
+
+
 
