@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { exchangeCodeForToken } from '@/lib/auth/customer-auth';
+
 import { cookies } from 'next/headers';
 
 export async function GET(request: Request) {
@@ -7,6 +7,27 @@ export async function GET(request: Request) {
     const code = searchParams.get('code') as string;
     if (!code) {
         return NextResponse.redirect(new URL('/account/login?error=no_code', request.url));
+    }
+    async function exchangeCodeForToken(code: string) {
+        const response = await fetch(
+            `https://shopify.com/${process.env.SHOP_ID}/auth/oauth/token`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    grant_type: 'authorization_code',
+                    client_id: process.env.CUSTOMER_API_CLIENT_ID!,
+                    client_secret: process.env.CUSTOMER_API_CLIENT_SECRET!,
+                    code,
+                    redirect_uri: `${process.env.NEXT_PUBLIC_STORE_DOMAIN!}/api/auth/callback`
+                })
+            }
+        );
+        if (!response.ok) {
+            throw new Error('Failed to exchange code for token');
+        }
+        const data = await response.json();
+        return data;
     }
     try {
         // Exchange authorization code for tokens
