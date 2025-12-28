@@ -1,17 +1,31 @@
 
-import { NextResponse } from 'next/server';
+import { generateCode, storeCode, trackAttempt } from '@/lib/verification-codes';
 import { Resend } from 'resend';
-import { storeVerificationCode } from '@/lib/auth/storage';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export async function POST(request: Request) {
-  const { email } = await request.json();
   try {
+    const { email } = await request.json();
+
+    // Validate email
+    if (!email || !email.includes('@')) {
+      return Response.json({ error: 'Invalid email' }, { status: 400 });
+    }
+
+    // Check rate limiting
+    const attempts = await trackAttempt(email);
+    if (attempts > 5) {
+      return Response.json({ error: 'Too many attempts. Try again later.' }, { status: 429 });
+    }
+
     // Generate 6-digit code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const sessionId = crypto.randomUUID();
-    const resend = new Resend(process.env.RSEND_API_KEY!);
-    await storeVerificationCode(sessionId, email, code);
-    console.log(sessionId, email, code);
-    console.log(email);
+    const code = generateCode();
+
+    // Store code in KV with 10-minute expiry
+    await storeCode(email, code);
+
+    // Send email with code
     await resend.emails.send({
       from: 'support@palshop.app',
       to: email,
@@ -28,19 +42,9 @@ export async function POST(request: Request) {
       `
     })
 
-    console.log('Verification code sent successfully');
-    return NextResponse.json({
-      success: true,
-      sessionId
-    });
+    return Response.json({ success: true });
   } catch (error) {
-    console.error('Error sending verification code:', error);
-    return NextResponse.json(
-      { error: 'Failed to send verification code' },
-      { status: 500 }
-    );
+    console.error('Send code error:', error);
+    return Response.json({ error: 'Failed to send code' }, { status: 500 });
   }
 }
-
-
-

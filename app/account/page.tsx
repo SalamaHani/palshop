@@ -14,11 +14,7 @@ export default function AccountPage() {
     const [isOrdersLoading, setIsOrdersLoading] = useState(true);
     const router = useRouter();
 
-    useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            router.push('/login');
-        }
-    }, [isLoading, isAuthenticated, router]);
+
 
     useEffect(() => {
         const fetchOrders = async () => {
