@@ -1,49 +1,93 @@
+import { NextRequest, NextResponse } from 'next/server';
+import {
+  generateVerificationCode,
+  storeVerificationCode,
+  hasActiveCode,
+  getCodeTimeRemaining,
+} from '@/lib/auth';
+import { sendVerificationCodeEmail } from '@/lib/email';
+import { createOrGetShopifyCustomer } from '@/lib/shopify';
 
-
-import { generateCode, storeCode, trackAttempt } from '@/lib/auth/verification-codes';
-import { Resend } from 'resend';
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json();
-    const resend = new Resend(process.env.RESEND_API_KEY!);
 
     // Validate email
-    if (!email || !email.includes('@')) {
-      return Response.json({ error: 'Invalid email' }, { status: 400 });
+    if (!email || typeof email !== 'string') {
+      return NextResponse.json(
+        { error: 'Email is required' },
+        { status: 400 }
+      );
     }
 
-    // Check rate limiting
-    const attempts = await trackAttempt(email);
-    if (attempts > 5) {
-      return Response.json({ error: 'Too many attempts. Try again later.' }, { status: 429 });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: 'Please enter a valid email address' },
+        { status: 400 }
+      );
     }
 
-    // Generate 6-digit code
-    const code = generateCode();
+    const normalizedEmail = email.toLowerCase().trim();
 
-    // Store code in KV with 10-minute expiry
-    await storeCode(email, code);
+    // Check if there's already an active code (rate limiting)
+    if (hasActiveCode(normalizedEmail)) {
+      const remaining = getCodeTimeRemaining(normalizedEmail);
+      if (remaining > 540) {
+        // Less than 1 minute since last code
+        return NextResponse.json(
+          { error: 'Please wait before requesting a new code', retryAfter: remaining - 540 },
+          { status: 429 }
+        );
+      }
+    }
 
-    // Send email with code
-    await resend.emails.send({
-      from: 'support@palshop.app',
-      to: email,
-      subject: 'Your Sign-In Code',
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Your Verification Code</h2>
-          <p>Enter this code to sign in to your account:</p>
-          <div style="background: #f4f4f4; padding: 15px; font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0;">
-            ${code}
-          </div>
-          <p style="color: #666;">This code expires in 10 minutes.</p>
-        </div>
-      `
-    })
+    // Create or get customer in Shopify
+    const shopifyResult = await createOrGetShopifyCustomer(normalizedEmail);
 
-    return Response.json({ success: true });
+    if (!shopifyResult.success) {
+      return NextResponse.json(
+        { error: shopifyResult.error || 'Failed to process your request' },
+        { status: 400 }
+      );
+    }
+
+    // Log if new customer was created
+    if (shopifyResult.isNew) {
+      console.log(`✅ New customer created in Shopify: ${normalizedEmail}`);
+    } else {
+      console.log(`ℹ️ Existing customer signing in: ${normalizedEmail}`);
+    }
+
+    // Generate and store verification code
+    const code = generateVerificationCode();
+    storeVerificationCode(normalizedEmail, code);
+
+    // Send email
+    const emailResult = await sendVerificationCodeEmail({
+      to: normalizedEmail,
+      code,
+    });
+
+    if (!emailResult.success) {
+      return NextResponse.json(
+        { error: 'Failed to send verification email. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Verification code sent',
+      isNewCustomer: shopifyResult.isNew,
+      // Include code in development for testing
+      ...(process.env.NODE_ENV === 'development' && { code }),
+    });
   } catch (error) {
     console.error('Send code error:', error);
-    return Response.json({ error: 'Failed to send code' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Something went wrong. Please try again.' },
+      { status: 500 }
+    );
   }
 }
