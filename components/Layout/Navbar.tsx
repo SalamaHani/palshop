@@ -27,12 +27,12 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Badge } from '../ui/badge';
-import SignInModal from '../Auth/SignInModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 
 import useRouteNav from '@/hooks/useRouteNav';
+import SignInModal from '../Auth/SignInModal';
 export default function Navbar({
     cartCount = 0,
     defaultActive = 'home',
