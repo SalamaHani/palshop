@@ -1,112 +1,55 @@
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [code, setCode] = useState('');
-    const [step, setStep] = useState<'email' | 'code'>('email');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
 
-    const router = useRouter();
-    const searchParams = useSearchParams();
+import LoginClient from '@/components/Auth/LoginClient';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 
-    const returnTo = searchParams.get('return_to') || '/account';
 
-    async function handleSendCode(e: React.FormEvent) {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
-
-        const res = await fetch('/api/auth/send-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
-        });
-
-        setLoading(false);
-
-        if (res.ok) {
-            setStep('code');
-        } else {
-            const data = await res.json();
-            setError(data.error || 'Failed to send code');
-        }
-    }
-
-    async function handleVerifyCode(e: React.FormEvent) {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
-
-        const res = await fetch('/api/auth/verify-code', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, code, returnTo })
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            router.push(data.redirectUrl || returnTo);
-        } else {
-            setLoading(false);
-            const data = await res.json();
-            setError(data.error || 'Invalid code');
-        }
-    }
-
+export default function Page() {
     return (
-        <div className="login-page">
-            <div className="login-container">
-                {step === 'email' ? (
-                    <form onSubmit={handleSendCode} className="login-form">
-                        <h1>Sign In</h1>
-                        <p>Enter your email to receive a verification code</p>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <AnimatePresence>
 
-                        <input
-                            type="email"
-                            placeholder="Email address"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            disabled={loading}
-                        />
+                <>
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
 
-                        <button type="submit" disabled={loading}>
-                            {loading ? 'Sending...' : 'Continue'}
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                    />
+
+                    {/* Modal Content */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        className="relative w-full max-w-md bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] shadow-2xl overflow-hidden"
+                    >
+                        {/* Close Button */}
+                        <button
+
+                            className="absolute top-6 right-6 p-2 rounded-xl bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors z-[110]"
+                        >
+                            <X className="w-5 h-5 text-gray-400" />
                         </button>
 
-                        {error && <p>{error}</p>}
-                    </form>
-                ) : (
-                    <form onSubmit={handleVerifyCode} className="login-form">
-                        <h1>Enter Verification Code</h1>
-                        <p>We sent a code to <strong>{email}</strong></p>
+                        <div className="p-10 pb-6 overflow-y-auto">
+                            <LoginClient />
+                        </div>
 
-                        <input
-                            type="text"
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                            maxLength={6}
-                            pattern="[0-9]{6}"
-                            required
-                            autoFocus
-                            disabled={loading}
-                        />
+                        {/* Footer / Policy Info */}
+                        <div className="bg-gray-50/50 dark:bg-white/5 p-8 text-center border-t border-gray-100/50 dark:border-white/5">
+                            <p className="text-[11px] leading-relaxed text-gray-500 font-medium max-w-[280px] mx-auto">
+                                By continuing, you agree to the <span className="text-primary cursor-pointer">Terms of Service</span> and acknowledge the <span className="text-primary cursor-pointer">Privacy Policy</span>.
+                            </p>
+                        </div>
+                    </motion.div>
+                </>
 
-                        <button type="submit" disabled={loading}>
-                            {loading ? 'Verifying...' : 'Verify & Sign In'}
-                        </button>
-
-                        <button type="button" onClick={() => setStep('email')} disabled={loading}>
-                            Change email
-                        </button>
-
-                        {error && <p>{error}</p>}
-                    </form>
-                )}
-            </div>
+            </AnimatePresence>
         </div>
     );
 }
