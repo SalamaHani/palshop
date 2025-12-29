@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CustomSignInForm from '../CustomSignInForm';
-import LoginClient from '../LoginClient';
 
 
 
@@ -53,7 +52,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                             </button>
 
                             <div className="p-10 pb-6 overflow-y-auto">
-                                <LoginClient />
+                                <CustomSignInForm onSuccess={handleSignInSuccess} />
                             </div>
 
                             {/* Footer / Policy Info */}
