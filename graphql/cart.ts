@@ -1,191 +1,205 @@
-import { gql } from "graphql-tag";
+import { gql } from 'graphql-tag';
 
-const PRODUCT_FRAGMENT = gql`
-  fragment product on Product {
+// Fragment for cart line items
+export const CART_LINE_FRAGMENT = gql`
+  fragment CartLine on CartLine {
     id
-    title
-    vendor
-    handle
-    description
-    images(first: 1) {
-      edges {
-        node {
+    quantity
+    merchandise {
+      ... on ProductVariant {
+        id
+        title
+        priceV2 {
+          amount
+          currencyCode
+        }
+        image {
           url
           altText
           width
           height
         }
+        product {
+          id
+          title
+          handle
+          vendor
+        }
+        selectedOptions {
+          name
+          value
+        }
+      }
+    }
+    cost {
+      totalAmount {
+        amount
+        currencyCode
+      }
+      subtotalAmount {
+        amount
+        currencyCode
       }
     }
   }
 `;
 
-export const GET_CART = gql`
-  query getCart($cartId: ID!) {
-    cart(id: $cartId) {
-      id
-      checkoutUrl
-      note
-      cost {
-        subtotalAmount {
-          amount
-          currencyCode
-        }
-        totalAmount {
-          amount
-          currencyCode
-        }
-        totalTaxAmount {
-          amount
-          currencyCode
+// Fragment for full cart details
+export const CART_FRAGMENT = gql`
+  ${CART_LINE_FRAGMENT}
+  fragment Cart on Cart {
+    id
+    checkoutUrl
+    totalQuantity
+    lines(first: 100) {
+      edges {
+        node {
+          ...CartLine
         }
       }
-      lines(first: 100) {
-        edges {
-          node {
-            id
-            quantity
-            cost {
-              totalAmount {
-                amount
-                currencyCode
-              }
-            }
-            merchandise {
-              ... on ProductVariant {
-                id
-                title
-                selectedOptions {
-                  name
-                  value
-                }
-                price {
-                  amount
-                  currencyCode
-                }
-                product {
-                  ...product
-                }
-              }
-            }
-          }
-        }
+    }
+    cost {
+      totalAmount {
+        amount
+        currencyCode
       }
-      totalQuantity
+      subtotalAmount {
+        amount
+        currencyCode
+      }
+      totalTaxAmount {
+        amount
+        currencyCode
+      }
+      totalDutyAmount {
+        amount
+        currencyCode
+      }
+    }
+    discountCodes {
+      code
+      applicable
+    }
+    attributes {
+      key
+      value
     }
   }
-  ${PRODUCT_FRAGMENT}
 `;
 
+// Create a new cart
+export const CREATE_CART = gql`
+  ${CART_FRAGMENT}
+  mutation CreateCart($input: CartInput!) {
+    cartCreate(input: $input) {
+      cart {
+        ...Cart
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+// Add items to cart
 export const ADD_TO_CART = gql`
-  mutation addToCart($cartId: ID!, $lines: [CartLineInput!]!) {
+  ${CART_FRAGMENT}
+  mutation AddToCart($cartId: ID!, $lines: [CartLineInput!]!) {
     cartLinesAdd(cartId: $cartId, lines: $lines) {
       cart {
-        id
-        lines(first: 100) {
-          edges {
-            node {
-              id
-              quantity
-              merchandise {
-                ... on ProductVariant {
-                  id
-                  title
-                }
-              }
-            }
-          }
-        }
+        ...Cart
+      }
+      userErrors {
+        field
+        message
       }
     }
   }
 `;
 
-export const UPDATE_CART_ITEMS = gql`
-  mutation updateCartItems($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+// Update cart line quantities
+export const UPDATE_CART_LINES = gql`
+  ${CART_FRAGMENT}
+  mutation UpdateCartLines($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
     cartLinesUpdate(cartId: $cartId, lines: $lines) {
       cart {
-        id
-        lines(first: 100) {
-          edges {
-            node {
-              id
-              quantity
-              merchandise {
-                ... on ProductVariant {
-                  id
-                  title
-                }
-              }
-            }
-          }
-        }
+        ...Cart
+      }
+      userErrors {
+        field
+        message
       }
     }
   }
 `;
 
+// Remove items from cart
 export const REMOVE_FROM_CART = gql`
-  mutation removeFromCart($cartId: ID!, $lineIds: [ID!]!) {
+  ${CART_FRAGMENT}
+  mutation RemoveFromCart($cartId: ID!, $lineIds: [ID!]!) {
     cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
       cart {
-        id
-        lines(first: 100) {
-          edges {
-            node {
-              id
-              quantity
-              merchandise {
-                ... on ProductVariant {
-                  id
-                  title
-                }
-              }
-            }
-          }
-        }
+        ...Cart
+      }
+      userErrors {
+        field
+        message
       }
     }
   }
 `;
 
-export const CREATE_CART = gql`
-  mutation createCart($lineItems: [CartLineInput!]) {
-    cartCreate(input: { lines: $lineItems }) {
+// Get cart by ID
+export const GET_CART = gql`
+  ${CART_FRAGMENT}
+  query GetCart($id: ID!) {
+    cart(id: $id) {
+      ...Cart
+    }
+  }
+`;
+
+// Apply discount code
+export const APPLY_DISCOUNT = gql`
+  ${CART_FRAGMENT}
+  mutation ApplyDiscount($cartId: ID!, $discountCodes: [String!]!) {
+    cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
       cart {
-        id
-        checkoutUrl
-        lines(first: 100) {
-          edges {
-            node {
-              id
-              quantity
-              merchandise {
-                ... on ProductVariant {
-                  id
-                  title
-                }
-              }
-            }
-          }
-        }
+        ...Cart
+      }
+      userErrors {
+        field
+        message
       }
     }
   }
 `;
-export const UPDATE_CART_BUYER_IDENTITY = gql`
-  mutation cartBuyerIdentityUpdate($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
+
+// Update cart attributes (for notes, gift messages, etc.)
+export const UPDATE_CART_ATTRIBUTES = gql`
+  ${CART_FRAGMENT}
+  mutation UpdateCartAttributes($cartId: ID!, $attributes: [AttributeInput!]!) {
+    cartAttributesUpdate(cartId: $cartId, attributes: $attributes) {
+      cart {
+        ...Cart
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+// Update buyer identity (for customer association)
+export const UPDATE_BUYER_IDENTITY = gql`
+  ${CART_FRAGMENT}
+  mutation UpdateBuyerIdentity($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
     cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
       cart {
-        id
-        buyerIdentity {
-          email
-          phone
-          customer {
-            id
-            email
-          }
-        }
+        ...Cart
       }
       userErrors {
         field

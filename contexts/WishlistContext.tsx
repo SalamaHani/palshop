@@ -7,9 +7,11 @@ import {
     UPDATE_CUSTOMER_WISHLIST,
     GET_WISHLIST_PRODUCTS,
 } from '@/graphql/wishlist';
-import { useAuth } from './AuthContext';
+
+
 
 import { toast } from 'sonner';
+import { useAuth } from '@/components/AuthProvider';
 
 interface WishlistItem {
     id: string;
@@ -58,11 +60,11 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     const [wishlistIds, setWishlistIds] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
-    const { isAuthenticated } = useAuth();
+    const { user } = useAuth();
 
     // 1. Sync local storage to/from state for guest
     useEffect(() => {
-        if (!isAuthenticated) {
+        if (!user) {
             const saved = localStorage.getItem('palshop_wishlist');
             if (saved) {
                 try {
@@ -72,13 +74,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
                 }
             }
         }
-    }, [isAuthenticated]);
+    }, [user]);
 
     useEffect(() => {
-        if (!isAuthenticated && wishlistIds.length > 0) {
+        if (!user && wishlistIds.length > 0) {
             localStorage.setItem('palshop_wishlist', JSON.stringify(wishlistIds));
         }
-    }, [wishlistIds, isAuthenticated]);
+    }, [wishlistIds, user]);
 
     // 2. Load wishlist products whenever IDs change
     const loadProducts = useCallback(async (ids: string[]) => {
@@ -121,7 +123,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     }, [loadProducts]);
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (user) {
             const syncWishlist = async () => {
                 // Fetch Shopify wishlist
                 const data = await fetchShopify(GET_CUSTOMER_WISHLIST, {}, 'customer-account');
@@ -156,12 +158,12 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
                 setIsLoading(false);
             }
         }
-    }, [isAuthenticated, loadProducts]);
+    }, [user, loadProducts]);
 
     // 4. Update Wishlist (Shopify or Local)
     const updateWishlist = async (newIds: string[]) => {
         setWishlistIds(newIds);
-        if (isAuthenticated) {
+        if (user) {
             setIsUpdating(true);
             try {
                 await fetchShopify(UPDATE_CUSTOMER_WISHLIST, {
@@ -218,7 +220,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
                 isInWishlist,
                 toggleWishlist,
                 wishlistCount: wishlistItems.length,
-                refreshWishlist: isAuthenticated ? loadFromShopify : async () => { },
+                refreshWishlist: user ? loadFromShopify : async () => { },
             }}
         >
             {children}

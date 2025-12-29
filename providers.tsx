@@ -9,7 +9,8 @@ import {
 } from "@tanstack/react-query";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider } from "./components/AuthProvider";
+
 
 function makeQueryClient() {
   return new QueryClient({

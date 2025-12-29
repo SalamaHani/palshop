@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import { Home, Grid, ShoppingCart, Tag, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/contexts/CartContext';
-import { useWishlist } from '@/contexts/WishlistContext';
+
 import { Badge } from '../ui/badge';
 import Link from 'next/link';
 import useRouteNav from '@/hooks/useRouteNav';
-import { useAuth } from '@/contexts/AuthContext';
+
 import SignInModal from '../Auth/SignInModal';
+import { useAuth } from '../AuthProvider';
 
 // TypeScript interfaces for props
 interface NavItem {
@@ -48,12 +49,11 @@ const NavMobile: React.FC<NavMobileProps> = ({
 
     const router = useRouter();
     const { cart } = useCart();
-    const { wishlistCount } = useWishlist();
-    const { isAuthenticated } = useAuth();
+    const { isAuthModalOpen, closeAuthModal } = useAuth();
     const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
 
     const handleAccountClick = (e: React.MouseEvent) => {
-        if (!isAuthenticated) {
+        if (!isAuthModalOpen) {
             e.preventDefault();
             setIsSignInModalOpen(true);
         }
@@ -98,11 +98,7 @@ const NavMobile: React.FC<NavMobileProps> = ({
                                     {cart?.totalQuantity}
                                 </Badge>
                             )}
-                            {item.id === 'saved' && wishlistCount > 0 && (
-                                <Badge variant="default" className="absolute -top-2 text-white right-0 bg-red-500 text-[10px] min-w-[18px] h-[18px] p-0 flex items-center justify-center">
-                                    {wishlistCount}
-                                </Badge>
-                            )}
+
                         </Link>
                     );
                 })}

@@ -1,7 +1,7 @@
 'use client';
 import { Product } from '@/lib/products';
 import { Star, Heart } from 'lucide-react';
-import { useWishlist } from '@/contexts/WishlistContext';
+
 import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
@@ -10,31 +10,15 @@ interface ProductCardProps {
 }
 
 export default function ProductCardHero({ product, className = '' }: ProductCardProps) {
-    const { isInWishlist, toggleWishlist } = useWishlist();
-    const isSaved = isInWishlist(product.id.toString());
+
+
     const idNum = parseInt(product.id.split('/').pop() || '0');
     const discount = idNum % 3 === 0 ? 40 : idNum % 2 === 0 ? 15 : null;
 
     const toggleSave = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        toggleWishlist({
-            id: product.id.toString(),
-            handle: product.name.toLowerCase().replace(/ /g, '-'),
-            title: product.name,
-            featuredImage: { url: product.image, altText: product.name },
-            priceRange: {
-                minVariantPrice: {
-                    amount: product.price.toString(),
-                    currencyCode: 'USD'
-                },
-                maxVariantPrice: {
-                    amount: product.price.toString(),
-                    currencyCode: 'USD'
-                }
-            },
-            vendor: product.category
-        });
+
     };
 
     return (
@@ -52,18 +36,7 @@ export default function ProductCardHero({ product, className = '' }: ProductCard
                     </div>
                 )}
 
-                {/* Heart Toggle Button */}
-                <button
-                    onClick={toggleSave}
-                    className={cn(
-                        "absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm backdrop-blur-md active:scale-95 z-10",
-                        isSaved
-                            ? "bg-[#215732] text-white"
-                            : "bg-white/80 text-gray-400 hover:text-red-500"
-                    )}
-                >
-                    <Heart className={cn("w-3.5 h-3.5", isSaved && "fill-current")} />
-                </button>
+
             </div>
 
             {/* Product Info */}

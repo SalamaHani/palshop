@@ -27,12 +27,13 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Badge } from '../ui/badge';
-import { useAuth } from '@/contexts/AuthContext';
+
 import { useCart } from '@/contexts/CartContext';
-import { useWishlist } from '@/contexts/WishlistContext';
+
 
 import useRouteNav from '@/hooks/useRouteNav';
 import SignInModal from '../Auth/SignInModal';
+import { useAuth } from '../AuthProvider';
 export default function Navbar({
     cartCount = 0,
     defaultActive = 'home',
@@ -43,12 +44,12 @@ export default function Navbar({
     const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
     const router = useRouter();
     const { cart } = useCart();
-    const { wishlistCount } = useWishlist();
+
     const route = useRouteNav();
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthModalOpen } = useAuth();
 
     const handleAccountClick = () => {
-        if (isAuthenticated) {
+        if (isAuthModalOpen) {
             // User is logged in, go to account page
             router.push('/account');
         } else {
@@ -122,11 +123,6 @@ export default function Navbar({
                                                     ? 'text-white scale-110'
                                                     : `${inactiveColor} scale-100 group-hover:bg-gray-200 group-hover:text-[#215734] `
                                                     }`} />
-                                                {wishlistCount > 0 && (
-                                                    <Badge variant="destructive" className="absolute -top-2 text-white right-0 bg-red-500 text-[10px] min-w-[18px] h-[18px] p-0 flex items-center justify-center">
-                                                        {wishlistCount}
-                                                    </Badge>
-                                                )}
                                             </Link>
                                         );
                                     }
@@ -182,7 +178,7 @@ export default function Navbar({
             {/* Sign In Modal */}
             <SignInModal
                 isOpen={isSignInModalOpen}
-                onClose={() => setIsSignInModalOpen(false)}
+                onClose={() => setIsSignInModalOpen(isAuthModalOpen)}
             />
         </>
     );
