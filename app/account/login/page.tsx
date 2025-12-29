@@ -1,6 +1,4 @@
 
-
-import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import LoginClient from '@/components/LoginClient';
 
