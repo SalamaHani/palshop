@@ -62,20 +62,21 @@ export async function POST(request: NextRequest) {
 
     // Generate and store verification code
     const code = generateVerificationCode();
+    console.log(`Generated code: ${code}`);
     storeVerificationCode(normalizedEmail, code);
 
-    // Send email
-    const emailResult = await sendVerificationCodeEmail({
-      to: normalizedEmail,
-      code,
-    });
+    // // Send email
+    // const emailResult = await sendVerificationCodeEmail({
+    //   to: normalizedEmail,
+    //   code,
+    // });
 
-    if (!emailResult.success) {
-      return NextResponse.json(
-        { error: 'Failed to send verification email. Please try again.' },
-        { status: 500 }
-      );
-    }
+    // if (!emailResult.success) {
+    //   return NextResponse.json(
+    //     { error: 'Failed to send verification email. Please try again.' },
+    //     { status: 500 }
+    //   );
+    // }
 
     return NextResponse.json({
       success: true,

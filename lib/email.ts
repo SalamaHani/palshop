@@ -7,7 +7,6 @@ const resend = process.env.RESEND_API_KEY!
 interface SendCodeEmailParams {
   to: string;
   code: string;
-  storeName?: string;
 }
 
 export async function sendVerificationCodeEmail({

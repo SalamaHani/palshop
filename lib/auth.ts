@@ -27,10 +27,9 @@ export function generateVerificationCode(): string {
 
 // Store verification code using KV storage
 export async function storeVerificationCode(email: string, code: string): Promise<void> {
-  const normalizedEmail = email.toLowerCase().trim();
-  const sessionId = normalizedEmail; // Use email as sessionId for simplicity
+  const sessionId = email; // Use email as sessionId for simplicity
 
-  await kvStorage.storeVerificationCode(sessionId, normalizedEmail, code);
+  await kvStorage.storeVerificationCode(sessionId, email, code);
 }
 
 // Verify the code using KV storage
