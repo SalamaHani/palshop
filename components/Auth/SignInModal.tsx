@@ -4,7 +4,9 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import CustomSignInForm from './CustomSignInForm';
+import CustomSignInForm from '../CustomSignInForm';
+
+
 
 interface SignInModalProps {
     isOpen: boolean;

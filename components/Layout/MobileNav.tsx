@@ -8,7 +8,8 @@ import { Badge } from '../ui/badge';
 import Link from 'next/link';
 import useRouteNav from '@/hooks/useRouteNav';
 import { useAuth } from '@/contexts/AuthContext';
-import SignInModal from '../SignInModal';
+import SignInModal from '../Auth/SignInModal';
+
 // TypeScript interfaces for props
 interface NavItem {
     id: string;

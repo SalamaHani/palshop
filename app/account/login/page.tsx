@@ -1,10 +1,8 @@
 
 
-
-import LoginClient from '@/components/Auth/LoginClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-
+import LoginClient from '@/components/LoginClient';
 
 export default function Page() {
     return (

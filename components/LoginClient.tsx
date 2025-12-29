@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-function LoginClient() {
+
+export default function LoginClient() {
     const [email, setEmail] = useState('');
     const [code, setCode] = useState('');
     const [step, setStep] = useState<'email' | 'code'>('email');
