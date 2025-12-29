@@ -34,31 +34,28 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
     }, [resendTimer]);
 
     // Send verification code
-    const handleSendCode = async (e?: FormEvent<HTMLFormElement>): Promise<void> => {
+    const handleSendCode = async (e?: FormEvent<HTMLFormElement>): Promise<{ success: boolean; error?: string; code?: string }> => {
         e?.preventDefault();
         setLoading(true);
         setError('');
-
         try {
-            const response = await fetch('/api/auth/send-code', {
+            const res = await fetch('/api/auth/send-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ email }),
             });
 
-            const data = await response.json();
+            const data = await res.json();
 
-            if (data.success) {
-                setSessionId(data.sessionId);
-                setStep('code');
-                setResendTimer(60);
-                setTimeout(() => inputRefs.current[0]?.focus(), 100);
-            } else {
-                setError(data.error || 'Failed to send verification code');
+            if (!res.ok) {
+                return { success: false, error: data.error };
             }
-        } catch (err) {
-            setError('Network error. Please try again.');
-        } finally {
+
+            return { success: true, code: data.code }; // code only in dev
+        } catch {
+            return { success: false, error: 'Failed to send code. Please try again.' };
+        }
+        finally {
             setLoading(false);
         }
     };
@@ -128,12 +125,11 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
 
         setLoading(true);
         setError('');
-
         try {
             const response = await fetch('/api/auth/verify-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sessionId, code: finalCode })
+                body: JSON.stringify({ email, code }),
             });
 
             const data = await response.json();

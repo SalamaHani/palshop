@@ -5,8 +5,9 @@ import {
   hasActiveCode,
   getCodeTimeRemaining,
 } from '@/lib/auth';
-import { sendVerificationCodeEmail } from '@/lib/email';
 import { createOrGetShopifyCustomer } from '@/lib/shopify';
+import { sendVerificationCodeEmail } from '@/lib/email';
+
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,12 +32,12 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim();
 
     // Check if there's already an active code (rate limiting)
-    if (hasActiveCode(normalizedEmail)) {
+    if (await hasActiveCode(normalizedEmail)) {
       const remaining = getCodeTimeRemaining(normalizedEmail);
-      if (remaining > 540) {
+      if (await remaining > 540) {
         // Less than 1 minute since last code
         return NextResponse.json(
-          { error: 'Please wait before requesting a new code', retryAfter: remaining - 540 },
+          { error: 'Please wait before requesting a new code', retryAfter: await remaining - 540 },
           { status: 429 }
         );
       }
