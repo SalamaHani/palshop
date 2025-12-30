@@ -3,7 +3,7 @@
 import { GET_PRODUCT_BY_HANDLE_QUERY } from "@/graphql/products";
 import { DocumentNode } from "graphql";
 
-const endpoint = "/api/shopify/auth";
+const graphqlEndpoint = process.env.SHOPIFY_PUBLIC_CUSTOMER_ACCOUNT_API_DOMIN;;
 
 export const fetchShopify = async <T = any>(
   query: any,
@@ -22,7 +22,7 @@ export const fetchShopify = async <T = any>(
       ? document.cookie.split('; ').find(row => row.startsWith('customerAccessToken='))?.split('=')[1]
       : null;
 
-    const response = await fetch(endpoint, {
+    const response = await fetch(graphqlEndpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

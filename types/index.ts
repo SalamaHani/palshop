@@ -64,9 +64,7 @@ export interface CustomerAccessTokenResult {
   };
 }
 
-interface CustomerQueryResult {
-  customer: ShopifyCustomer | null;
-}
+
 
 export interface ShopifyCustomer {
   id: string;
@@ -88,9 +86,13 @@ export interface ShopifyCustomer {
   orders: { edges: Array<{ node: { id: string; orderNumber: number; totalPrice: { amount: string; currencyCode: string }; processedAt: string; fulfillmentStatus: string } }> };
 }
 
+export interface CustomerQueryResult {
+  customer: ShopifyCustomer | null;
+}
+
 export interface ImageEdges {
   edges: ImageNode[];
 }
 export const HIDDEN_PRODUCT_TAG = "nextjs-frontend-hidden";
 export const DEFAULT_OPTION = "Default Title";
-export const SHOPIFY_GRAPHQL_API_ENDPOINT = "/api/2024-10/graphql.json";
+export const SHOPIFY_GRAPHQL_API_ENDPOINT = "/api/2015-10/graphql.json";
