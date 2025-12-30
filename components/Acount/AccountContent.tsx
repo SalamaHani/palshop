@@ -1,9 +1,7 @@
 'use client';
 
 import { useAuth } from "@/contexts/AuthContext";
-
-
-function AccountContent() {
+export function AccountContent() {
     const { customer, signOut } = useAuth();
 
     return (
