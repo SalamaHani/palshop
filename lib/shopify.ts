@@ -177,6 +177,19 @@ export const CUSTOMER_QUERY = `
     }
   }
 `;
+export const CUSTOMER_BY_EMAIL = `
+query CUSTOMER_BY_EMAIL($query: String!) {
+  customers(first: 1, query: $query) {
+    edges {
+      node {
+        id
+        email
+        state
+      }
+    }
+  }
+}
+`;
 
 // ===========================================
 // TYPES
@@ -273,63 +286,85 @@ function generateSecurePassword(): string {
 /**
  * Create a new customer in Shopify or get existing one
  */
+
+
 export async function createOrGetShopifyCustomer(
     email: string
-): Promise<{ success: boolean; customerId?: string; isNew?: boolean; error?: string }> {
+): Promise<{
+    success: boolean;
+    customerId?: string;
+    isNew?: boolean;
+    error?: string;
+}> {
     const normalizedEmail = email.toLowerCase().trim();
+
+    if (!normalizedEmail || !normalizedEmail.includes('@')) {
+        return { success: false, error: 'Invalid email address' };
+    }
+
     try {
-        // Generate a random password for new customers
-        const password = generateSecurePassword();
-        const result = await shopifyFetch<CustomerCreateResult>({
+        // 1️⃣ Search customer (NO rate limit issue)
+        const search = await shopifyFetch<any>({
+            query: CUSTOMER_BY_EMAIL,
+            variables: {
+                query: `email:${normalizedEmail}`,
+            },
+        });
+
+        const existingCustomer =
+            search?.customers?.edges?.[0]?.node;
+
+        if (existingCustomer) {
+            if (existingCustomer.state === 'DISABLED') {
+                return {
+                    success: false,
+                    error: 'This account has been disabled.',
+                };
+            }
+
+            // Existing customer → login continues
+            return {
+                success: true,
+                customerId: existingCustomer.id,
+                isNew: false,
+            };
+        }
+
+        // 2️⃣ Create customer ONLY if not exists
+        const create = await shopifyFetch<any>({
             query: CUSTOMER_CREATE,
             variables: {
                 input: {
                     email: normalizedEmail,
-                    password: password,
                     acceptsMarketing: false,
                 },
             },
         });
-        const { customer, customerUserErrors } = result.customerCreate;
 
-        if (customerUserErrors.length > 0) {
-            const error = customerUserErrors[0];
+        const { customer, customerUserErrors } = create.customerCreate;
 
-            // Customer already exists - that's fine for passwordless
-            if (error.code === 'TAKEN') {
-                console.log(`Customer ${normalizedEmail} already exists in Shopify`);
-                return {
-                    success: true,
-                    isNew: false,
-                };
-            }
-
-            // Customer is disabled
-            if (error.code === 'CUSTOMER_DISABLED') {
-                return {
-                    success: false,
-                    error: 'This account has been disabled. Please contact support.',
-                };
-            }
-
-            return { success: false, error: error.message };
-        }
-
-        if (customer) {
-            // Store password for this session (for getting access token later)
-            await storage.storeCustomerPassword(normalizedEmail, password);
-            console.log(`Created new Shopify customer: ${customer.id}`);
+        if (customerUserErrors?.length) {
             return {
-                success: true,
-                customerId: customer.id,
-                isNew: true,
+                success: false,
+                error: customerUserErrors[0].message,
             };
         }
 
-        return { success: false, error: 'Failed to create customer' };
-    } catch (error) {
-        console.error('Create/get customer error:', error);
-        return { success: false, error: 'Failed to process customer' };
+        if (!customer) {
+            return { success: false, error: 'Failed to create customer' };
+        }
+
+        return {
+            success: true,
+            customerId: customer.id,
+            isNew: true,
+        };
+    } catch (err: any) {
+        console.error('Passwordless customer flow error:', err);
+        return {
+            success: false,
+            error: err?.message ?? 'Failed to process request',
+        };
     }
 }
 
