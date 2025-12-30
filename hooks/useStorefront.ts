@@ -34,9 +34,9 @@ export function useStorefrontMutation<
   TVariables extends MutationVariables = MutationVariables
 >() {
   const mutation = useMutation<TData, Error, TVariables>({
-    mutationFn: async ({ query, variables, endpointType = "storefront" }) => {
+    mutationFn: async ({ query, variables }) => {
       try {
-        const response = await fetchShopify<TData>(query, variables, endpointType);
+        const response = await fetchShopify<TData>(query, variables);
         return response;
       } catch (error) {
         // Type guard to ensure error is an Error object
