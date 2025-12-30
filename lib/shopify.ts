@@ -1,39 +1,24 @@
 const domain = process.env.SHOPIFY_STORE_DOMAIN!;
 const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
+import { ADMIN_CUSTOMER_BY_EMAIL, ADMIN_CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_CREATE, CUSTOMER_QUERY } from '@/graphql/auth';
 import * as storage from './auth/storage';
+import { CustomerAccessTokenResult, CustomerQueryResult, ShopifyCustomer } from '@/types';
 
 interface ShopifyResponse<T> {
     data: T;
     errors?: Array<{ message: string }>;
 }
+interface AdminCustomerByEmailResult {
+    customers: {
+        edges: Array<{
+            node: { id: string; email: string; state: string };
+        }>;
+    };
+}
 
-// export async function shopifyFetch<T>({
-//     query,
-//     variables,
-// }: {
-//     query: string;
-//     variables?: Record<string, unknown>;
-// }): Promise<T> {
-//     const endpoint = `https://${domain}/api/2024-01/graphql.json`;
-
-//     const response = await fetch(endpoint, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
-//         },
-//         body: JSON.stringify({ query, variables }),
-//     });
-
-//     const json: ShopifyResponse<T> = await response.json();
-
-//     if (json.errors) {
-//         console.error('Shopify API Error:', json.errors);
-//         throw new Error(json.errors[0]?.message || 'Shopify API error');
-//     }
-
-//     return json.data;
-// }
+// ===========================================
+// STOREFRONT API FETCH
+// ===========================================
 export async function shopifyFetch<T>({
     query,
     variables,
@@ -41,7 +26,6 @@ export async function shopifyFetch<T>({
     query: string;
     variables?: Record<string, unknown>;
 }): Promise<T> {
-    // Check if credentials are set
     if (!domain || !storefrontAccessToken) {
         console.error('❌ Missing Shopify credentials:');
         console.error('   SHOPIFY_STORE_DOMAIN:', domain ? '✓ Set' : '✗ Missing');
@@ -50,7 +34,6 @@ export async function shopifyFetch<T>({
     }
 
     const endpoint = `https://${domain}/api/2024-01/graphql.json`;
-
     console.log('🔄 Shopify API Request:', endpoint);
 
     try {
@@ -63,29 +46,21 @@ export async function shopifyFetch<T>({
             body: JSON.stringify({ query, variables }),
         });
 
-        // Log response status
         console.log('📡 Shopify Response Status:', response.status, response.statusText);
 
-        // Check for non-OK status
         if (!response.ok) {
             const text = await response.text();
             console.error('❌ Shopify API Error Response:', text);
             throw new Error(`Shopify API returned ${response.status}: ${response.statusText}`);
         }
 
-        // Get response text first to debug
         const text = await response.text();
+        if (!text) throw new Error('Shopify returned empty response');
 
-        if (!text) {
-            console.error('❌ Shopify returned empty response');
-            throw new Error('Shopify returned empty response');
-        }
-
-        // Try to parse JSON
         let json: ShopifyResponse<T>;
         try {
             json = JSON.parse(text);
-        } catch (parseError) {
+        } catch {
             console.error('❌ Failed to parse Shopify response:', text.substring(0, 500));
             throw new Error('Invalid JSON response from Shopify');
         }
@@ -104,174 +79,48 @@ export async function shopifyFetch<T>({
 }
 
 // ===========================================
-// CUSTOMER MUTATIONS (Storefront API)
+// ADMIN API FETCH
+// ===========================================
+export async function shopifyAdminFetch<T = any>(query: string, variables?: Record<string, unknown>): Promise<T> {
+    const response = await fetch(`https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/2025-10/graphql.json`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_ACCESS_TOKEN!,
+        },
+        body: JSON.stringify({ query, variables }),
+    });
+
+    const text = await response.text();
+
+    if (!response.ok) {
+        console.error("❌ Shopify HTTP Error:", response.status);
+        console.error("❌ Raw response:", text);
+        throw new Error(`Shopify HTTP ${response.status}`);
+    }
+
+    let json;
+    try { json = JSON.parse(text); }
+    catch { throw new Error("Shopify returned invalid JSON"); }
+
+    if (json.errors) throw new Error(json.errors[0]?.message || "Shopify Admin API error");
+    console.log("✅ Shopify Admin API Success" + json.data);
+    return json.data as T; // ✅ now the return type is T
+}
+
+// ===========================================
+// CUSTOMER MUTATIONS / QUERIES
 // ===========================================
 
-export const CUSTOMER_CREATE = `
-  mutation customerCreate($input: CustomerCreateInput!) {
-    customerCreate(input: $input) {
-      customer {
-        id
-        email
-        firstName
-        lastName
-      }
-      customerUserErrors {
-        code
-        field
-        message
-      }
-    }
-  }
-`;
 
-export const CUSTOMER_ACCESS_TOKEN_CREATE = `
-  mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
-    customerAccessTokenCreate(input: $input) {
-      customerAccessToken {
-        accessToken
-        expiresAt
-      }
-      customerUserErrors {
-        code
-        field
-        message
-      }
-    }
-  }
-`;
-
-export const CUSTOMER_QUERY = `
-  query getCustomer($customerAccessToken: String!) {
-    customer(customerAccessToken: $customerAccessToken) {
-      id
-      email
-      firstName
-      lastName
-      phone
-      acceptsMarketing
-      createdAt
-      defaultAddress {
-        id
-        address1
-        address2
-        city
-        country
-        province
-        zip
-      }
-      orders(first: 10) {
-        edges {
-          node {
-            id
-            orderNumber
-            totalPrice {
-              amount
-              currencyCode
-            }
-            processedAt
-            fulfillmentStatus
-          }
-        }
-      }
-    }
-  }
-`;
-export const CUSTOMER_BY_EMAIL = `
-query CUSTOMER_BY_EMAIL($query: String!) {
-  customers(first: 1, query: $query) {
-    edges {
-      node {
-        id
-        email
-        state
-      }
-    }
-  }
-}
-`;
 
 // ===========================================
 // TYPES
 // ===========================================
-
-interface CustomerCreateResult {
-    customerCreate: {
-        customer: {
-            id: string;
-            email: string;
-            firstName: string | null;
-            lastName: string | null;
-        } | null;
-        customerUserErrors: Array<{
-            code: string;
-            field: string[];
-            message: string;
-        }>;
-    };
-}
-
-interface CustomerAccessTokenResult {
-    customerAccessTokenCreate: {
-        customerAccessToken: {
-            accessToken: string;
-            expiresAt: string;
-        } | null;
-        customerUserErrors: Array<{
-            code: string;
-            field: string[];
-            message: string;
-        }>;
-    };
-}
-
-interface CustomerQueryResult {
-    customer: ShopifyCustomer | null;
-}
-
-export interface ShopifyCustomer {
-    id: string;
-    email: string;
-    firstName: string | null;
-    lastName: string | null;
-    phone: string | null;
-    acceptsMarketing: boolean;
-    createdAt: string;
-    defaultAddress: {
-        id: string;
-        address1: string;
-        address2: string | null;
-        city: string;
-        country: string;
-        province: string;
-        zip: string;
-    } | null;
-    orders: {
-        edges: Array<{
-            node: {
-                id: string;
-                orderNumber: number;
-                totalPrice: {
-                    amount: string;
-                    currencyCode: string;
-                };
-                processedAt: string;
-                fulfillmentStatus: string;
-            };
-        }>;
-    };
-}
-
 // ===========================================
 // HELPER FUNCTIONS
 // ===========================================
 
-// Store for customer passwords (in production, use Redis or database)
-// Now using Redis storage from lib/auth/storage.ts
-
-/**
- * Generate a secure random password
- */
 function generateSecurePassword(): string {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
     let password = '';
@@ -283,123 +132,95 @@ function generateSecurePassword(): string {
     return password;
 }
 
-/**
- * Create a new customer in Shopify or get existing one
- */
+// ===========================================
+// FIND CUSTOMER BY EMAIL (ADMIN API)
+// ===========================================
 
-
-export async function createOrGetShopifyCustomer(
-    email: string
-): Promise<{
-    success: boolean;
-    customerId?: string;
-    isNew?: boolean;
-    error?: string;
-}> {
+export async function findShopifyCustomerByEmail(email: string): Promise<{ id: string; email: string; state: string } | null> {
     const normalizedEmail = email.toLowerCase().trim();
 
-    if (!normalizedEmail || !normalizedEmail.includes('@')) {
-        return { success: false, error: 'Invalid email address' };
-    }
-
-    try {
-        // 1️⃣ Search customer (NO rate limit issue)
-        const search = await shopifyFetch<any>({
-            query: CUSTOMER_BY_EMAIL,
-            variables: {
-                query: `email:${normalizedEmail}`,
-            },
-        });
-
-        const existingCustomer =
-            search?.customers?.edges?.[0]?.node;
-
-        if (existingCustomer) {
-            if (existingCustomer.state === 'DISABLED') {
-                return {
-                    success: false,
-                    error: 'This account has been disabled.',
-                };
-            }
-
-            // Existing customer → login continues
-            return {
-                success: true,
-                customerId: existingCustomer.id,
-                isNew: false,
-            };
-        }
-
-        // 2️⃣ Create customer ONLY if not exists
-        const create = await shopifyFetch<any>({
-            query: CUSTOMER_CREATE,
-            variables: {
-                input: {
-                    email: normalizedEmail,
-                    acceptsMarketing: false,
-                },
-            },
-        });
-
-        const { customer, customerUserErrors } = create.customerCreate;
-
-        if (customerUserErrors?.length) {
-            return {
-                success: false,
-                error: customerUserErrors[0].message,
-            };
-        }
-
-        if (!customer) {
-            return { success: false, error: 'Failed to create customer' };
-        }
-
-        return {
-            success: true,
-            customerId: customer.id,
-            isNew: true,
-        };
-    } catch (err: any) {
-        console.error('Passwordless customer flow error:', err);
-        return {
-            success: false,
-            error: err?.message ?? 'Failed to process request',
-        };
-    }
+    const result = await shopifyAdminFetch<AdminCustomerByEmailResult>(
+        ADMIN_CUSTOMER_BY_EMAIL,
+        { email: `email:${normalizedEmail}` } // pass variables as 2nd argument
+    );
+    const customer = result?.customers?.edges?.[0]?.node;
+    return customer ?? null;
 }
 
 /**
- * Get customer access token
+ * Create a new customer via Shopify Admin API
  */
-export async function getCustomerAccessToken(
-    email: string,
-    password: string
-): Promise<{ accessToken?: string; expiresAt?: string; error?: string }> {
+async function createShopifyCustomer(email: string): Promise<{ id: string; email: string; state: string }> {
+    const mutation = ADMIN_CUSTOMER_CREATE;
+    const variables = {
+        input: {
+            email,
+        },
+    };
+    const result = await shopifyAdminFetch<{
+        customerCreate: {
+            customer: { id: string; email: string; state: string } | null;
+            customerUserErrors: Array<{ message: string; code?: string; field?: string[] }>;
+        };
+    }>(mutation, variables);
+    const { customer, customerUserErrors } = result.customerCreate;
+
+    if (customerUserErrors?.length) {
+        throw new Error(customerUserErrors[0].message);
+    }
+
+    if (!customer) {
+        throw new Error('Failed to create customer');
+    }
+
+    return { id: customer.id, email: customer.email, state: customer.state };
+}
+
+/**
+ * Create or get existing Shopify customer (Admin API)
+ */
+// ===========================================
+// CREATE OR GET CUSTOMER (ADMIN API)
+// ===========================================
+
+export async function createOrGetShopifyCustomer(email: string): Promise<{ success: boolean; customerId?: string; isNew?: boolean; error?: string }> {
+    const normalizedEmail = email.toLowerCase().trim();
+    if (!normalizedEmail || !normalizedEmail.includes('@')) return { success: false, error: 'Invalid email address' };
+    try {
+        // 1️⃣ Search existing customer
+        const existingCustomer = await findShopifyCustomerByEmail(normalizedEmail);
+        if (existingCustomer) {
+            if (existingCustomer.state === 'DISABLED') {
+                return { success: false, error: 'This account has been disabled.' };
+            }
+            return { success: true, customerId: existingCustomer.id, isNew: false };
+        }
+
+        // 2️⃣ Create customer via Admin API
+        const newCustomer = await createShopifyCustomer(normalizedEmail);
+        console.log(`✅ Shopify Admin API Success: Created customer ${newCustomer.email}`);
+
+        return { success: true, customerId: newCustomer.id, isNew: true };
+    } catch (err: any) {
+        console.error('Create/Get customer (Admin) error:', err);
+        return { success: false, error: err?.message ?? 'Failed to process customer' };
+    }
+}
+
+// ===========================================
+// CUSTOMER ACCESS TOKEN
+// ===========================================
+
+export async function getCustomerAccessToken(email: string, password: string): Promise<{ accessToken?: string; expiresAt?: string; error?: string }> {
     try {
         const result = await shopifyFetch<CustomerAccessTokenResult>({
             query: CUSTOMER_ACCESS_TOKEN_CREATE,
-            variables: {
-                input: {
-                    email: email.toLowerCase().trim(),
-                    password,
-                },
-            },
+            variables: { input: { email: email.toLowerCase().trim(), password } },
         });
 
-        const { customerAccessToken, customerUserErrors } =
-            result.customerAccessTokenCreate;
-
-        if (customerUserErrors.length > 0) {
-            return { error: customerUserErrors[0].message };
-        }
-
-        if (customerAccessToken) {
-            return {
-                accessToken: customerAccessToken.accessToken,
-                expiresAt: customerAccessToken.expiresAt,
-            };
-        }
-
+        const { customerAccessToken, customerUserErrors } = result.customerAccessTokenCreate;
+        if (customerUserErrors.length > 0) return { error: customerUserErrors[0].message };
+        if (customerAccessToken) return { accessToken: customerAccessToken.accessToken, expiresAt: customerAccessToken.expiresAt };
         return { error: 'Failed to get access token' };
     } catch (error) {
         console.error('Get access token error:', error);
@@ -407,39 +228,23 @@ export async function getCustomerAccessToken(
     }
 }
 
-/**
- * Helper to authenticate customer using stored password
- */
+// ===========================================
+// AUTHENTICATE CUSTOMER (PASSWORDLESS FLOW)
+// ===========================================
 export async function authenticateCustomer(email: string): Promise<{ accessToken?: string; expiresAt?: string; error?: string }> {
     const password = await storage.getCustomerPassword(email);
-    if (!password) {
-        return { error: 'Authentication session expired. Please request a new code.' };
-    }
-
+    if (!password) return { error: 'Authentication session expired. Please request a new code.' };
     const result = await getCustomerAccessToken(email, password);
-
-    // Clean up password after use
-    if (result.accessToken) {
-        await storage.deleteCustomerPassword(email);
-    }
-
+    if (result.accessToken) await storage.deleteCustomerPassword(email);
     return result;
 }
 
-/**
- * Get customer data using access token
- */
-export async function getCustomerByAccessToken(
-    accessToken: string
-): Promise<ShopifyCustomer | null> {
+// ===========================================
+// GET CUSTOMER DATA
+// ===========================================
+export async function getCustomerByAccessToken(accessToken: string): Promise<ShopifyCustomer | null> {
     try {
-        const result = await shopifyFetch<CustomerQueryResult>({
-            query: CUSTOMER_QUERY,
-            variables: {
-                customerAccessToken: accessToken,
-            },
-        });
-
+        const result = await shopifyFetch<CustomerQueryResult>({ query: CUSTOMER_QUERY, variables: { customerAccessToken: accessToken } });
         return result.customer;
     } catch (error) {
         console.error('Get customer error:', error);

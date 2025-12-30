@@ -1,39 +1,7 @@
 import { gql } from "graphql-tag";
 
-export const CUSTOMER_ACCESS_TOKEN_CREATE = gql`
-  mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
-    customerAccessTokenCreate(input: $input) {
-      customerAccessToken {
-        accessToken
-        expiresAt
-      }
-      customerUserErrors {
-        code
-        field
-        message
-      }
-    }
-  }
-`;
 
-export const CUSTOMER_CREATE = gql`
-  mutation customerCreate($input: CustomerCreateInput!) {
-    customerCreate(input: $input) {
-      customer {
-        id
-        email
-        firstName
-        lastName
-        phone
-      }
-      customerUserErrors {
-        code
-        field
-        message
-      }
-    }
-  }
-`;
+
 
 export const CUSTOMER_ACCESS_TOKEN_CREATE_WITH_CODE = gql`
   mutation customerAccessTokenCreateWithCode($email: String!, $code: String!) {
@@ -54,18 +22,6 @@ export const CUSTOMER_ACCESS_TOKEN_CREATE_WITH_CODE = gql`
 
 
 
-export const CUSTOMER_QUERY = gql`
-  query getCustomer($customerAccessToken: String!) {
-    customer(customerAccessToken: $customerAccessToken) {
-      id
-      email
-      firstName
-      lastName
-      phone
-      acceptsMarketing
-    }
-  }
-`;
 
 export const CUSTOMER_ACCESS_TOKEN_DELETE = gql`
   mutation customerAccessTokenDelete($customerAccessToken: String!) {
@@ -187,3 +143,102 @@ export const CUSTOMER_UPDATE = gql`
     }
   }
 `;
+export const CUSTOMER_CREATE = `
+  mutation customerCreate($input: CustomerCreateInput!) {
+    customerCreate(input: $input) {
+      customer {
+        id
+        email
+        firstName
+        lastName
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+export const CUSTOMER_ACCESS_TOKEN_CREATE = `
+  mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
+    customerAccessTokenCreate(input: $input) {
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
+      customerUserErrors {
+        code
+        field
+        message
+      }
+    }
+  }
+`;
+
+export const CUSTOMER_QUERY = `
+  query getCustomer($customerAccessToken: String!) {
+    customer(customerAccessToken: $customerAccessToken) {
+      id
+      email
+      firstName
+      lastName
+      phone
+      acceptsMarketing
+      createdAt
+      defaultAddress {
+        id
+        address1
+        address2
+        city
+        country
+        province
+        zip
+      }
+      orders(first: 10) {
+        edges {
+          node {
+            id
+            orderNumber
+            totalPrice {
+              amount
+              currencyCode
+            }
+            processedAt
+            fulfillmentStatus
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const ADMIN_CUSTOMER_BY_EMAIL = `
+query CustomerByEmail($email: String!) {
+  customers(first: 1, query: $email) {
+    edges {
+      node {
+        id
+        email
+        state
+      }
+    }
+  }
+}
+`;
+
+export const ADMIN_CUSTOMER_CREATE = `
+      mutation CreateCustomer($input: CustomerInput!) {
+        customerCreate(input: $input) {
+          customer {
+            id
+            email
+          }
+          userErrors {
+            message
+            field
+          }
+        }
+      }
+    `;

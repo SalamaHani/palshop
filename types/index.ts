@@ -50,6 +50,43 @@ export interface ImageNode {
     altText: string | null;
   };
 }
+export interface CustomerCreateResult {
+  customerCreate: {
+    customer: { id: string; email: string; firstName: string | null; lastName: string | null } | null;
+    customerUserErrors: Array<{ code: string; field: string[]; message: string }>;
+  };
+}
+
+export interface CustomerAccessTokenResult {
+  customerAccessTokenCreate: {
+    customerAccessToken: { accessToken: string; expiresAt: string } | null;
+    customerUserErrors: Array<{ code: string; field: string[]; message: string }>;
+  };
+}
+
+interface CustomerQueryResult {
+  customer: ShopifyCustomer | null;
+}
+
+export interface ShopifyCustomer {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  acceptsMarketing: boolean;
+  createdAt: string;
+  defaultAddress: {
+    id: string;
+    address1: string;
+    address2: string | null;
+    city: string;
+    country: string;
+    province: string;
+    zip: string;
+  } | null;
+  orders: { edges: Array<{ node: { id: string; orderNumber: number; totalPrice: { amount: string; currencyCode: string }; processedAt: string; fulfillmentStatus: string } }> };
+}
 
 export interface ImageEdges {
   edges: ImageNode[];

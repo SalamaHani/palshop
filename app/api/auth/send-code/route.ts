@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
     const shopifyResult = await createOrGetShopifyCustomer(normalizedEmail);
 
     if (!shopifyResult.success) {
+      console.error('Failed to create/get customer in Shopify:', shopifyResult.error);
       return NextResponse.json(
         { error: shopifyResult.error || 'Failed to process your request' },
         { status: 400 }
