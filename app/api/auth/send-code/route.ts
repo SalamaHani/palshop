@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     console.log(`Generated code: ${code}`);
     storeVerificationCode(normalizedEmail, code);
 
-    // // Send email
+    // Send email
     // const emailResult = await sendVerificationCodeEmail({
     //   to: normalizedEmail,
     //   code,

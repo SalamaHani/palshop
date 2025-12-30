@@ -60,14 +60,30 @@ export async function storeVerificationCode(sessionId: string, email: string, co
     }
 }
 
-export async function getVerificationCode(sessionId: string): Promise<VerificationCodeData | null> {
-    if (kv) {
-        const raw = await kv.get(`verify:${sessionId}`);
-        return safeJSONParse<VerificationCodeData>(typeof raw === 'string' ? raw : null);
-    } else {
+// export async function getVerificationCode(sessionId: string): Promise<VerificationCodeData | null> {
+//     if (kv) {
+//         const raw = kv.get(`verify:${sessionId}`);
+//         return safeJSONParse<VerificationCodeData>(typeof raw === 'string' ? raw : null);
+//     } else {
+//         return devStorage.get(`verify:${sessionId}`) ?? null;
+//     }
+// }
+export async function getVerificationCode(
+    sessionId: string
+): Promise<VerificationCodeData | null> {
+    if (!kv) {
         return devStorage.get(`verify:${sessionId}`) ?? null;
     }
+    try {
+        const data = (await kv.get(`verify:${sessionId}`)) as VerificationCodeData | null;
+        return data;
+    } catch (err) {
+        console.error('[KV] getVerificationCode failed:', err);
+        return null;
+    }
 }
+
+
 
 export async function deleteVerificationCode(sessionId: string) {
     if (kv) {
