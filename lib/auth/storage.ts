@@ -1,5 +1,5 @@
 // lib/auth/storage.ts
-// Storage for verification codes and code verifiers
+import { storage } from '@/lib/kv';
 
 export type VerificationCodeData = {
     email: string;
@@ -18,148 +18,72 @@ export type CustomerPasswordData = {
     expiresAt: number;
 };
 
-// ---------------- In-memory fallback (development only) ----------------
-const devStorage = new Map<string, any>();
-
-// ---------------- KV setup ----------------
-let kv: any = null;
-const hasVercelKV = process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN;
-
-if (hasVercelKV) {
-    try {
-        const vercelKV = require('@vercel/kv');
-        kv = vercelKV.kv;
-        console.log('[Storage] ✅ Using Vercel KV');
-    } catch (error) {
-        console.warn('[Storage] ⚠️ @vercel/kv not available, using in-memory storage');
-    }
-}
-
-if (!kv && process.env.NODE_ENV === 'development') {
-    console.warn('[Storage] ⚠️ Using in-memory storage (development only)');
-}
-
-// ---------------- Safe JSON parser ----------------
-function safeJSONParse<T>(raw: string | null | undefined): T | null {
-    if (!raw || raw.trim() === '') return null;
-    try {
-        return JSON.parse(raw) as T;
-    } catch (err) {
-        console.error('[Storage] JSON parse failed:', err, raw);
-        return null;
-    }
-}
-
-// ---------------- Verification codes ----------------
+/**
+ * Verification Codes
+ */
 export async function storeVerificationCode(sessionId: string, email: string, code: string) {
-    const data: VerificationCodeData = {
-        email,
-        code,
-        expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
-    };
-
-    if (kv) {
-        await kv.set(`verify:${sessionId}`, JSON.stringify(data), { ex: 600 });
-    } else {
-        devStorage.set(`verify:${sessionId}`, data);
-        setTimeout(() => devStorage.delete(`verify:${sessionId}`), 10 * 60 * 1000);
-    }
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const data: VerificationCodeData = { email, code, expiresAt };
+    await storage.set(`verify:${sessionId}`, data, 600);
 }
 
-// export async function getVerificationCode(sessionId: string): Promise<VerificationCodeData | null> {
-//     if (kv) {
-//         const raw = kv.get(`verify:${sessionId}`);
-//         return safeJSONParse<VerificationCodeData>(typeof raw === 'string' ? raw : null);
-//     } else {
-//         return devStorage.get(`verify:${sessionId}`) ?? null;
-//     }
-// }
-export async function getVerificationCode(
-    sessionId: string
-): Promise<VerificationCodeData | null> {
-    if (!kv) {
-        return devStorage.get(`verify:${sessionId}`) ?? null;
-    }
-    try {
-        const data = (await kv.get(`verify:${sessionId}`)) as VerificationCodeData | null;
-        return data;
-    } catch (err) {
-        console.error('[KV] getVerificationCode failed:', err);
-        return null;
-    }
+export async function getVerificationCode(sessionId: string): Promise<VerificationCodeData | null> {
+    return await storage.get<VerificationCodeData>(`verify:${sessionId}`);
 }
-
-
 
 export async function deleteVerificationCode(sessionId: string) {
-    if (kv) {
-        await kv.del(`verify:${sessionId}`);
-    } else {
-        devStorage.delete(`verify:${sessionId}`);
-    }
+    await storage.del(`verify:${sessionId}`);
 }
 
-// ---------------- Code verifiers ----------------
+/**
+ * OAuth Code Verifiers
+ */
 export async function storeCodeVerifier(state: string, verifier: string) {
-    const data: CodeVerifierData = {
-        verifier,
-        expiresAt: Date.now() + 10 * 60 * 1000
-    };
-
-    if (kv) {
-        await kv.set(`verifier:${state}`, JSON.stringify(data), { ex: 600 });
-    } else {
-        devStorage.set(`verifier:${state}`, data);
-        setTimeout(() => devStorage.delete(`verifier:${state}`), 10 * 60 * 1000);
-    }
+    const expiresAt = Date.now() + 10 * 60 * 1000;
+    const data: CodeVerifierData = { verifier, expiresAt };
+    await storage.set(`verifier:${state}`, data, 600);
 }
 
 export async function getCodeVerifier(state: string): Promise<string | null> {
-    if (kv) {
-        const raw = await kv.get(`verifier:${state}`);
-        await kv.del(`verifier:${state}`);
-        const data = safeJSONParse<CodeVerifierData>(typeof raw === 'string' ? raw : null);
-        return data?.verifier || null;
-    } else {
-        const data = devStorage.get(`verifier:${state}`) as CodeVerifierData | undefined;
-        devStorage.delete(`verifier:${state}`);
-        return data?.verifier || null;
+    const key = `verifier:${state}`;
+    const data = await storage.get<CodeVerifierData>(key);
+    if (data) {
+        await storage.del(key);
+        return data.verifier;
     }
+    return null;
 }
 
-// ---------------- Customer Passwords ----------------
+/**
+ * Temporary Customer Passwords
+ */
 export async function storeCustomerPassword(email: string, password: string) {
-    const data: CustomerPasswordData = {
-        email,
-        password,
-        expiresAt: Date.now() + 20 * 60 * 1000 // 20 minutes
-    };
-
-    if (kv) {
-        await kv.set(`password:${email.toLowerCase()}`, JSON.stringify(data), { ex: 1200 });
-    } else {
-        devStorage.set(`password:${email.toLowerCase()}`, data);
-        setTimeout(() => devStorage.delete(`password:${email.toLowerCase()}`), 20 * 60 * 1000);
-    }
+    const expiresAt = Date.now() + 20 * 60 * 1000;
+    const data: CustomerPasswordData = { email, password, expiresAt };
+    await storage.set(`password:${email.toLowerCase()}`, data, 1200);
 }
 
 export async function getCustomerPassword(email: string): Promise<string | null> {
-    const key = `password:${email.toLowerCase()}`;
-    if (kv) {
-        const raw = await kv.get(key);
-        const data = safeJSONParse<CustomerPasswordData>(typeof raw === 'string' ? raw : null);
-        return data?.password || null;
-    } else {
-        const data = devStorage.get(key) as CustomerPasswordData | undefined;
-        return data?.password || null;
-    }
+    const data = await storage.get<CustomerPasswordData>(`password:${email.toLowerCase()}`);
+    return data?.password || null;
 }
 
 export async function deleteCustomerPassword(email: string) {
-    const key = `password:${email.toLowerCase()}`;
-    if (kv) {
-        await kv.del(key);
-    } else {
-        devStorage.delete(key);
+    await storage.del(`password:${email.toLowerCase()}`);
+}
+
+/**
+ * Rate Limiting / Attempts
+ */
+export async function trackAttempt(email: string): Promise<number> {
+    const key = `attempts:${email.toLowerCase()}`;
+    const attempts = await storage.incr(key);
+    if (attempts === 1) {
+        await storage.expire(key, 3600); // 1 hour block window
     }
+    return attempts;
+}
+
+export async function resetAttempts(email: string) {
+    await storage.del(`attempts:${email.toLowerCase()}`);
 }
