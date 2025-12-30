@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { storage as kv } from '@/lib/kv';
 
 
 
@@ -9,7 +9,7 @@ export function generateCode() {
 export async function storeCode(email: any, code: string): Promise<boolean> {
     try {
         const key = `verify:${email.toLowerCase()}`;
-        await kv.set(key, code, { ex: 600 });
+        await kv.set(key, code, 600);
         return true;
     } catch (error) {
         console.error('Error storing code:', error);

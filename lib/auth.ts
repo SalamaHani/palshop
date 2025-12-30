@@ -25,15 +25,14 @@ export function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Store verification code using KV storage
+// Store verification code using Redis storage
 export async function storeVerificationCode(email: string, code: string): Promise<void> {
   const normalizedEmail = email.toLowerCase().trim();
   const sessionId = normalizedEmail; // Use email as sessionId for simplicity
-
   await kvStorage.storeVerificationCode(sessionId, normalizedEmail, code);
 }
 
-// Verify the code using KV storage
+// Verify the code using Redis storage
 export async function verifyCode(
   email: string,
   code: string
@@ -53,7 +52,7 @@ export async function verifyCode(
   }
 
   if (data.code !== code) {
-    // Note: The KV storage doesn't track attempts yet, but the code is still validated
+    // Note: The Redis storage doesn't track attempts locally in verifyCode, but trackAttempt handles it.
     return { valid: false, error: 'Invalid code. Please try again.' };
   }
 
