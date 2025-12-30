@@ -12,6 +12,12 @@ export type CodeVerifierData = {
     expiresAt: number;
 };
 
+export type CustomerPasswordData = {
+    email: string;
+    password: string;
+    expiresAt: number;
+};
+
 // ---------------- In-memory fallback (development only) ----------------
 const devStorage = new Map<string, any>();
 
@@ -118,5 +124,42 @@ export async function getCodeVerifier(state: string): Promise<string | null> {
         const data = devStorage.get(`verifier:${state}`) as CodeVerifierData | undefined;
         devStorage.delete(`verifier:${state}`);
         return data?.verifier || null;
+    }
+}
+
+// ---------------- Customer Passwords ----------------
+export async function storeCustomerPassword(email: string, password: string) {
+    const data: CustomerPasswordData = {
+        email,
+        password,
+        expiresAt: Date.now() + 20 * 60 * 1000 // 20 minutes
+    };
+
+    if (kv) {
+        await kv.set(`password:${email.toLowerCase()}`, JSON.stringify(data), { ex: 1200 });
+    } else {
+        devStorage.set(`password:${email.toLowerCase()}`, data);
+        setTimeout(() => devStorage.delete(`password:${email.toLowerCase()}`), 20 * 60 * 1000);
+    }
+}
+
+export async function getCustomerPassword(email: string): Promise<string | null> {
+    const key = `password:${email.toLowerCase()}`;
+    if (kv) {
+        const raw = await kv.get(key);
+        const data = safeJSONParse<CustomerPasswordData>(typeof raw === 'string' ? raw : null);
+        return data?.password || null;
+    } else {
+        const data = devStorage.get(key) as CustomerPasswordData | undefined;
+        return data?.password || null;
+    }
+}
+
+export async function deleteCustomerPassword(email: string) {
+    const key = `password:${email.toLowerCase()}`;
+    if (kv) {
+        await kv.del(key);
+    } else {
+        devStorage.delete(key);
     }
 }

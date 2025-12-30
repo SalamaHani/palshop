@@ -1,5 +1,6 @@
 const domain = process.env.SHOPIFY_STORE_DOMAIN!;
 const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
+import * as storage from './auth/storage';
 
 interface ShopifyResponse<T> {
     data: T;
@@ -185,7 +186,7 @@ export interface ShopifyCustomer {
 // ===========================================
 
 // Store for customer passwords (in production, use Redis or database)
-const customerPasswords = new Map<string, string>();
+// Now using KV storage from lib/auth/storage.ts
 
 /**
  * Generate a secure random password
@@ -251,7 +252,7 @@ export async function createOrGetShopifyCustomer(
 
         if (customer) {
             // Store password for this session (for getting access token later)
-            customerPasswords.set(normalizedEmail, password);
+            await storage.storeCustomerPassword(normalizedEmail, password);
 
             console.log(`Created new Shopify customer: ${customer.id}`);
             return {
@@ -305,6 +306,25 @@ export async function getCustomerAccessToken(
         console.error('Get access token error:', error);
         return { error: 'Failed to authenticate' };
     }
+}
+
+/**
+ * Helper to authenticate customer using stored password
+ */
+export async function authenticateCustomer(email: string): Promise<{ accessToken?: string; expiresAt?: string; error?: string }> {
+    const password = await storage.getCustomerPassword(email);
+    if (!password) {
+        return { error: 'Authentication session expired. Please request a new code.' };
+    }
+
+    const result = await getCustomerAccessToken(email, password);
+
+    // Clean up password after use
+    if (result.accessToken) {
+        await storage.deleteCustomerPassword(email);
+    }
+
+    return result;
 }
 
 /**

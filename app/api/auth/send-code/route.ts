@@ -33,11 +33,11 @@ export async function POST(request: NextRequest) {
 
     // Check if there's already an active code (rate limiting)
     if (await hasActiveCode(normalizedEmail)) {
-      const remaining = getCodeTimeRemaining(normalizedEmail);
-      if (await remaining > 540) {
+      const remaining = await getCodeTimeRemaining(normalizedEmail);
+      if (remaining > 540) {
         // Less than 1 minute since last code
         return NextResponse.json(
-          { error: 'Please wait before requesting a new code', retryAfter: await remaining - 540 },
+          { error: 'Please wait before requesting a new code', retryAfter: remaining - 540 },
           { status: 429 }
         );
       }
@@ -63,20 +63,20 @@ export async function POST(request: NextRequest) {
     // Generate and store verification code
     const code = generateVerificationCode();
     console.log(`Generated code: ${code}`);
-    storeVerificationCode(normalizedEmail, code);
+    await storeVerificationCode(normalizedEmail, code);
 
-    // Send email
-    const emailResult = await sendVerificationCodeEmail({
-      to: normalizedEmail,
-      code,
-    });
+    // // Send email
+    // const emailResult = await sendVerificationCodeEmail({
+    //   to: normalizedEmail,
+    //   code,
+    // });
 
-    if (!emailResult.success) {
-      return NextResponse.json(
-        { error: 'Failed to send verification email. Please try again.' },
-        { status: 500 }
-      );
-    }
+    // if (!emailResult.success) {
+    //   return NextResponse.json(
+    //     { error: 'Failed to send verification email. Please try again.' },
+    //     { status: 500 }
+    //   );
+    // }
 
     return NextResponse.json({
       success: true,

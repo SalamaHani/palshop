@@ -4,6 +4,7 @@ import {
   generateSessionToken,
   setSessionCookie,
 } from '@/lib/auth';
+import { authenticateCustomer, getCustomerByAccessToken } from '@/lib/shopify';
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,20 +38,42 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim();
 
     // Verify the code
-    const result = verifyCode(normalizedEmail, cleanCode);
+    const verification = await verifyCode(normalizedEmail, cleanCode);
 
-    if (!(await result).valid) {
+    if (!verification.valid) {
       return NextResponse.json(
-        { error: (await result).error },
+        { error: verification.error },
         { status: 401 }
       );
     }
 
-    // Generate a customer ID (in production, fetch from Shopify)
-    const customerId = `gid://shopify/Customer/${Buffer.from(normalizedEmail).toString('base64')}`;
+    // Authenticate with Shopify using the stored password
+    const authResult = await authenticateCustomer(normalizedEmail);
+    if (authResult.error) {
+      return NextResponse.json(
+        { error: authResult.error },
+        { status: 401 }
+      );
+    }
 
-    // Generate session token
-    const sessionToken = await generateSessionToken(normalizedEmail, customerId);
+    if (!authResult.accessToken) {
+      return NextResponse.json(
+        { error: 'Failed to obtain access token' },
+        { status: 500 }
+      );
+    }
+
+    // Get actual customer data from Shopify
+    const shopifyCustomer = await getCustomerByAccessToken(authResult.accessToken);
+    if (!shopifyCustomer) {
+      return NextResponse.json(
+        { error: 'Failed to fetch customer profile' },
+        { status: 500 }
+      );
+    }
+
+    // Generate session token with ACTUAL Shopify Customer ID
+    const sessionToken = await generateSessionToken(normalizedEmail, shopifyCustomer.id);
 
     // Set session cookie
     await setSessionCookie(sessionToken);
@@ -58,6 +81,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       email: normalizedEmail,
+      customerId: shopifyCustomer.id,
       redirectTo: '/account',
     });
   } catch (error) {
