@@ -3,30 +3,19 @@
 import { GET_PRODUCT_BY_HANDLE_QUERY } from "@/graphql/products";
 import { DocumentNode } from "graphql";
 
-const graphqlEndpoint = process.env.SHOPIFY_PUBLIC_CUSTOMER_ACCOUNT_API_DOMIN;;
-
+const endpoint = `https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN!}/api/2025-10/graphql.json`;
 export const fetchShopify = async <T = any>(
   query: any,
   variables: Record<string, any> = {},
-  endpointType: "storefront" | "customer-account" = "customer-account"
+  endpointType: "storefront"
 ): Promise<T> => {
   const queryString = typeof query === "string" ? query : (query.loc?.source.body || "");
-  const isAuthMutation = queryString.includes('customerSendLoginCode') ||
-    queryString.includes('customerVerifyCode') ||
-    queryString.includes('customerAccessTokenCreateWithCode');
-
   try {
-    // Extract access token from cookies if available (for authenticated requests to the proxy)
-    // Only send the token if it's NOT an auth mutation to avoid "Invalid Token" errors from old cookies
-    const accessToken = (!isAuthMutation && typeof window !== "undefined")
-      ? document.cookie.split('; ').find(row => row.startsWith('customerAccessToken='))?.split('=')[1]
-      : null;
 
-    const response = await fetch(graphqlEndpoint, {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(accessToken ? { "Authorization": `Bearer ${accessToken}` } : {})
       },
       body: JSON.stringify({
         endpointType,
