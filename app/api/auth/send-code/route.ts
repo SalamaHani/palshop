@@ -43,6 +43,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    console.log(`ℹ️ Customer signing in: ${normalizedEmail}`);
+
     // Create or get customer in Shopify
     const shopifyResult = await createOrGetShopifyCustomer(normalizedEmail);
 

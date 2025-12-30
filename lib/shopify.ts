@@ -7,6 +7,33 @@ interface ShopifyResponse<T> {
     errors?: Array<{ message: string }>;
 }
 
+// export async function shopifyFetch<T>({
+//     query,
+//     variables,
+// }: {
+//     query: string;
+//     variables?: Record<string, unknown>;
+// }): Promise<T> {
+//     const endpoint = `https://${domain}/api/2024-01/graphql.json`;
+
+//     const response = await fetch(endpoint, {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json',
+//             'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
+//         },
+//         body: JSON.stringify({ query, variables }),
+//     });
+
+//     const json: ShopifyResponse<T> = await response.json();
+
+//     if (json.errors) {
+//         console.error('Shopify API Error:', json.errors);
+//         throw new Error(json.errors[0]?.message || 'Shopify API error');
+//     }
+
+//     return json.data;
+// }
 export async function shopifyFetch<T>({
     query,
     variables,
@@ -14,25 +41,66 @@ export async function shopifyFetch<T>({
     query: string;
     variables?: Record<string, unknown>;
 }): Promise<T> {
-    const endpoint = `https://${domain}/api/2024-01/graphql.json`;
-
-    const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
-        },
-        body: JSON.stringify({ query, variables }),
-    });
-
-    const json: ShopifyResponse<T> = await response.json();
-
-    if (json.errors) {
-        console.error('Shopify API Error:', json.errors);
-        throw new Error(json.errors[0]?.message || 'Shopify API error');
+    // Check if credentials are set
+    if (!domain || !storefrontAccessToken) {
+        console.error('❌ Missing Shopify credentials:');
+        console.error('   SHOPIFY_STORE_DOMAIN:', domain ? '✓ Set' : '✗ Missing');
+        console.error('   SHOPIFY_STOREFRONT_ACCESS_TOKEN:', storefrontAccessToken ? '✓ Set' : '✗ Missing');
+        throw new Error('Shopify credentials not configured');
     }
 
-    return json.data;
+    const endpoint = `https://${domain}/api/2024-01/graphql.json`;
+
+    console.log('🔄 Shopify API Request:', endpoint);
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Shopify-Storefront-Access-Token': storefrontAccessToken,
+            },
+            body: JSON.stringify({ query, variables }),
+        });
+
+        // Log response status
+        console.log('📡 Shopify Response Status:', response.status, response.statusText);
+
+        // Check for non-OK status
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('❌ Shopify API Error Response:', text);
+            throw new Error(`Shopify API returned ${response.status}: ${response.statusText}`);
+        }
+
+        // Get response text first to debug
+        const text = await response.text();
+
+        if (!text) {
+            console.error('❌ Shopify returned empty response');
+            throw new Error('Shopify returned empty response');
+        }
+
+        // Try to parse JSON
+        let json: ShopifyResponse<T>;
+        try {
+            json = JSON.parse(text);
+        } catch (parseError) {
+            console.error('❌ Failed to parse Shopify response:', text.substring(0, 500));
+            throw new Error('Invalid JSON response from Shopify');
+        }
+
+        if (json.errors) {
+            console.error('❌ Shopify GraphQL Errors:', json.errors);
+            throw new Error(json.errors[0]?.message || 'Shopify API error');
+        }
+
+        console.log('✅ Shopify API Success');
+        return json.data;
+    } catch (error) {
+        console.error('❌ Shopify Fetch Error:', error);
+        throw error;
+    }
 }
 
 // ===========================================
@@ -186,7 +254,7 @@ export interface ShopifyCustomer {
 // ===========================================
 
 // Store for customer passwords (in production, use Redis or database)
-// Now using KV storage from lib/auth/storage.ts
+// Now using Redis storage from lib/auth/storage.ts
 
 /**
  * Generate a secure random password
@@ -209,11 +277,9 @@ export async function createOrGetShopifyCustomer(
     email: string
 ): Promise<{ success: boolean; customerId?: string; isNew?: boolean; error?: string }> {
     const normalizedEmail = email.toLowerCase().trim();
-
     try {
         // Generate a random password for new customers
         const password = generateSecurePassword();
-
         const result = await shopifyFetch<CustomerCreateResult>({
             query: CUSTOMER_CREATE,
             variables: {
@@ -224,7 +290,6 @@ export async function createOrGetShopifyCustomer(
                 },
             },
         });
-
         const { customer, customerUserErrors } = result.customerCreate;
 
         if (customerUserErrors.length > 0) {
@@ -253,7 +318,6 @@ export async function createOrGetShopifyCustomer(
         if (customer) {
             // Store password for this session (for getting access token later)
             await storage.storeCustomerPassword(normalizedEmail, password);
-
             console.log(`Created new Shopify customer: ${customer.id}`);
             return {
                 success: true,

@@ -33,7 +33,7 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={onClose}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            className="absolute  inset-0 bg-black/60 backdrop-blur-sm"
                         />
 
                         {/* Modal Content */}
@@ -46,19 +46,19 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
                             {/* Close Button */}
                             <button
                                 onClick={onClose}
-                                className="absolute top-6 right-6 p-2 rounded-xl bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors z-[110]"
+                                className="absolute top-8 right-8 p-1.5 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-all duration-300 group z-[110]"
                             >
-                                <X className="w-5 h-5 text-gray-400" />
+                                <X className="w-4 h-4 text-gray-500 group-hover:text-black dark:group-hover:text-white transition-colors" />
                             </button>
 
-                            <div className="p-10 pb-6 overflow-y-auto">
+                            <div className="p-5 pb-3 overflow-y-auto">
                                 <CustomSignInForm onSuccess={handleSignInSuccess} />
                             </div>
 
                             {/* Footer / Policy Info */}
-                            <div className="bg-gray-50/50 dark:bg-white/5 p-8 text-center border-t border-gray-100/50 dark:border-white/5">
+                            <div className="bg-gray-50/50 dark:bg-white/5 p-4 text-center border-t border-gray-100/50 dark:border-white/5">
                                 <p className="text-[11px] leading-relaxed text-gray-500 font-medium max-w-[280px] mx-auto">
-                                    By continuing, you agree to the <span className="text-primary cursor-pointer">Terms of Service</span> and acknowledge the <span className="text-primary cursor-pointer">Privacy Policy</span>.
+                                    By continuing, you agree to the <span className="text-[#215732] font-bold cursor-pointer hover:underline underline-offset-4 transition-all">Terms of Service</span> and acknowledge the <span className="text-[#215732] font-bold cursor-pointer hover:underline underline-offset-4 transition-all">Privacy Policy</span>.
                                 </p>
                             </div>
                         </motion.div>

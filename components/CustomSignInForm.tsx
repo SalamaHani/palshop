@@ -1,6 +1,9 @@
 // components/CustomSignInForm.tsx
 'use client';
 import { useState, useRef, useEffect, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, ShieldCheck, ArrowRight, RefreshCcw, ArrowLeft, Loader2, ChevronDown, UserRound } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface Customer {
     id: string;
@@ -11,14 +14,15 @@ interface Customer {
 }
 
 interface CustomSignInFormProps {
-    onSuccess?: (customer: Customer) => void;
+    onSuccess?: (customer: Customer | any) => void;
 }
+
+const PRIMARY_COLOR = '#215732';
 
 export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
     const [step, setStep] = useState<'email' | 'code'>('email');
     const [email, setEmail] = useState<string>('');
     const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
-    const [sessionId, setSessionId] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
     const [resendTimer, setResendTimer] = useState<number>(0);
@@ -34,8 +38,14 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
     }, [resendTimer]);
 
     // Send verification code
-    const handleSendCode = async (e?: FormEvent<HTMLFormElement>): Promise<{ success: boolean; error?: string; code?: string }> => {
+    const handleSendCode = async (e?: FormEvent<HTMLFormElement>): Promise<void> => {
         e?.preventDefault();
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            setError('Please enter a valid email address');
+            return;
+        }
+
         setLoading(true);
         setError('');
         try {
@@ -48,24 +58,23 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
             const data = await res.json();
 
             if (!res.ok) {
-                return { success: false, error: data.error };
+                setError(data.error || 'Failed to send code');
+                return;
             }
 
-            return { success: true, code: data.code }; // code only in dev
+            setStep('code');
+            setResendTimer(60);
         } catch {
-            return { success: false, error: 'Failed to send code. Please try again.' };
-        }
-        finally {
+            setError('Failed to send code. Please try again.');
+        } finally {
             setLoading(false);
         }
     };
 
     // Handle code input change
     const handleCodeChange = (index: number, value: string): void => {
-        // Only allow digits
         if (!/^\d*$/.test(value)) return;
 
-        // Handle paste
         if (value.length > 1) {
             const pastedCode = value.slice(0, 6).split('');
             const newCode = [...code];
@@ -85,23 +94,19 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
             return;
         }
 
-        // Single digit input
         const newCode = [...code];
         newCode[index] = value;
         setCode(newCode);
 
-        // Auto-focus next input
         if (value && index < 5) {
             inputRefs.current[index + 1]?.focus();
         }
 
-        // Auto-verify when all 6 digits entered
         if (index === 5 && value && newCode.every(d => d !== '')) {
             handleVerifyCode(newCode.join(''));
         }
     };
 
-    // Handle backspace
     const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>): void => {
         if (e.key === 'Backspace') {
             if (!code[index] && index > 0) {
@@ -129,15 +134,13 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
             const response = await fetch('/api/auth/verify-code', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, code }),
+                body: JSON.stringify({ email, code: finalCode }),
             });
 
             const data = await response.json();
 
             if (data.success) {
-                if (onSuccess) {
-                    onSuccess(data.customer);
-                }
+                onSuccess?.(data.customer || { email: data.email, id: data.customerId });
             } else {
                 setError(data.error || 'Invalid verification code');
                 setCode(['', '', '', '', '', '']);
@@ -152,168 +155,149 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
         }
     };
 
-    // Resend code
     const handleResendCode = async (): Promise<void> => {
-        if (resendTimer > 0) return;
-
+        if (resendTimer > 0 || loading) return;
         setCode(['', '', '', '', '', '']);
         setError('');
         await handleSendCode();
     };
 
-    // Change email
     const handleChangeEmail = (): void => {
         setStep('email');
         setCode(['', '', '', '', '', '']);
         setError('');
-        setSessionId('');
     };
 
     return (
-        <div className="w-full max-w-md mx-auto">
-            {/* Header */}
-            <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-black rounded-full mb-4">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                    {step === 'email' ? 'Welcome back' : 'Check your email'}
-                </h1>
-                <p className="text-gray-600">
-                    {step === 'email'
-                        ? 'Sign in to access your account'
-                        : `We sent a code to ${email}`
-                    }
-                </p>
-            </div>
+        <div className="w-full">
+            <AnimatePresence mode="wait">
+                {step === 'email' ? (
+                    <motion.div
+                        key="email-step"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.3 }}
+                        className="space-y-3"
+                    >
+                        <div className="space-y-3">
+                            <div className="flex items-center justify-start mb-2">
+                                <span className="text-2xl font-black tracking-tighter text-[#215732]">shop</span>
+                            </div>
+
+                            <div className="space-y-2 text-center">
+                                <h1 className="text-sm font-medium text-gray-900 dark:text-white tracking-tight">
+                                    Sign in or create an account
+                                </h1>
+                            </div>
+
+                            <form onSubmit={handleSendCode} className="space-y-5">
+                                <div className="space-y-1">
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="w-full px-4 py-[14px] bg-white dark:bg-black border border-gray-200 dark:border-white/10 focus:border-[#215732] rounded-[14px] outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400"
+                                        placeholder="Email"
+                                        required
+                                        autoFocus
+                                        autoComplete="email"
+                                        disabled={loading}
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading || !email}
+                                    className="w-full bg-[#215732] text-white py-[10px] rounded-[14px] font-bold text-base flex items-center justify-center transition-all duration-200 hover:opacity-90 active:scale-[0.99]"
+                                >
+                                    {loading ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <span>Continue</span>
+                                    )}
+                                </button>
+                            </form>
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="code-step"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="space-y-4"
+                    >
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-start mb-2">
+                                <span className="text-2xl font-black tracking-tighter text-[#215732]">shop</span>
+                            </div>
+
+                            <div className="space-y-4">
+                                <button
+                                    onClick={handleChangeEmail}
+                                    className="flex items-center gap-2 group"
+                                >
+                                    <span className="text-base font-bold text-gray-900 dark:text-white">{email}</span>
+                                    <ChevronDown className="w-3 h-3 text-gray-900 dark:text-white group-hover:translate-y-0.5 transition-transform" />
+                                </button>
+
+                                <div className="grid grid-cols-6 gap-2 sm:gap-3">
+                                    {code.map((digit, index) => (
+                                        <input
+                                            key={index}
+                                            ref={(el) => { inputRefs.current[index] = el; }}
+                                            type="text"
+                                            inputMode="numeric"
+                                            maxLength={1}
+                                            value={digit}
+                                            onChange={(e) => handleCodeChange(index, e.target.value)}
+                                            onKeyDown={(e) => handleKeyDown(index, e)}
+                                            className="h-14 text-center text-xl font-medium bg-white dark:bg-black border-[1.5px] border-gray-300 dark:border-white/10 focus:border-[#215732] rounded-2xl outline-none transition-all duration-200"
+                                            disabled={loading}
+                                        />
+                                    ))}
+                                </div>
+
+                                <p className="text-sm font-bold text-gray-900 dark:text-white">
+                                    Enter code sent to email
+                                </p>
+                            </div>
+
+
+
+                            <div className="flex flex-col items-center gap-6 pt-2">
+                                <button
+                                    onClick={handleResendCode}
+                                    disabled={resendTimer > 0 || loading}
+                                    className="text-sm font-bold text-[#215732] disabled:opacity-50 transition-colors"
+                                >
+                                    {resendTimer > 0
+                                        ? `Resend code in ${resendTimer}s`
+                                        : 'Request new code'}
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Error Message */}
-            {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-                    <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                    <p className="text-sm text-red-800">{error}</p>
-                </div>
-            )}
-
-            {/* Email Step */}
-            {step === 'email' && (
-                <form onSubmit={handleSendCode} className="space-y-6">
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                            Email address
-                        </label>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-black focus:border-transparent outline-none transition text-base"
-                            placeholder="you@example.com"
-                            required
-                            autoFocus
-                            autoComplete="email"
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading || !email}
-                        className="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-[0.98]"
+            <AnimatePresence>
+                {error && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3"
                     >
-                        {loading ? (
-                            <span className="flex items-center justify-center gap-2">
-                                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
-                                Sending code...
-                            </span>
-                        ) : (
-                            'Continue with email'
-                        )}
-                    </button>
-
-                    <p className="text-xs text-center text-gray-500">
-                        By continuing, you agree to our Terms of Service and Privacy Policy
-                    </p>
-                </form>
-            )}
-
-            {/* Code Verification Step */}
-            {step === 'code' && (
-                <div className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-4 text-center">
-                            Enter 6-digit code
-                        </label>
-                        <div className="flex gap-2 justify-center mb-6">
-                            {code.map((digit, index) => (
-                                <input
-                                    key={index}
-                                    ref={(el) => {
-                                        inputRefs.current[index] = el;
-                                    }}
-                                    type="text"
-                                    inputMode="numeric"
-                                    maxLength={1}
-                                    value={digit}
-                                    onChange={(e: ChangeEvent<HTMLInputElement>) => handleCodeChange(index, e.target.value)}
-                                    onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => handleKeyDown(index, e)}
-                                    className="w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border-2 border-gray-300 rounded-xl focus:border-black focus:ring-2 focus:ring-black outline-none transition"
-                                    disabled={loading}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={() => handleVerifyCode()}
-                        disabled={loading || code.join('').length !== 6}
-                        className="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-[0.98]"
-                    >
-                        {loading ? (
-                            <span className="flex items-center justify-center gap-2">
-                                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                                </svg>
-                                Verifying...
-                            </span>
-                        ) : (
-                            'Verify code'
-                        )}
-                    </button>
-
-                    <div className="flex flex-col gap-3 text-center">
-                        <button
-                            type="button"
-                            onClick={handleResendCode}
-                            disabled={resendTimer > 0}
-                            className="text-sm text-gray-600 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed transition"
-                        >
-                            {resendTimer > 0
-                                ? `Resend code in ${resendTimer}s`
-                                : 'Resend code'
-                            }
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={handleChangeEmail}
-                            className="text-sm text-gray-600 hover:text-black transition"
-                        >
-                            Use a different email
-                        </button>
-                    </div>
-                </div>
-            )}
+                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                        <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 }
-
-
-

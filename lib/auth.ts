@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { SignJWT, jwtVerify } from 'jose';
-import * as kvStorage from './auth/storage';
+import * as authStorage from './auth/storage';
 
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET || 'fallback-secret-change-in-production'
@@ -29,7 +29,7 @@ export function generateVerificationCode(): string {
 export async function storeVerificationCode(email: string, code: string): Promise<void> {
   const normalizedEmail = email.toLowerCase().trim();
   const sessionId = normalizedEmail; // Use email as sessionId for simplicity
-  await kvStorage.storeVerificationCode(sessionId, normalizedEmail, code);
+  await authStorage.storeVerificationCode(sessionId, normalizedEmail, code);
 }
 
 // Verify the code using Redis storage
@@ -40,14 +40,14 @@ export async function verifyCode(
   const normalizedEmail = email.toLowerCase().trim();
   const sessionId = normalizedEmail; // Use email as sessionId
 
-  const data = await kvStorage.getVerificationCode(sessionId);
+  const data = await authStorage.getVerificationCode(sessionId);
 
   if (!data) {
     return { valid: false, error: 'No verification code found. Please request a new one.' };
   }
 
   if (Date.now() > data.expiresAt) {
-    await kvStorage.deleteVerificationCode(sessionId);
+    await authStorage.deleteVerificationCode(sessionId);
     return { valid: false, error: 'Code expired. Please request a new one.' };
   }
 
@@ -57,7 +57,7 @@ export async function verifyCode(
   }
 
   // Code is valid - remove it
-  await kvStorage.deleteVerificationCode(sessionId);
+  await authStorage.deleteVerificationCode(sessionId);
   return { valid: true };
 }
 
@@ -114,7 +114,7 @@ export async function clearSession(): Promise<void> {
 export async function hasActiveCode(email: string): Promise<boolean> {
   const normalizedEmail = email.toLowerCase().trim();
   const sessionId = normalizedEmail;
-  const data = await kvStorage.getVerificationCode(sessionId);
+  const data = await authStorage.getVerificationCode(sessionId);
   return !!data && Date.now() < data.expiresAt;
 }
 
@@ -122,7 +122,7 @@ export async function hasActiveCode(email: string): Promise<boolean> {
 export async function getCodeTimeRemaining(email: string): Promise<number> {
   const normalizedEmail = email.toLowerCase().trim();
   const sessionId = normalizedEmail;
-  const data = await kvStorage.getVerificationCode(sessionId);
+  const data = await authStorage.getVerificationCode(sessionId);
   if (!data) return 0;
   return Math.max(0, Math.floor((data.expiresAt - Date.now()) / 1000));
 }
