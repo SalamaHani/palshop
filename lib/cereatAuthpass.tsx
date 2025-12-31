@@ -7,10 +7,6 @@ async function connectDB() {
 export async function createUser(email: string) {
     const db = await connectDB();
     const users = db.collection('users');
-    // Check if email already exists
-    const existing = await users.findOne({ email });
-    if (existing) throw new Error('Email already exists');
-
     // Generate unique customerID
     const customerID = crypto.randomUUID();
 
