@@ -50,9 +50,9 @@ export default function ProductCarousel({ images }: { images: ImageEdge[] }) {
   if (!images?.length) return null;
 
   return (
-    <div className="flex gap-4 md:gap-6 lg:gap-8 h-full lg:sticky lg:top-28">
+    <div className="flex gap-2 md:gap-4 lg:gap-6 h-full lg:sticky lg:top-28">
       {/* Thumbnail Column - Visible from MD up */}
-      <div className="hidden md:flex flex-col gap-3 w-16 lg:w-20 shrink-0">
+      <div className="hidden md:flex flex-col gap-2 w-8 lg:w-12 shrink-0">
         {images.map((image, index) => (
           <button
             key={index}
@@ -76,7 +76,7 @@ export default function ProductCarousel({ images }: { images: ImageEdge[] }) {
 
       {/* Main Image Viewport */}
       <div className="relative flex-1 group">
-        <div className="overflow-hidden rounded-3xl bg-gray-50 h-full aspect-[3/4] md:h-[500px] lg:h-[700px]" ref={mainCarouselRef}>
+        <div className="overflow-hidden rounded-3xl bg-gray-50 h-full aspect-[5/4] md:h-[400px] lg:h-[500px]" ref={mainCarouselRef}>
           <div className="flex h-full">
             {images.map((image, index) => (
               <div className="relative flex-[0_0_100%] min-w-0" key={index}>
@@ -99,13 +99,13 @@ export default function ProductCarousel({ images }: { images: ImageEdge[] }) {
               className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white active:scale-90"
               onClick={scrollPrev}
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white active:scale-90"
               onClick={scrollNext}
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </>
         )}

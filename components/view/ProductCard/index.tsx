@@ -8,10 +8,12 @@ import ProductPrice from "./ProductPrice";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ProductCard = ({ product }: { product: Product }) => {
   const router = useRouter();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isAuthenticated, setIsAuthModalOpen } = useAuth();
   const [isToggling, setIsToggling] = React.useState(false);
   const isSaved = isInWishlist(product.id);
 
@@ -22,6 +24,12 @@ const ProductCard = ({ product }: { product: Product }) => {
   const toggleSave = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!isAuthenticated) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     if (isToggling) return;
 
     setIsToggling(true);
@@ -98,7 +106,6 @@ const ProductCard = ({ product }: { product: Product }) => {
             ({reviews})
           </span>
         </div>
-
         <ProductPrice priceRange={product.priceRange} />
       </div>
     </div>

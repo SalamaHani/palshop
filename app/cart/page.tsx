@@ -6,13 +6,24 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
     const { cart, isLoading, updateItem, removeItem, cartCount, refreshCart } = useCart();
+    const { isAuthenticated, isLoading: isAuthLoading, setIsAuthModalOpen } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isAuthLoading && !isAuthenticated) {
+            router.push('/');
+            setIsAuthModalOpen(true);
+        }
+    }, [isAuthLoading, isAuthenticated, router, setIsAuthModalOpen]);
 
     useEffect(() => {
         refreshCart();
-    }, []);
+    }, [refreshCart]);
 
     if (isLoading && !cart) {
         return (

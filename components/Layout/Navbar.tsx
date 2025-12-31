@@ -40,12 +40,11 @@ export default function Navbar({
     inactiveColor = 'text-gray-600',
 }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+    const { isAuthenticated, isLoading, isAuthModalOpen, setIsAuthModalOpen } = useAuth();
     const router = useRouter();
     const { cart } = useCart();
     const { wishlistCount } = useWishlist();
     const route = useRouteNav();
-    const { isAuthenticated, isLoading } = useAuth();
 
     const handleAccountClick = () => {
         if (isAuthenticated) {
@@ -53,7 +52,7 @@ export default function Navbar({
             router.push('/account');
         } else {
             // User is not logged in, open sign-in modal
-            setIsSignInModalOpen(true);
+            setIsAuthModalOpen(true);
         }
     };
 
@@ -111,7 +110,17 @@ export default function Navbar({
                                 route.map((item, index) => {
                                     if (item.title == 'Saved') {
                                         return (
-                                            <Link key={index} href={item?.href ?? '/'} className={`p-2  relative flex items-center justify-center rounded-full  hover:bg-gray-200 transition-all duration-300 ease-out group `}>
+                                            <Link
+                                                key={index}
+                                                href={item?.href ?? '/'}
+                                                onClick={(e) => {
+                                                    if (!isAuthenticated) {
+                                                        e.preventDefault();
+                                                        setIsAuthModalOpen(true);
+                                                    }
+                                                }}
+                                                className={`p-2  relative flex items-center justify-center rounded-full  hover:bg-gray-200 transition-all duration-300 ease-out group `}
+                                            >
                                                 <div
                                                     className={`absolute inset-0 rounded-full transition-all   duration-300 ease-out ${item.isActive
                                                         ? `${activeColor} scale-100`
@@ -122,17 +131,23 @@ export default function Navbar({
                                                     ? 'text-white scale-110'
                                                     : `${inactiveColor} scale-100 group-hover:bg-gray-200 group-hover:text-[#215734] `
                                                     }`} />
-                                                {wishlistCount > 0 && (
-                                                    <Badge variant="destructive" className="absolute -top-2 text-white right-0 bg-red-500 text-[10px] min-w-[18px] h-[18px] p-0 flex items-center justify-center">
-                                                        {wishlistCount}
-                                                    </Badge>
-                                                )}
+
                                             </Link>
                                         );
                                     }
                                     if (item.title == 'Cart') {
                                         return (
-                                            <Link key={index} href={item?.href ?? '/'} className={`p-2  relative flex items-center justify-center rounded-full  hover:bg-gray-200 transition-all duration-300 ease-out group `}>
+                                            <Link
+                                                key={index}
+                                                href={item?.href ?? '/'}
+                                                onClick={(e) => {
+                                                    if (!isAuthenticated) {
+                                                        e.preventDefault();
+                                                        setIsAuthModalOpen(true);
+                                                    }
+                                                }}
+                                                className={`p-2  relative flex items-center justify-center rounded-full  hover:bg-gray-200 transition-all duration-300 ease-out group `}
+                                            >
                                                 <div
                                                     className={`absolute inset-0  rounded-full transition-all   duration-300 ease-out ${item.isActive
                                                         ? `${activeColor} scale-100`
@@ -144,7 +159,7 @@ export default function Navbar({
                                                     : `${inactiveColor} scale-100 group-hover:bg-gray-200 group-hover:text-[#215734] `
                                                     }`} />
                                                 {item.id === 'cart' && (cart?.totalQuantity ?? 0) > 0 && (
-                                                    <Badge variant="default" className="absolute -top-2 text-white right-0 bg-[#215734]">
+                                                    <Badge variant="default" className="absolute rounded-full -top-2 text-white right-0 bg-[#215734]">
                                                         {cart?.totalQuantity}
                                                     </Badge>
                                                 )}
@@ -181,8 +196,8 @@ export default function Navbar({
 
             {/* Sign In Modal */}
             <SignInModal
-                isOpen={isSignInModalOpen}
-                onClose={() => setIsSignInModalOpen(false)}
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
             />
         </>
     );

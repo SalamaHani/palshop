@@ -1,10 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { fetchGraphQL, fetchShopify } from '@/shopify/client';
+import { fetchGraphQL } from '@/shopify/client';
 import {
-    GET_CUSTOMER_WISHLIST,
-    UPDATE_CUSTOMER_WISHLIST,
     GET_WISHLIST_PRODUCTS,
 } from '@/graphql/wishlist';
 import { useAuth } from './AuthContext';
@@ -106,16 +104,20 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
-    // 3. Load from Shopify for authenticated users
+    // 3. Load from our wishlist API
     const loadFromShopify = useCallback(async () => {
         try {
-            const data = await fetchShopify(GET_CUSTOMER_WISHLIST, {}, 'customer-account');
-            const wishlistValue = data?.customer?.wishlist?.value || '[]';
-            const ids = JSON.parse(wishlistValue);
-            setWishlistIds(ids);
-            await loadProducts(ids);
+            const response = await fetch('/api/customer/wishlist');
+            if (response.ok) {
+                const data = await response.json();
+                const ids = data.wishlist || [];
+                setWishlistIds(ids);
+                await loadProducts(ids);
+            } else {
+                setIsLoading(false);
+            }
         } catch (error) {
-            console.error('[WishlistContext] Load Shopify Wishlist Error:', error);
+            console.error('[WishlistContext] Load API Wishlist Error:', error);
             setIsLoading(false);
         }
     }, [loadProducts]);
@@ -123,25 +125,33 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (isAuthenticated) {
             const syncWishlist = async () => {
-                // Fetch Shopify wishlist
-                const data = await fetchShopify(GET_CUSTOMER_WISHLIST, {}, 'customer-account');
-                const shopifyWishlistValue = data?.customer?.wishlist?.value || '[]';
-                const shopifyIds = JSON.parse(shopifyWishlistValue);
+                try {
+                    // Fetch Shopify wishlist via our API
+                    const response = await fetch('/api/customer/wishlist');
+                    let shopifyIds: string[] = [];
+                    if (response.ok) {
+                        const data = await response.json();
+                        shopifyIds = data.wishlist || [];
+                    }
 
-                // Fetch local wishlist
-                const localSaved = localStorage.getItem('palshop_wishlist');
-                const localIds = localSaved ? JSON.parse(localSaved) : [];
+                    // Fetch local wishlist
+                    const localSaved = localStorage.getItem('palshop_wishlist');
+                    const localIds = localSaved ? JSON.parse(localSaved) : [];
 
-                // Merge unique IDs
-                const mergedIds = Array.from(new Set([...shopifyIds, ...localIds]));
+                    // Merge unique IDs
+                    const mergedIds = Array.from(new Set([...shopifyIds, ...localIds]));
 
-                // If local had new items, update Shopify
-                if (localIds.length > 0) {
-                    await updateWishlist(mergedIds);
-                    localStorage.removeItem('palshop_wishlist'); // Clear local after merge
-                } else {
-                    setWishlistIds(shopifyIds);
-                    await loadProducts(shopifyIds);
+                    // If local had new items, update Shopify
+                    if (localIds.length > 0) {
+                        await updateWishlist(mergedIds);
+                        localStorage.removeItem('palshop_wishlist'); // Clear local after merge
+                    } else {
+                        setWishlistIds(shopifyIds);
+                        await loadProducts(shopifyIds);
+                    }
+                } catch (error) {
+                    console.error('[WishlistContext] Sync Error:', error);
+                    setIsLoading(false);
                 }
             };
             syncWishlist();
@@ -164,16 +174,17 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         if (isAuthenticated) {
             setIsUpdating(true);
             try {
-                await fetchShopify(UPDATE_CUSTOMER_WISHLIST, {
-                    metafields: [{
-                        namespace: "custom",
-                        key: "wishlist",
-                        value: JSON.stringify(newIds),
-                        type: "json"
-                    }]
-                }, 'customer-account');
+                const response = await fetch('/api/customer/wishlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ wishlist: newIds })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update wishlist');
+                }
             } catch (error) {
-                console.error('[WishlistContext] Update Shopify Error:', error);
+                console.error('[WishlistContext] Update API Error:', error);
                 toast.error('Failed to sync wishlist with account');
             } finally {
                 setIsUpdating(false);

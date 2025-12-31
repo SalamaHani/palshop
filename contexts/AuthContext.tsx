@@ -16,6 +16,8 @@ interface AuthContextType {
     isLoading: boolean;
     logout: () => Promise<void>;
     refreshCustomer: () => Promise<void>;
+    isAuthModalOpen: boolean;
+    setIsAuthModalOpen: (open: boolean) => void;
 }
 interface User {
     email: string;
@@ -52,17 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const handleSignOut = async () => {
-        try {
-            await fetch('/api/auth/signout', { method: 'POST' });
-            setCustomer(null);
-        } catch (error) {
-            console.error('Sign out error:', error);
-            // Still clear local state even if API call fails
-            setCustomer(null);
-        }
-        setCustomer(null);
-    };
+
 
     useEffect(() => {
         loadCustomer();
@@ -129,11 +121,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     async function logout() {
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
-            setUser(null);
+            await fetch('/api/auth/signout', { method: 'POST' });
+            setCustomer(null);
         } catch (error) {
-            console.error('Logout failed:', error);
+            console.error('Sign out error:', error);
+            // Still clear local state even if API call fails
+            setCustomer(null);
         }
+        setCustomer(null);
     }
 
     return (
@@ -144,6 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isLoading,
                 logout,
                 refreshCustomer: loadCustomer,
+                isAuthModalOpen,
+                setIsAuthModalOpen,
             }}
         >
             {children}

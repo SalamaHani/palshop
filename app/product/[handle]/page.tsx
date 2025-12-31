@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import ProductOptions from "@/components/view/ProductOptions";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Star, Heart, Share2, MoreHorizontal, Check, Truck, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ const Product = () => {
   const params = useParams();
   const { addItem, isUpdating } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { isAuthenticated, setIsAuthModalOpen } = useAuth();
 
   const [isAdded, setIsAdded] = useState(false);
 
@@ -95,6 +97,10 @@ const Product = () => {
   const isSaved = isInWishlist(product.id);
 
   const handleToggleWishlist = () => {
+    if (!isAuthenticated) {
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (product) {
       toggleWishlist({
         id: product.id,
@@ -108,6 +114,10 @@ const Product = () => {
   };
 
   const handleAddtoCart = async () => {
+    if (!isAuthenticated) {
+      setIsAuthModalOpen(true);
+      return;
+    }
     if (selectedVariant) {
       try {
         await addItem(selectedVariant.id, quantity);
@@ -231,6 +241,15 @@ const Product = () => {
             <Button
               className="w-full h-14 rounded-full bg-black text-white hover:bg-gray-900 text-lg font-bold shadow-xl transition-all active:scale-[0.98]"
               disabled={!selectedVariant}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  setIsAuthModalOpen(true);
+                } else {
+                  // Proceed with Buy Now logic if any, or just add to cart and go to checkout
+                  handleAddtoCart();
+                  // router.push(cart.checkoutUrl); // If available
+                }
+              }}
             >
               Buy now
             </Button>
@@ -241,11 +260,11 @@ const Product = () => {
                 variant="outline"
                 className={cn(
                   "flex-1 h-12 rounded-full border-gray-200 gap-2 font-bold hover:bg-gray-100 transition-all group",
-                  isSaved && "border-red-500 text-red-500 hover:bg-red-50"
+                  isSaved && "border-[#215732] "
                 )}
                 onClick={handleToggleWishlist}
               >
-                <Heart className={cn("w-5 h-5 transition-colors", isSaved ? "fill-red-500 text-red-500" : "group-hover:fill-red-500 group-hover:text-red-500")} />
+                <Heart className={cn("w-5 h-5 transition-colors", isSaved ? "fill-[#215732] text-[#215732]" : "group-hover:fill-red-500 group-hover:text-red-500")} />
                 Save
               </Button>
               <Button

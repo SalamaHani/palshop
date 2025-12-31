@@ -49,13 +49,12 @@ const NavMobile: React.FC<NavMobileProps> = ({
     const router = useRouter();
     const { cart } = useCart();
     const { wishlistCount } = useWishlist();
-    const { isAuthenticated } = useAuth();
-    const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+    const { isAuthenticated, isAuthModalOpen, setIsAuthModalOpen } = useAuth();
 
-    const handleAccountClick = (e: React.MouseEvent) => {
-        if (!isAuthenticated) {
+    const handleNavClick = (e: React.MouseEvent, itemId: string) => {
+        if (!isAuthenticated && (itemId === 'account' || itemId === 'cart' || itemId === 'saved')) {
             e.preventDefault();
-            setIsSignInModalOpen(true);
+            setIsAuthModalOpen(true);
         }
     };
 
@@ -65,13 +64,11 @@ const NavMobile: React.FC<NavMobileProps> = ({
             <div className="flex items-center justify-between  ">
                 {route.map((item, index) => {
                     const Icon = item.icon;
-                    const isAccount = item.id === 'account';
-
                     return (
                         <Link
                             key={index}
                             href={item?.href ?? '/'}
-                            onClick={isAccount ? handleAccountClick : undefined}
+                            onClick={(e) => handleNavClick(e, item.id)}
                             className="relative flex items-center justify-center w-12 h-12 transition-all duration-300 ease-out group"
                             aria-label={item.title}
                         >
@@ -94,13 +91,8 @@ const NavMobile: React.FC<NavMobileProps> = ({
                             />
                             {/* Badge for cart or other items */}
                             {item.id === 'cart' && (cart?.totalQuantity ?? 0) > 0 && (
-                                <Badge variant="default" className="absolute -top-2 text-white right-0 bg-[#215734]">
+                                <Badge variant="default" className="absolute rounded-full -top-2 text-white right-0 bg-[#215734]">
                                     {cart?.totalQuantity}
-                                </Badge>
-                            )}
-                            {item.id === 'saved' && wishlistCount > 0 && (
-                                <Badge variant="default" className="absolute -top-2 text-white right-0 bg-red-500 text-[10px] min-w-[18px] h-[18px] p-0 flex items-center justify-center">
-                                    {wishlistCount}
                                 </Badge>
                             )}
                         </Link>
@@ -110,8 +102,8 @@ const NavMobile: React.FC<NavMobileProps> = ({
 
             {/* Sign In Modal */}
             <SignInModal
-                isOpen={isSignInModalOpen}
-                onClose={() => setIsSignInModalOpen(false)}
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
             />
         </nav>
     );

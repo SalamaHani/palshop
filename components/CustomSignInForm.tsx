@@ -2,7 +2,7 @@
 'use client';
 import { useState, useRef, useEffect, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, ShieldCheck, ArrowRight, RefreshCcw, ArrowLeft, Loader2, ChevronDown, UserRound } from 'lucide-react';
+import { Loader2, ChevronDown } from 'lucide-react';
 
 interface Customer {
     id: string;
@@ -212,13 +212,13 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                         transition={{ duration: 0.3 }}
                         className="space-y-3"
                     >
-                        <div className="space-y-3">
+                        <div className="space-y-3 p-2">
                             <div className="flex items-center justify-start mb-2">
-                                <span className="text-2xl font-black tracking-tighter text-[#215732]">shop</span>
+                                <span className="text-xl font-black tracking-tighter text-[#215732]">PAL<span className="text-xl font-medium tracking-tighter text-[#215732]">shop</span></span>
                             </div>
 
                             <div className="space-y-2 text-center">
-                                <h1 className="text-sm font-medium text-gray-900 dark:text-white tracking-tight">
+                                <h1 className="font-sans font-normal text-sm text-gray-900 dark:text-white tracking-tight">
                                     Sign in or create an account
                                 </h1>
                             </div>
@@ -242,13 +242,13 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
 
                                 <button
                                     type="submit"
-                                    disabled={loading || !email}
-                                    className="w-full bg-[#215732] text-white py-[10px] rounded-[14px] font-bold text-base flex items-center justify-center transition-all duration-200 hover:opacity-90 active:scale-[0.99]"
+                                    disabled={loading || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
+                                    className="w-full bg-[#215732] text-white py-[10px] rounded-[14px] font-sans font-normal flex items-center justify-center transition-all duration-200 hover:opacity-90 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50"
                                 >
                                     {loading ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
                                     ) : (
-                                        <span>Continue</span>
+                                        <span className="font-sans font-normal">Continue</span>
                                     )}
                                 </button>
                             </form>
@@ -277,7 +277,13 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                                     <ChevronDown className="w-3 h-3 text-gray-900 dark:text-white group-hover:translate-y-0.5 transition-transform" />
                                 </button>
 
-                                <div className="grid grid-cols-6 gap-2 sm:gap-3">
+                                <div
+                                    className="grid grid-cols-6 gap-2 sm:gap-3 cursor-text"
+                                    onClick={() => {
+                                        const indexToFocus = code.findIndex(d => !d);
+                                        inputRefs.current[indexToFocus === -1 ? 5 : indexToFocus]?.focus();
+                                    }}
+                                >
                                     {code.map((digit, index) => (
                                         <input
                                             key={index}
@@ -286,6 +292,7 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                                             inputMode="numeric"
                                             maxLength={1}
                                             value={digit}
+                                            autoFocus={index === 0 && step === 'code'}
                                             onChange={(e) => handleCodeChange(index, e.target.value)}
                                             onKeyDown={(e) => handleKeyDown(index, e)}
                                             onPaste={handlePaste}
