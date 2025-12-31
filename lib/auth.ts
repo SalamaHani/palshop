@@ -29,7 +29,10 @@ export function generateVerificationCode(): string {
 export async function storeVerificationCode(email: string, code: string): Promise<void> {
   const normalizedEmail = email.toLowerCase().trim();
   const sessionId = normalizedEmail; // Use email as sessionId for simplicity
-  await authStorage.storeVerificationCode(sessionId, normalizedEmail, code);
+  await Promise.all([
+    authStorage.storeVerificationCode(sessionId, normalizedEmail, code),
+    authStorage.resetAttempts(normalizedEmail)
+  ]);
 }
 
 // Verify the code using Redis storage
@@ -37,28 +40,60 @@ export async function verifyCode(
   email: string,
   code: string
 ): Promise<{ valid: boolean; error?: string }> {
-  const normalizedEmail = email.toLowerCase().trim();
-  const sessionId = normalizedEmail; // Use email as sessionId
+  try {
+    const normalizedEmail = email.toLowerCase().trim();
+    const sessionId = `verify:${normalizedEmail}`;
 
-  const data = await authStorage.getVerificationCode(sessionId);
+    // 1. Check for too many failed attempts (Rate Limiting)
+    const attempts = await authStorage.trackAttempt(normalizedEmail);
+    if (attempts > 5) {
+      return {
+        valid: false,
+        error: 'Security alert: Too many failed attempts. Please try again in 1 hour.'
+      };
+    }
 
-  if (!data) {
-    return { valid: false, error: 'No verification code found. Please request a new one.' };
+    // 2. Retrieve the stored code data
+    const data = await authStorage.getVerificationCode(normalizedEmail);
+
+    if (!data) {
+      return {
+        valid: false,
+        error: 'Session expired or invalid. Please request a new verification code.'
+      };
+    }
+
+    // 3. Handle expiration
+    if (Date.now() > data.expiresAt) {
+      await authStorage.deleteVerificationCode(normalizedEmail);
+      return {
+        valid: false,
+        error: 'This code has expired for your security. Please request a fresh one.'
+      };
+    }
+
+    // 4. Validate the code
+    if (data.code !== code) {
+      return {
+        valid: false,
+        error: `Incorrect code entered. ${5 - attempts} attempts remaining.`
+      };
+    }
+
+    // 5. Success - Purge security data immediately
+    await Promise.all([
+      authStorage.deleteVerificationCode(normalizedEmail),
+      authStorage.resetAttempts(normalizedEmail)
+    ]);
+
+    return { valid: true };
+  } catch (error) {
+    console.error('[AuthService] Critical verification error:', error);
+    return {
+      valid: false,
+      error: 'An unexpected security error occurred. Please try again.'
+    };
   }
-
-  if (Date.now() > data.expiresAt) {
-    await authStorage.deleteVerificationCode(sessionId);
-    return { valid: false, error: 'Code expired. Please request a new one.' };
-  }
-
-  if (data.code !== code) {
-    // Note: The Redis storage doesn't track attempts locally in verifyCode, but trackAttempt handles it.
-    return { valid: false, error: 'Invalid code. Please try again.' };
-  }
-
-  // Code is valid - remove it
-  await authStorage.deleteVerificationCode(sessionId);
-  return { valid: true };
 }
 
 // Generate session token

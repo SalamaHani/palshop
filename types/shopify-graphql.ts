@@ -25,31 +25,11 @@ export type Incremental<T> =
     [P in keyof T]?: P extends " $fragmentName" | "__typename" ? T[P] : never;
   };
 
+import { fetchShopify } from "@/shopify/client";
+
 function fetcher<TData, TVariables>(query: string, variables?: TVariables) {
   return async (): Promise<TData> => {
-    const res = await fetch(
-      "https://chetan-youtube-store.myshopify.com/api/2024-10/graphql.json",
-      {
-        method: "POST",
-        ...{
-          headers: {
-            "X-Shopify-Storefront-Access-Token":
-              "3562ae698b54027f8dd387fa5834a6e2",
-          },
-        },
-        body: JSON.stringify({ query, variables }),
-      }
-    );
-
-    const json = await res.json();
-
-    if (json.errors) {
-      const { message } = json.errors[0];
-
-      throw new Error(message);
-    }
-
-    return json.data;
+    return fetchShopify<TData>(query, variables as any);
   };
 }
 /** All built-in and custom scalars, mapped to their actual values */

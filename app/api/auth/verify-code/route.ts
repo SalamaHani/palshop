@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import {
   verifyCode,
   generateSessionToken,
@@ -39,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     // Verify the code
     const verification = await verifyCode(normalizedEmail, cleanCode);
-
+    console.log(verification);
     if (!verification.valid) {
       return NextResponse.json(
         { error: verification.error },
@@ -74,14 +75,24 @@ export async function POST(request: NextRequest) {
 
     // Generate session token with ACTUAL Shopify Customer ID
     const sessionToken = await generateSessionToken(normalizedEmail, shopifyCustomer.id);
-
     // Set session cookie
     await setSessionCookie(sessionToken);
+
+    // Set customerAccessToken for frontend Shopify Client
+    const cookieStore = await cookies();
+    cookieStore.set('customerAccessToken', authResult.accessToken, {
+      httpOnly: false, // Visible to client JS
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      path: '/',
+    });
 
     return NextResponse.json({
       success: true,
       email: normalizedEmail,
       customerId: shopifyCustomer.id,
+      accessToken: authResult.accessToken,
       redirectTo: '/account',
     });
   } catch (error) {

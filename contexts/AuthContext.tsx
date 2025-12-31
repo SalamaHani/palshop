@@ -14,7 +14,7 @@ interface AuthContextType {
     customer: Customer | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    signOut: () => Promise<void>;
+    logout: () => Promise<void>;
     refreshCustomer: () => Promise<void>;
 }
 interface User {
@@ -142,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 customer,
                 isAuthenticated: !!customer,
                 isLoading,
-                signOut: handleSignOut,
+                logout,
                 refreshCustomer: loadCustomer,
             }}
         >

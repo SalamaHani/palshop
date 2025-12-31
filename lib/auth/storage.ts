@@ -22,29 +22,36 @@ export type CustomerPasswordData = {
     expiresAt: number;
 };
 
-// Singleton Redis Client
+// Singleton Redis Connection Promise
+let redisPromise: Promise<any> | null = null;
 let redisClient: any = null;
 
 async function getRedis() {
     if (redisClient) return redisClient;
+    if (redisPromise) return redisPromise;
 
     const url = process.env.REDIS_URL;
     if (!url) {
-        console.warn('[Storage] ⚠️ REDIS_URL not found, using in-memory fallback');
+        console.warn('⚠️ [Redis] REDIS_URL not found, using in-memory fallback');
         return null;
     }
 
-    try {
-        const client = createClient({ url });
-        client.on('error', (err) => console.error('[Redis] Error:', err));
-        await client.connect();
-        redisClient = client;
-        console.log('[Redis] ✅ Connected');
-        return redisClient;
-    } catch (error) {
-        console.error('[Redis] Connection failed:', error);
-        return null;
-    }
+    redisPromise = (async () => {
+        try {
+            const client = createClient({ url });
+            client.on('error', (err) => console.error('❌ [Redis] Error:', err));
+            await client.connect();
+            redisClient = client;
+            console.log('✅ [Redis] Connected');
+            return client;
+        } catch (error) {
+            console.error('❌ [Redis] Connection failed:', error);
+            redisPromise = null;
+            return null;
+        }
+    })();
+
+    return redisPromise;
 }
 
 // In-memory fallback for development

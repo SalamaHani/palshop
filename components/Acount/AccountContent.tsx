@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 export function AccountContent() {
-    const { customer, signOut } = useAuth();
+    const { customer, logout } = useAuth();
 
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -110,7 +110,7 @@ export function AccountContent() {
             {/* Sign Out */}
             <div className="text-center">
                 <button
-                    onClick={signOut}
+                    onClick={logout}
                     className="text-gray-500 hover:text-gray-700 transition-colors"
                 >
                     Sign out of your account

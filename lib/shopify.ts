@@ -3,6 +3,7 @@ const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
 import { ADMIN_CUSTOMER_BY_EMAIL, ADMIN_CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_CREATE, CUSTOMER_QUERY } from '@/graphql/auth';
 import * as storage from './auth/storage';
 import { CustomerAccessTokenResult, CustomerQueryResult, ShopifyCustomer } from '@/types';
+import { createUser } from './cereatAuthpass';
 
 interface ShopifyResponse<T> {
     data: T;
@@ -108,18 +109,6 @@ export async function shopifyAdminFetch<T = any>(query: string, variables?: Reco
     return json.data as T; // ✅ now the return type is T
 }
 
-// ===========================================
-// CUSTOMER MUTATIONS / QUERIES
-// ===========================================
-
-
-
-// ===========================================
-// TYPES
-// ===========================================
-// ===========================================
-// HELPER FUNCTIONS
-// ===========================================
 
 function generateSecurePassword(): string {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
@@ -138,7 +127,6 @@ function generateSecurePassword(): string {
 
 export async function findShopifyCustomerByEmail(email: string): Promise<{ id: string; email: string; state: string } | null> {
     const normalizedEmail = email.toLowerCase().trim();
-
     const result = await shopifyAdminFetch<AdminCustomerByEmailResult>(
         ADMIN_CUSTOMER_BY_EMAIL,
         { email: `email:${normalizedEmail}` } // pass variables as 2nd argument
@@ -151,10 +139,14 @@ export async function findShopifyCustomerByEmail(email: string): Promise<{ id: s
  * Create a new customer via Shopify Admin API
  */
 async function createShopifyCustomer(email: string): Promise<{ id: string; email: string; state: string }> {
+    const userws = await createUser(email);
+    console.log(userws);
+    const password = userws.password;
     const mutation = ADMIN_CUSTOMER_CREATE;
     const variables = {
         input: {
             email,
+            password
         },
     };
     const result = await shopifyAdminFetch<{
@@ -186,20 +178,39 @@ async function createShopifyCustomer(email: string): Promise<{ id: string; email
 export async function createOrGetShopifyCustomer(email: string): Promise<{ success: boolean; customerId?: string; isNew?: boolean; error?: string }> {
     const normalizedEmail = email.toLowerCase().trim();
     if (!normalizedEmail || !normalizedEmail.includes('@')) return { success: false, error: 'Invalid email address' };
+
     try {
+        // Generate a fresh password for this session
+        const password = generateSecurePassword();
+        const user = await createUser(normalizedEmail);
         // 1️⃣ Search existing customer
         const existingCustomer = await findShopifyCustomerByEmail(normalizedEmail);
+
         if (existingCustomer) {
             if (existingCustomer.state === 'DISABLED') {
                 return { success: false, error: 'This account has been disabled.' };
             }
+            // Store the password in Redis so we can use it during verification
+            await storage.storeCustomerPassword(normalizedEmail, password);
+
+            // NOTE: In a real "passwordless" system, you might want to use the Admin API 
+            // to update the customer's password to this new one, but for simplicity 
+            // and security, we rely on the flow where we create/update the account.
+            // For now, we will update the password via Admin API if we can, 
+            // but setting it only on creation is what we had before.
+
             return { success: true, customerId: existingCustomer.id, isNew: false };
         }
 
         // 2️⃣ Create customer via Admin API
         const newCustomer = await createShopifyCustomer(normalizedEmail);
-        console.log(`✅ Shopify Admin API Success: Created customer ${newCustomer.email}`);
 
+
+
+        // Store the password in Redis
+        await storage.storeCustomerPassword(normalizedEmail, password);
+
+        console.log(`✅ Shopify Admin API Success: Created customer ${newCustomer.email}`);
         return { success: true, customerId: newCustomer.id, isNew: true };
     } catch (err: any) {
         console.error('Create/Get customer (Admin) error:', err);
@@ -217,7 +228,6 @@ export async function getCustomerAccessToken(email: string, password: string): P
             query: CUSTOMER_ACCESS_TOKEN_CREATE,
             variables: { input: { email: email.toLowerCase().trim(), password } },
         });
-
         const { customerAccessToken, customerUserErrors } = result.customerAccessTokenCreate;
         if (customerUserErrors.length > 0) return { error: customerUserErrors[0].message };
         if (customerAccessToken) return { accessToken: customerAccessToken.accessToken, expiresAt: customerAccessToken.expiresAt };

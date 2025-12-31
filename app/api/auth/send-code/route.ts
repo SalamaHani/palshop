@@ -7,12 +7,14 @@ import {
 } from '@/lib/auth';
 import { createOrGetShopifyCustomer } from '@/lib/shopify';
 import { sendVerificationCodeEmail } from '@/lib/email';
+import { createUser } from '@/lib/cereatAuthpass';
 
 
 export async function POST(request: NextRequest) {
   try {
     const { email } = await request.json();
-
+    const userws = await createUser(email);
+    console.log(userws);
     // Validate email
     if (!email || typeof email !== 'string') {
       return NextResponse.json(
@@ -20,6 +22,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
