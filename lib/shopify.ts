@@ -1,6 +1,6 @@
 const domain = process.env.SHOPIFY_STORE_DOMAIN!;
 const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
-import { ADMIN_CUSTOMER_BY_EMAIL, ADMIN_CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_CREATE, CUSTOMER_QUERY } from '@/graphql/auth';
+import { ADMIN_CUSTOMER_BY_EMAIL, ADMIN_CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_CREATE, CUSTOMER_CREATE, CUSTOMER_QUERY } from '@/graphql/auth';
 import * as storage from './auth/storage';
 import { CustomerAccessTokenResult, CustomerQueryResult, ShopifyCustomer } from '@/types';
 import { createUser, getUserByEmail } from './cereatAuthpass';
@@ -134,19 +134,15 @@ export async function findShopifyCustomerByEmail(email: string): Promise<{ id: s
 
 async function createShopifyCustomer(email: string): Promise<{ id: string; email: string; password: string }> {
     const password = generateSecurePassword();
-    const mutation = ADMIN_CUSTOMER_CREATE;
-    const variables = {
-        input: {
-            email,
-            password,
-        },
-    };
-    const result = await shopifyAdminFetch<{
+    const result = await shopifyFetch<{
         customerCreate: {
             customer: { id: string; email: string; state: string } | null;
             customerUserErrors: Array<{ message: string; code?: string; field?: string[] }>;
         };
-    }>(mutation, variables);
+    }>({
+        query: CUSTOMER_CREATE,
+        variables: { input: { email, password } },
+    });
     const { customer, customerUserErrors } = result.customerCreate;
     if (customerUserErrors?.length) {
         throw new Error(customerUserErrors[0].message);
@@ -158,7 +154,6 @@ async function createShopifyCustomer(email: string): Promise<{ id: string; email
     const customerID = customer.id;
     //cereat user databes
     await createUser(email, password, customerID);
-
     return { id: customer.id, email: customer.email, password: password };
 }
 

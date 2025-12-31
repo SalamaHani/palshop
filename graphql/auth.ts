@@ -139,23 +139,23 @@ export const CUSTOMER_UPDATE = gql`
     }
   }
 `;
-export const CUSTOMER_CREATE = `
-  mutation customerCreate($input: CustomerCreateInput!) {
-    customerCreate(input: $input) {
-      customer {
-        id
-        email
-        firstName
-        lastName
-      }
-      customerUserErrors {
-        code
-        field
-        message
-      }
-    }
-  }
-`;
+// export const CUSTOMER_CREATE = `
+//   mutation customerCreate($input: CustomerCreateInput!) {
+//     customerCreate(input: $input) {
+//       customer {
+//         id
+//         email
+//         firstName
+//         lastName
+//       }
+//       customerUserErrors {
+//         code
+//         field
+//         message
+//       }
+//     }
+//   }
+// `;
 
 export const CUSTOMER_ACCESS_TOKEN_CREATE = `
   mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {
@@ -230,7 +230,6 @@ export const ADMIN_CUSTOMER_CREATE = `
           customer {
             id
             email
-            password
           }
           userErrors {
             message
@@ -239,3 +238,19 @@ export const ADMIN_CUSTOMER_CREATE = `
         }
       }
     `;
+
+
+export const CUSTOMER_CREATE = `
+mutation CustomerCreate($input: CustomerCreateInput!) {
+  customerCreate(input: $input) {
+    customer {
+      id
+      email
+    }
+    customerUserErrors {
+      field
+      message
+    }
+  }
+}
+`
