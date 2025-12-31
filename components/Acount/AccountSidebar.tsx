@@ -26,11 +26,6 @@ const navItems = [
         icon: ShoppingBag,
     },
     {
-        title: 'Addresses',
-        href: '/account/addresses',
-        icon: MapPin,
-    },
-    {
         title: 'Saved Items',
         href: '/account/saved',
         icon: Heart,

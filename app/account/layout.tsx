@@ -32,7 +32,7 @@ export default function AccountLayout({
 
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0a0a] pt-8 pb-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 md:mt-20 lg:mt-30">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-5 md:mt-5 lg:mt-8">
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                     {/* Sidebar */}
                     <AccountSidebar />

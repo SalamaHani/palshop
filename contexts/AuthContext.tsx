@@ -18,6 +18,7 @@ interface AuthContextType {
     refreshCustomer: () => Promise<void>;
     isAuthModalOpen: boolean;
     setIsAuthModalOpen: (open: boolean) => void;
+    updateProfile: (firstName: string, phone: string) => Promise<void>;
 }
 interface User {
     email: string;
@@ -66,6 +67,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         setCustomer(null);
     }
+    async function updateProfile(firstName: string, phone: string) {
+        try {
+            await fetch('/api/customer/update', { method: 'POST' });
+            setCustomer(null);
+        } catch (error) {
+            console.error('Sign out error:', error);
+            // Still clear local state even if API call fails
+            setCustomer(null);
+        }
+        setCustomer(null);
+    }
 
     return (
         <AuthContext.Provider
@@ -77,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 refreshCustomer: loadCustomer,
                 isAuthModalOpen,
                 setIsAuthModalOpen,
+                updateProfile,
             }}
         >
             {children}

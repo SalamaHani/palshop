@@ -1,6 +1,6 @@
 const domain = process.env.SHOPIFY_STORE_DOMAIN!;
 const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
-import { ADMIN_CUSTOMER_BY_EMAIL, ADMIN_CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_CREATE, CUSTOMER_CREATE, CUSTOMER_QUERY } from '@/graphql/auth';
+import { ADMIN_CUSTOMER_BY_EMAIL, ADMIN_CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_CREATE, CUSTOMER_CREATE, CUSTOMER_QUERY, CUSTOMER_UPDATE_PROFILE } from '@/graphql/auth';
 import * as storage from './auth/storage';
 import { CustomerAccessTokenResult, CustomerQueryResult, ShopifyCustomer } from '@/types';
 import { createUser, getUserByEmail } from './cereatAuthpass';
@@ -240,3 +240,33 @@ export async function getCustomerByAccessToken(accessToken: string): Promise<Sho
         return null;
     }
 }
+
+export async function updateCustomerProfile(accessToken: string, customerData: { firstName?: string; lastName?: string; phone?: string }): Promise<{ customer: ShopifyCustomer | null; error?: string }> {
+    try {
+        const result = await shopifyFetch<{
+            customerUpdate: {
+                customer: ShopifyCustomer | null;
+                customerUserErrors: Array<{ message: string; field: string[] }>;
+            }
+        }>({
+            query: CUSTOMER_UPDATE_PROFILE,
+            variables: {
+                customerAccessToken: accessToken,
+                customer: customerData
+            }
+        });
+
+        if (result.customerUpdate.customerUserErrors?.length > 0) {
+            return {
+                customer: null,
+                error: result.customerUpdate.customerUserErrors[0].message
+            };
+        }
+
+        return { customer: result.customerUpdate.customer, error: undefined };
+    } catch (error: any) {
+        console.error('Update customer profile error:', error);
+        return { customer: null, error: error?.message || 'Failed to update profile' };
+    }
+}
+

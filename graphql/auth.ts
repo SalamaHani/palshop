@@ -254,3 +254,27 @@ mutation CustomerCreate($input: CustomerCreateInput!) {
   }
 }
 `
+
+export const CUSTOMER_UPDATE_PROFILE = `
+mutation customerUpdate(
+  $customerAccessToken: String!,
+  $customer: CustomerUpdateInput!
+) {
+  customerUpdate(
+    customerAccessToken: $customerAccessToken
+    customer: $customer
+  ) {
+    customer {
+      id
+      firstName
+      phone
+    }
+    customerUserErrors {
+      field
+      message
+    }
+  }
+}
+
+`
+
