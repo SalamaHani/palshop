@@ -261,14 +261,14 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ duration: 0.3 }}
-                        className="space-y-4"
+                        className="space-y-3"
                     >
-                        <div className="space-y-4">
+                        <div className="space-y-3 p-2">
                             <div className="flex items-center justify-start mb-2">
-                                <span className="text-2xl font-black tracking-tighter text-[#215732]">shop</span>
+                                <span className="text-xl font-black tracking-tighter text-[#215732]">PAL<span className="text-xl font-medium tracking-tighter text-[#215732]">shop</span></span>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 <button
                                     onClick={handleChangeEmail}
                                     className="flex items-center gap-2 group"
