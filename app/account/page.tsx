@@ -1,6 +1,8 @@
 import { AccountContent } from "@/components/Acount/AccountContent";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Page() {
+
 
     return (
         <div className="min-h-screen bg-gray-50/50 dark:bg-[#0a0a0a] pb-20">

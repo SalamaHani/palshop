@@ -1,9 +1,7 @@
 'use client';
-
 import { useAuth } from "@/contexts/AuthContext";
 export function AccountContent() {
     const { customer, logout } = useAuth();
-
     return (
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* Header */}
@@ -111,9 +109,9 @@ export function AccountContent() {
             <div className="text-center">
                 <button
                     onClick={logout}
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
+                    className="text-gray-500 font-medium w-fit cursor-pointer px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200  hover:text-gray-700 transition-colors"
                 >
-                    Sign out of your account
+                    Sign out
                 </button>
             </div>
         </div>
