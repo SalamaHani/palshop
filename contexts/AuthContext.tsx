@@ -38,7 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const response = await fetch('/api/auth/session');
             const data = await response.json();
             if (response.ok && data.authenticated) {
-                setCustomer(data.email);
+                setCustomer({
+                    id: data.customerId || '',
+                    email: data.email,
+                });
             } else {
                 setCustomer(null);
             }
@@ -80,7 +83,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         </AuthContext.Provider>
     );
 }
-
 export function useAuth() {
     const context = useContext(AuthContext);
     if (context === undefined) {

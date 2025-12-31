@@ -1,118 +1,116 @@
 'use client';
+
 import { useAuth } from "@/contexts/AuthContext";
+import { ShoppingBag, MapPin, Heart, Shield, Clock } from "lucide-react";
+import Link from "next/link";
+
 export function AccountContent() {
-    const { customer, logout } = useAuth();
+    const { customer } = useAuth();
+
     return (
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900">My Account</h1>
-                <p className="text-gray-600 mt-1">Manage your account settings and orders</p>
+        <div className="flex flex-col gap-8">
+            {/* Welcome Section */}
+            <div>
+                <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                    Hello, <span className="text-[#215732]">{customer?.email?.split('@')[0]}</span>
+                </h1>
+                <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium">
+                    Welcome to your personal dashboard. Manage your orders and preferences here.
+                </p>
             </div>
 
-            {/* Account Info Card */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-8">
-                <div className="px-6 py-5 border-b border-gray-100">
-                    <h2 className="text-lg font-semibold text-gray-900">Account Information</h2>
+            {/* Stats/Quick Glance */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3">
+                    <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center">
+                        <ShoppingBag className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
+                        <p className="text-sm font-semibold text-[#677279] dark:text-gray-400">Total Orders</p>
+                    </div>
                 </div>
-                <div className="p-6">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
-                            <span className="text-2xl font-semibold text-gray-600">
+
+                <div className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3">
+                    <div className="w-12 h-12 bg-rose-50 dark:bg-rose-500/10 rounded-xl flex items-center justify-center">
+                        <Heart className="w-6 h-6 text-rose-600" />
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
+                        <p className="text-sm font-semibold text-[#677279] dark:text-gray-400">Wishlist Items</p>
+                    </div>
+                </div>
+
+                <div className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3">
+                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 rounded-xl flex items-center justify-center">
+                        <MapPin className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">1</p>
+                        <p className="text-sm font-semibold text-[#677279] dark:text-gray-400">Saved Addresses</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Account Security Card */}
+            <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden">
+                <div className="px-8 py-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <Shield className="w-5 h-5 text-[#215732]" />
+                        <h2 className="text-lg font-bold text-gray-900 dark:text-white">Account Security</h2>
+                    </div>
+                    <Link href="/account/settings" className="text-sm font-bold text-[#215732] hover:underline">Manage Settings</Link>
+                </div>
+                <div className="p-8">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="w-16 h-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-white/5 dark:to-white/10 rounded-full flex items-center justify-center border border-gray-200/50 dark:border-white/10">
+                            <span className="text-2xl font-bold text-[#215732]">
                                 {customer?.email?.[0]?.toUpperCase()}
                             </span>
                         </div>
                         <div>
-                            <p className="text-lg font-medium text-gray-900">{customer?.email}</p>
-                            <p className="text-sm text-gray-500">Logged in with passwordless authentication</p>
+                            <p className="text-lg font-bold text-gray-900 dark:text-white">{customer?.email}</p>
+                            <p className="text-sm font-medium text-[#677279] dark:text-gray-400 flex items-center gap-1.5">
+                                <Clock className="w-4 h-4" />
+                                Secure Passkey Authentication Active
+                            </p>
                         </div>
                     </div>
 
                     <div className="grid sm:grid-cols-2 gap-4">
-                        <div className="p-4 bg-gray-50 rounded-xl">
-                            <p className="text-sm text-gray-500 mb-1">Email</p>
-                            <p className="font-medium text-gray-900">{customer?.email}</p>
+                        <div className="p-5 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                            <p className="text-xs font-bold text-[#677279] dark:text-gray-500 uppercase tracking-widest mb-1.5">Primary Email</p>
+                            <p className="font-bold text-gray-900 dark:text-white">{customer?.email}</p>
                         </div>
-                        <div className="p-4 bg-gray-50 rounded-xl">
-                            <p className="text-sm text-gray-500 mb-1">Customer ID</p>
-                            <p className="font-mono text-sm text-gray-900 truncate">
-                                {customer?.id || 'N/A'}
-                            </p>
+                        <div className="p-5 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                            <p className="text-xs font-bold text-[#677279] dark:text-gray-500 uppercase tracking-widest mb-1.5">Login Method</p>
+                            <p className="font-bold text-[#215732]">Shopify Secure</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="grid sm:grid-cols-3 gap-4 mb-8">
-                <button className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all text-left">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p className="font-medium text-gray-900">Orders</p>
-                        <p className="text-sm text-gray-500">View order history</p>
-                    </div>
-                </button>
-
-                <button className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all text-left">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p className="font-medium text-gray-900">Addresses</p>
-                        <p className="text-sm text-gray-500">Manage addresses</p>
-                    </div>
-                </button>
-
-                <button className="flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all text-left">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <p className="font-medium text-gray-900">Wishlist</p>
-                        <p className="text-sm text-gray-500">Saved items</p>
-                    </div>
-                </button>
-            </div>
-
-            {/* Recent Orders Placeholder */}
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden mb-8">
-                <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
-                    <button className="text-sm text-gray-500 hover:text-gray-700">View all</button>
+            {/* Recent Orders Section */}
+            <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden">
+                <div className="px-8 py-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recent Orders</h2>
+                    <Link href="/account/orders" className="text-sm font-bold text-[#677279] dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">View all</Link>
                 </div>
-                <div className="p-12 text-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
+                <div className="p-16 text-center">
+                    <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
+                        <ShoppingBag className="w-10 h-10 text-gray-300 dark:text-white/10" />
                     </div>
-                    <p className="text-gray-500 mb-4">No orders yet</p>
-                    <a
-                        href="/products"
-                        className="inline-block px-6 py-2.5 bg-gray-900 text-white font-medium rounded-lg hover:bg-gray-800 transition-colors"
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No orders yet</h3>
+                    <p className="text-[#677279] dark:text-gray-400 mb-8 max-w-xs mx-auto font-medium">
+                        Your shopping history will appear here once you make your first purchase.
+                    </p>
+                    <Link
+                        href="/shop"
+                        className="inline-block px-10 py-4 bg-[#215732] text-white font-bold rounded-full hover:bg-[#1a4528] transition-all shadow-lg shadow-[#215732]/20"
                     >
-                        Start Shopping
-                    </a>
+                        Start Exploring
+                    </Link>
                 </div>
-            </div>
-
-            {/* Sign Out */}
-            <div className="text-center">
-                <button
-                    onClick={logout}
-                    className="text-gray-500 font-medium w-fit cursor-pointer px-3 py-1 rounded-lg bg-gray-100 hover:bg-gray-200  hover:text-gray-700 transition-colors"
-                >
-                    Sign out
-                </button>
             </div>
         </div>
     );

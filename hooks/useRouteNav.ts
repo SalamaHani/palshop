@@ -39,7 +39,7 @@ const useRouteNav = () => {
         title: "Account",
         href: "/account",
         icon: User,
-        isActive: pathname === "/account",
+        isActive: pathname.startsWith("/account"),
       },
     ],
     [pathname]
