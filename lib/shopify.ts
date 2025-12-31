@@ -176,9 +176,7 @@ export async function createOrGetShopifyCustomer(email: string): Promise<{ succe
             if (existingCustomer.state === 'DISABLED') {
                 return { success: false, error: 'This account has been disabled.' };
             }
-            const user = await getUserByEmail(normalizedEmail)
-            // Store the password in Redis so we can use it during verification
-            await storage.storeCustomerPassword(normalizedEmail, user?.password);
+            // Store the password in Redis so we can use it during verification   
             // NOTE: In a real "passwordless" system, you might want to use the Admin API 
             // to update the customer's password to this new one, but for simplicity 
             // and security, we rely on the flow where we create/update the account.
@@ -188,10 +186,7 @@ export async function createOrGetShopifyCustomer(email: string): Promise<{ succe
         }
         // 2️⃣ Create customer via Admin API
         const newCustomer = await createShopifyCustomer(normalizedEmail);
-
         // Store the password in Redis
-        await storage.storeCustomerPassword(normalizedEmail, newCustomer.password);
-
         console.log(`✅ Shopify Admin API Success: Created customer ${newCustomer.email}`);
         return { success: true, customerId: newCustomer.id, isNew: true };
     } catch (err: any) {
@@ -206,7 +201,7 @@ export async function createOrGetShopifyCustomer(email: string): Promise<{ succe
 
 export async function getCustomerAccessToken(email: string): Promise<{ accessToken?: string; expiresAt?: string; error?: string }> {
     try {
-        const password = await storage.getCustomerPassword(email);
+        const password = await getUserByEmail(email);
         if (!password) return { error: 'Authentication session expired. Please request a new code.' };
         const result = await shopifyFetch<CustomerAccessTokenResult>({
             query: CUSTOMER_ACCESS_TOKEN_CREATE,
