@@ -18,7 +18,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://palshop.app"),
   title: {
-    default: "PALshop - Authentic Palestinian Heritage & Artisanship",
+    default: "PALshop | Authentic Palestinian Heritage & Artisanship",
     template: "%s | PALshop"
   },
   description: "Experience the legacy of Palestine. Shop authentic handcrafted items, traditional oils, embroidery, and unique treasures directly from Palestinian artisans. Supporting local communities with every purchase.",
@@ -30,14 +30,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://palshop.app",
     siteName: "PALshop",
-    title: "PALshop - Authentic Palestinian Heritage & Artisanship",
+    title: "PALshop | Authentic Palestinian Heritage & Artisanship",
     description: "Discover verified authentic Palestinian goods. From traditional olive oil to intricate embroidery, experience the best of Palestinian craftsmanship.",
     images: [
       {
         url: "/og-image.jpg", // Make sure to add this or use a high-quality placeholder
         width: 1200,
         height: 630,
-        alt: "PALshop - Authentically Palestinian",
+        alt: "PALshop | Authentically Palestinian",
       }
     ],
   },
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
+    shortcut: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
 };
