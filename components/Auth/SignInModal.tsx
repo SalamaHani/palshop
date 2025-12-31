@@ -17,6 +17,8 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
     const router = useRouter();
     const handleSignInSuccess = (customer: any) => {
         console.log('Signed in:', customer);
+        // Close the modal
+        onClose();
         // Redirect to account page
         router.push('/account');
     };

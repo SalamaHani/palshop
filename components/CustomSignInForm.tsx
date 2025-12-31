@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, ShieldCheck, ArrowRight, RefreshCcw, ArrowLeft, Loader2, ChevronDown, UserRound } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface Customer {
     id: string;
@@ -16,18 +15,17 @@ interface Customer {
 interface CustomSignInFormProps {
     onSuccess?: (customer: Customer | any) => void;
 }
-
-const PRIMARY_COLOR = '#215732';
-
 export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
     const [step, setStep] = useState<'email' | 'code'>('email');
     const [email, setEmail] = useState<string>('');
     const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
+    const [success, setSuccess] = useState<boolean>(false);
     const [resendTimer, setResendTimer] = useState<number>(0);
 
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+    const emailRef = useRef<HTMLInputElement>(null);
 
     // Resend timer countdown
     useEffect(() => {
@@ -36,6 +34,18 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
             return () => clearTimeout(timer);
         }
     }, [resendTimer]);
+
+    // Auto-focus logic for both steps
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (step === 'code') {
+                inputRefs.current[0]?.focus();
+            } else if (step === 'email') {
+                emailRef.current?.focus();
+            }
+        }, 100);
+        return () => clearTimeout(timer);
+    }, [step]);
 
     // Send verification code
     const handleSendCode = async (e?: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -71,22 +81,41 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
         }
     };
 
+    // Handle pasting the full code
+    const handlePaste = (e: React.ClipboardEvent) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+        if (!pastedData) return;
+
+        const newCode = [...code];
+        pastedData.split('').forEach((digit, i) => {
+            if (i < 6) newCode[i] = digit;
+        });
+        setCode(newCode);
+
+        // Focus the appropriate input
+        const nextIndex = Math.min(pastedData.length, 5);
+        inputRefs.current[nextIndex]?.focus();
+
+        // If complete, verify
+        if (pastedData.length === 6) {
+            handleVerifyCode(pastedData);
+        }
+    };
+
     // Handle code input change
     const handleCodeChange = (index: number, value: string): void => {
+        // Only allow digits
         if (!/^\d*$/.test(value)) return;
 
+        // If multiple digits (usually from some browsers' auto-fill/paste fallback)
         if (value.length > 1) {
-            const pastedCode = value.slice(0, 6).split('');
+            const digits = value.replace(/\D/g, '').slice(0, 6).split('');
             const newCode = [...code];
-            pastedCode.forEach((digit, i) => {
-                if (index + i < 6) {
-                    newCode[index + i] = digit;
-                }
+            digits.forEach((digit, i) => {
+                if (index + i < 6) newCode[index + i] = digit;
             });
             setCode(newCode);
-
-            const lastFilledIndex = Math.min(index + pastedCode.length, 5);
-            inputRefs.current[lastFilledIndex]?.focus();
 
             if (newCode.every(d => d !== '')) {
                 handleVerifyCode(newCode.join(''));
@@ -140,7 +169,10 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
             const data = await response.json();
 
             if (data.success) {
-                onSuccess?.(data.customer || { email: data.email, id: data.customerId });
+                setSuccess(true);
+                setTimeout(() => {
+                    onSuccess?.(data.customer || { email: data.email, id: data.customerId });
+                }, 1500);
             } else {
                 setError(data.error || 'Invalid verification code');
                 setCode(['', '', '', '', '', '']);
@@ -195,6 +227,7 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                                 <div className="space-y-1">
                                     <input
                                         id="email"
+                                        ref={emailRef}
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
@@ -255,6 +288,7 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                                             value={digit}
                                             onChange={(e) => handleCodeChange(index, e.target.value)}
                                             onKeyDown={(e) => handleKeyDown(index, e)}
+                                            onPaste={handlePaste}
                                             className="h-14 text-center text-xl font-medium bg-white dark:bg-black border-[1.5px] border-gray-300 dark:border-white/10 focus:border-[#215732] rounded-2xl outline-none transition-all duration-200"
                                             disabled={loading}
                                         />
@@ -280,6 +314,21 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                                 </button>
                             </div>
                         </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Success Message */}
+            <AnimatePresence>
+                {success && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-3"
+                    >
+                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                        <p className="text-sm font-medium text-green-600 dark:text-green-400">Signed in successfully!</p>
                     </motion.div>
                 )}
             </AnimatePresence>
