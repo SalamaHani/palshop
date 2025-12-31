@@ -3,7 +3,7 @@ const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
 import { ADMIN_CUSTOMER_BY_EMAIL, ADMIN_CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_CREATE, CUSTOMER_QUERY } from '@/graphql/auth';
 import * as storage from './auth/storage';
 import { CustomerAccessTokenResult, CustomerQueryResult, ShopifyCustomer } from '@/types';
-import { createUser } from './cereatAuthpass';
+import { createUser, getUserByEmail } from './cereatAuthpass';
 
 interface ShopifyResponse<T> {
     data: T;
@@ -110,16 +110,7 @@ export async function shopifyAdminFetch<T = any>(query: string, variables?: Reco
 }
 
 
-function generateSecurePassword(): string {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-    let password = '';
-    const array = new Uint32Array(32);
-    crypto.getRandomValues(array);
-    for (let i = 0; i < 32; i++) {
-        password += chars[array[i] % chars.length];
-    }
-    return password;
-}
+
 
 // ===========================================
 // FIND CUSTOMER BY EMAIL (ADMIN API)
@@ -138,15 +129,24 @@ export async function findShopifyCustomerByEmail(email: string): Promise<{ id: s
 /**
  * Create a new customer via Shopify Admin API
  */
-async function createShopifyCustomer(email: string): Promise<{ id: string; email: string; state: string }> {
-    const userws = await createUser(email);
-    console.log(userws);
-    const password = userws.password;
+function generateSecurePassword(): string {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    const array = new Uint32Array(32);
+    crypto.getRandomValues(array);
+    for (let i = 0; i < 32; i++) {
+        password += chars[array[i] % chars.length];
+    }
+    return password;
+}
+
+async function createShopifyCustomer(email: string): Promise<{ id: string; email: string; password: string }> {
+    const password = generateSecurePassword();
     const mutation = ADMIN_CUSTOMER_CREATE;
     const variables = {
         input: {
             email,
-            password
+            password,
         },
     };
     const result = await shopifyAdminFetch<{
@@ -156,7 +156,6 @@ async function createShopifyCustomer(email: string): Promise<{ id: string; email
         };
     }>(mutation, variables);
     const { customer, customerUserErrors } = result.customerCreate;
-
     if (customerUserErrors?.length) {
         throw new Error(customerUserErrors[0].message);
     }
@@ -164,8 +163,11 @@ async function createShopifyCustomer(email: string): Promise<{ id: string; email
     if (!customer) {
         throw new Error('Failed to create customer');
     }
+    const customerID = customer.id;
+    //cereat user databes
+    await createUser(email, password, customerID);
 
-    return { id: customer.id, email: customer.email, state: customer.state };
+    return { id: customer.id, email: customer.email, password: password };
 }
 
 /**
@@ -181,34 +183,27 @@ export async function createOrGetShopifyCustomer(email: string): Promise<{ succe
 
     try {
         // Generate a fresh password for this session
-        const password = generateSecurePassword();
-        const user = await createUser(normalizedEmail);
         // 1️⃣ Search existing customer
         const existingCustomer = await findShopifyCustomerByEmail(normalizedEmail);
-
         if (existingCustomer) {
             if (existingCustomer.state === 'DISABLED') {
                 return { success: false, error: 'This account has been disabled.' };
             }
+            const user = await getUserByEmail(normalizedEmail)
             // Store the password in Redis so we can use it during verification
-            await storage.storeCustomerPassword(normalizedEmail, password);
-
+            await storage.storeCustomerPassword(normalizedEmail, user?.password);
             // NOTE: In a real "passwordless" system, you might want to use the Admin API 
             // to update the customer's password to this new one, but for simplicity 
             // and security, we rely on the flow where we create/update the account.
             // For now, we will update the password via Admin API if we can, 
             // but setting it only on creation is what we had before.
-
             return { success: true, customerId: existingCustomer.id, isNew: false };
         }
-
         // 2️⃣ Create customer via Admin API
         const newCustomer = await createShopifyCustomer(normalizedEmail);
 
-
-
         // Store the password in Redis
-        await storage.storeCustomerPassword(normalizedEmail, password);
+        await storage.storeCustomerPassword(normalizedEmail, newCustomer.password);
 
         console.log(`✅ Shopify Admin API Success: Created customer ${newCustomer.email}`);
         return { success: true, customerId: newCustomer.id, isNew: true };
@@ -222,8 +217,10 @@ export async function createOrGetShopifyCustomer(email: string): Promise<{ succe
 // CUSTOMER ACCESS TOKEN
 // ===========================================
 
-export async function getCustomerAccessToken(email: string, password: string): Promise<{ accessToken?: string; expiresAt?: string; error?: string }> {
+export async function getCustomerAccessToken(email: string): Promise<{ accessToken?: string; expiresAt?: string; error?: string }> {
     try {
+        const password = await storage.getCustomerPassword(email);
+        if (!password) return { error: 'Authentication session expired. Please request a new code.' };
         const result = await shopifyFetch<CustomerAccessTokenResult>({
             query: CUSTOMER_ACCESS_TOKEN_CREATE,
             variables: { input: { email: email.toLowerCase().trim(), password } },
@@ -244,7 +241,7 @@ export async function getCustomerAccessToken(email: string, password: string): P
 export async function authenticateCustomer(email: string): Promise<{ accessToken?: string; expiresAt?: string; error?: string }> {
     const password = await storage.getCustomerPassword(email);
     if (!password) return { error: 'Authentication session expired. Please request a new code.' };
-    const result = await getCustomerAccessToken(email, password);
+    const result = await getCustomerAccessToken(email);
     if (result.accessToken) await storage.deleteCustomerPassword(email);
     return result;
 }

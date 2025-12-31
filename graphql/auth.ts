@@ -1,8 +1,4 @@
 import { gql } from "graphql-tag";
-
-
-
-
 export const CUSTOMER_ACCESS_TOKEN_CREATE_WITH_CODE = gql`
   mutation customerAccessTokenCreateWithCode($email: String!, $code: String!) {
     customerAccessTokenCreateWithCode(email: $email, code: $code) {
@@ -234,6 +230,7 @@ export const ADMIN_CUSTOMER_CREATE = `
           customer {
             id
             email
+            password
           }
           userErrors {
             message
