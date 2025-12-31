@@ -145,7 +145,7 @@ export default function SettingsPage() {
                                     <p className="text-xs font-medium text-[#677279] dark:text-gray-400">This action cannot be undone.</p>
                                 </div>
                             </div>
-                            <button className="text-sm font-normal py-2 px-4 text-red-600 hover:bg-red-50 border border-red-100 rounded-full w-fit">Delete</button>
+                            <button className="text-sm font-normal py-2 px-4 text-red-600 hover:bg-red-50 border border-red-100 rounded-full w-fit">Delete Account </button>
                         </div>
                     </div>
                 </section>

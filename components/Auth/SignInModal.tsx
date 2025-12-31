@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import CustomSignInForm from '../CustomSignInForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 
@@ -17,7 +18,6 @@ interface SignInModalProps {
 export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
-
     useEffect(() => {
         setMounted(true);
         if (isOpen) {
