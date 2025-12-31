@@ -70,17 +70,17 @@ export async function POST(request: NextRequest) {
     await storeVerificationCode(normalizedEmail, code);
 
     // Send email
-    // const emailResult = await sendVerificationCodeEmail({
-    //   to: normalizedEmail,
-    //   code,
-    // });
+    const emailResult = await sendVerificationCodeEmail({
+      to: normalizedEmail,
+      code,
+    });
 
-    // if (!emailResult.success) {
-    //   return NextResponse.json(
-    //     { error: 'Failed to send verification email. Please try again.' },
-    //     { status: 500 }
-    //   );
-    // }
+    if (!emailResult.success) {
+      return NextResponse.json(
+        { error: 'Failed to send verification email. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

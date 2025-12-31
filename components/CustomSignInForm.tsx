@@ -261,7 +261,7 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ duration: 0.3 }}
-                        className="space-y-3"
+                        className="space-y-3 w-full"
                     >
                         <div className="space-y-3 p-2 overflow-hidden">
                             <div className="flex items-center justify-start mb-2">
