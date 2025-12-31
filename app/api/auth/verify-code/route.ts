@@ -10,7 +10,6 @@ import { authenticateCustomer, getCustomerAccessToken, getCustomerByAccessToken 
 export async function POST(request: NextRequest) {
   try {
     const { email, code } = await request.json();
-
     // Validate inputs
     if (!email || typeof email !== 'string') {
       return NextResponse.json(
@@ -80,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     // Set customerAccessToken for frontend Shopify Client
     const cookieStore = await cookies();
-    cookieStore.set('customerAccessToken', authResult.accessToken, {
+    cookieStore.set('customer', shopifyCustomer.email, {
       httpOnly: false, // Visible to client JS
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
