@@ -161,3 +161,13 @@ export async function getCodeTimeRemaining(email: string): Promise<number> {
   if (!data) return 0;
   return Math.max(0, Math.floor((data.expiresAt - Date.now()) / 1000));
 }
+export function generateSecurePassword(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+  let password = '';
+  const array = new Uint32Array(32);
+  crypto.getRandomValues(array);
+  for (let i = 0; i < 32; i++) {
+    password += chars[array[i] % chars.length];
+  }
+  return password;
+}

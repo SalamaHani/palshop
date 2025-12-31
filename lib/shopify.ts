@@ -4,6 +4,7 @@ import { ADMIN_CUSTOMER_BY_EMAIL, ADMIN_CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_C
 import * as storage from './auth/storage';
 import { CustomerAccessTokenResult, CustomerQueryResult, ShopifyCustomer } from '@/types';
 import { createUser, getUserByEmail } from './cereatAuthpass';
+import { generateSecurePassword } from './auth';
 
 interface ShopifyResponse<T> {
     data: T;
@@ -129,16 +130,7 @@ export async function findShopifyCustomerByEmail(email: string): Promise<{ id: s
 /**
  * Create a new customer via Shopify Admin API
  */
-function generateSecurePassword(): string {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-    let password = '';
-    const array = new Uint32Array(32);
-    crypto.getRandomValues(array);
-    for (let i = 0; i < 32; i++) {
-        password += chars[array[i] % chars.length];
-    }
-    return password;
-}
+
 
 async function createShopifyCustomer(email: string): Promise<{ id: string; email: string; password: string }> {
     const password = generateSecurePassword();
@@ -223,7 +215,7 @@ export async function getCustomerAccessToken(email: string): Promise<{ accessTok
         if (!password) return { error: 'Authentication session expired. Please request a new code.' };
         const result = await shopifyFetch<CustomerAccessTokenResult>({
             query: CUSTOMER_ACCESS_TOKEN_CREATE,
-            variables: { input: { email: email.toLowerCase().trim(), password } },
+            variables: { input: { email: email, password } },
         });
         const { customerAccessToken, customerUserErrors } = result.customerAccessTokenCreate;
         if (customerUserErrors.length > 0) return { error: customerUserErrors[0].message };

@@ -5,7 +5,7 @@ import {
   generateSessionToken,
   setSessionCookie,
 } from '@/lib/auth';
-import { authenticateCustomer, getCustomerByAccessToken } from '@/lib/shopify';
+import { authenticateCustomer, getCustomerAccessToken, getCustomerByAccessToken } from '@/lib/shopify';
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     // Verify the code
     const verification = await verifyCode(normalizedEmail, cleanCode);
-    console.log(verification);
+
     if (!verification.valid) {
       return NextResponse.json(
         { error: verification.error },
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Authenticate with Shopify using the stored password
-    const authResult = await authenticateCustomer(normalizedEmail);
+    const authResult = await getCustomerAccessToken(normalizedEmail);
     if (authResult.error) {
       return NextResponse.json(
         { error: authResult.error },
