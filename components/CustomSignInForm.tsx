@@ -263,7 +263,7 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                         transition={{ duration: 0.3 }}
                         className="space-y-3"
                     >
-                        <div className="space-y-3 p-2">
+                        <div className="space-y-3 p-2 overflow-hidden">
                             <div className="flex items-center justify-start mb-2">
                                 <span className="text-xl font-black tracking-tighter text-[#215732]">PAL<span className="text-xl font-medium tracking-tighter text-[#215732]">shop</span></span>
                             </div>
