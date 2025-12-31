@@ -201,11 +201,11 @@ export async function createOrGetShopifyCustomer(email: string): Promise<{ succe
 
 export async function getCustomerAccessToken(email: string): Promise<{ accessToken?: string; expiresAt?: string; error?: string }> {
     try {
-        const password = await getUserByEmail(email);
-        if (!password) return { error: 'Authentication session expired. Please request a new code.' };
+        const user = await getUserByEmail(email);
+        if (!user || !user.password) return { error: 'Authentication session expired. Please request a new code.' };
         const result = await shopifyFetch<CustomerAccessTokenResult>({
             query: CUSTOMER_ACCESS_TOKEN_CREATE,
-            variables: { input: { email: email, password } },
+            variables: { input: { email: email, password: user.password } },
         });
         const { customerAccessToken, customerUserErrors } = result.customerAccessTokenCreate;
         if (customerUserErrors.length > 0) return { error: customerUserErrors[0].message };
