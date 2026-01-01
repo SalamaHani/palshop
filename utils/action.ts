@@ -6,8 +6,7 @@ import { addressSchema, AddressFormData } from '@/utils/zod';
 import { shopifyFetch } from '@/lib/shopify';
 import { CustomerAddressesResult, CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateResult } from '@/types';
 import { CUSTOMER_ADDRESS_CREATE, CUSTOMER_ADDRESS_DELETE, CUSTOMER_ADDRESS_UPDATE, CUSTOMER_ADDRESSES } from '@/graphql/auth';
-import { getSession } from '@/lib/auth';
-import { getSessionDB } from '@/lib/cereatAuthpass';
+import { getSessionHelper } from './session';
 type ActionResult = {
     success: boolean;
     error?: string;
@@ -20,9 +19,18 @@ type AddressResult = {
     error?: string;
     data?: ShopifyAddressNode[];
 };
-const session = await getSession();
-const sessionDB = await getSessionDB(session?.session_id);
-const customerAccessToken = sessionDB?.shopify_customer_token
+export async function fetchShopifyToken() {
+    const sessionDB = await getSessionHelper();
+
+    if (!sessionDB?.shopify_customer_token) {
+        // handle missing token
+        throw new Error("Customer not logged in or token missing");
+    }
+
+    const customerAccessToken = sessionDB.shopify_customer_token;
+
+    return customerAccessToken;
+}
 //update address    
 export async function updateCustomerAddress(
     formData: AddressFormData
@@ -32,7 +40,7 @@ export async function updateCustomerAddress(
         const data = await shopifyFetch<CustomerUpdateResult>({
             query: CUSTOMER_ADDRESS_UPDATE,
             variables: {
-                customerAccessToken,
+                customerAccessToken: await fetchShopifyToken(),
                 id: address.id,
                 address,
             },
@@ -67,7 +75,7 @@ export async function createCustomerAddress(
         const data = await shopifyFetch<CustomerCreateAddressResult>({
             query: CUSTOMER_ADDRESS_CREATE,
             variables: {
-                customerAccessToken,
+                customerAccessToken: await fetchShopifyToken(),
                 address
             },
         });
@@ -96,7 +104,7 @@ export async function deleteAddress(
         const data = await shopifyFetch<CustomerDeleteAddressResult>({
             query: CUSTOMER_ADDRESS_DELETE,
             variables: {
-                customerAccessToken,
+                customerAccessToken: await fetchShopifyToken(),
                 id: addressId
             },
         });
@@ -122,7 +130,7 @@ export async function deleteAddress(
         const data = await shopifyFetch<CustomerAddressesResult>({
             query: CUSTOMER_ADDRESSES,
             variables: {
-                customerAccessToken,
+                customerAccessToken: await fetchShopifyToken(),
             },
         });
         const result = data.customerAddresses;
