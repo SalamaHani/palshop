@@ -277,4 +277,84 @@ mutation customerUpdate(
 }
 
 `
+export const CUSTOMER_ADDRESS_CREATE = `
+mutation customerAddressCreate(
+  $customerAccessToken: String!
+  $address: MailingAddressInput!
+) {
+  customerAddressCreate(
+    customerAccessToken: $customerAccessToken
+    address: $address
+  ) {
+    customerAddress {
+      id
+      address1
+      city
+      phone
+      country
+    }
+    customerUserErrors {
+      message
+      field
+    }
+  }
+}
+`;
+//edit customer address
+export const CUSTOMER_ADDRESS_UPDATE = `
+mutation customerAddressUpdate(
+  $customerAccessToken: String!
+  $id: ID!
+  $address: MailingAddressInput!
+) {
+  customerAddressUpdate(
+    customerAccessToken: $customerAccessToken
+    id: $id
+    address: $address
+  ) {
+    customerAddress {
+      id
+    }
+    customerUserErrors {
+      message
+    }
+  }
+}
+`;
+
+export const CUSTOMER_ADDRESS_DELETE = `
+mutation customerAddressDelete(
+  $customerAccessToken: String!
+  $id: ID!
+) {
+  customerAddressDelete(
+    customerAccessToken: $customerAccessToken
+    id: $id
+  ) {
+    deletedCustomerAddressId
+    customerUserErrors {
+      message
+    }
+  }
+}
+`;
+
+export const CUSTOMER_DEFAULT_ADDRESS_SET = `
+mutation customerDefaultAddressUpdate(
+  $customerAccessToken: String!
+  $addressId: ID!
+) {
+  customerDefaultAddressUpdate(
+    customerAccessToken: $customerAccessToken
+    addressId: $addressId
+  ) {
+    customer {
+      id
+    }
+    customerUserErrors {
+      message
+    }
+  }
+}
+`;
 

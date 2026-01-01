@@ -1,3 +1,4 @@
+import { AddressFormData } from "@/utils/zod";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 
 export interface CustomerCreateResponse {
@@ -30,6 +31,7 @@ export interface CustomerUpdateResponse {
       code: string;
       field: string[];
       message: string;
+
     }[];
   };
 }
@@ -89,6 +91,43 @@ export interface ShopifyCustomer {
 export interface CustomerQueryResult {
   customer: ShopifyCustomer | null;
 }
+export interface Address extends AddressFormData {
+  id: string;
+  userId: string;
+  isDefault: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export type CustomerUpdateResult = {
+  customerUpdate: {
+    customer: {
+      id: string;
+      firstName: string;
+    };
+    userErrors: { message: string }[];
+  };
+};
+export type CustomerCreateAddressResult = {
+  customerAddressCreate: {
+    customer: {
+      id: string;
+      firstName: string;
+    };
+    userErrors: { message: string }[];
+  };
+};
+export type CustomerDeleteAddressResult = {
+  customerAddressDelete: {
+    customer: {
+      id: string;
+      firstName: string;
+    };
+    userErrors: { message: string }[];
+  };
+};
+
+
+
 
 export interface ImageEdges {
   edges: ImageNode[];

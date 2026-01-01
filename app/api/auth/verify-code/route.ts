@@ -4,8 +4,10 @@ import {
   verifyCode,
   generateSessionToken,
   setSessionCookie,
+  getSession,
 } from '@/lib/auth';
 import { authenticateCustomer, getCustomerAccessToken, getCustomerByAccessToken } from '@/lib/shopify';
+import { createSession } from '@/lib/cereatAuthpass';
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,21 +73,24 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
     // Generate session token with ACTUAL Shopify Customer ID
     const sessionToken = await generateSessionToken(normalizedEmail, shopifyCustomer.id);
     // Set session cookie
     await setSessionCookie(sessionToken);
+    const session = await getSession();
+    //create session in database
+    await createSession(session?.session_id, session?.customerId, authResult.accessToken, session?.exp);
+
 
     // Set customerAccessToken for frontend Shopify Client
-    const cookieStore = await cookies();
-    cookieStore.set('customer', shopifyCustomer.email, {
-      httpOnly: false, // Visible to client JS
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: '/',
-    });
+    // const cookieStore = await cookies();
+    // cookieStore.set('customer', shopifyCustomer.email, {
+    //   httpOnly: false, // Visible to client JS
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'lax',
+    //   maxAge: 60 * 60 * 24 * 30, // 30 days
+    //   path: '/',
+    // });
 
     return NextResponse.json({
       success: true,

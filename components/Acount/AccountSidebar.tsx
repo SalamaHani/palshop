@@ -5,11 +5,12 @@ import { usePathname } from 'next/navigation';
 import {
     User,
     ShoppingBag,
-    MapPin,
     Heart,
     Settings,
     HelpCircle,
-    LogOut
+    LogOut,
+    icons,
+    MapPinCheckInside
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -29,6 +30,11 @@ const navItems = [
         title: 'Saved Items',
         href: '/account/saved',
         icon: Heart,
+    },
+    {
+        titele: "Shopping Addresses",
+        href: "/addres",
+        icons: MapPinCheckInside
     },
     {
         title: 'Settings',

@@ -7,6 +7,7 @@ const secret = new TextEncoder().encode(
 );
 
 export interface TokenPayload {
+  session_id: string;
   email: string;
   customerId?: string;
   exp?: number;
@@ -101,7 +102,7 @@ export async function generateSessionToken(
   email: string,
   customerId?: string
 ): Promise<string> {
-  return new SignJWT({ email, customerId })
+  return new SignJWT({ session_id: crypto.randomUUID(), email, customerId })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('7d')
     .setIssuedAt()
@@ -119,17 +120,15 @@ export async function setSessionCookie(token: string): Promise<void> {
     path: '/',
   });
 }
-
 // Get current session
 export async function getSession(): Promise<TokenPayload | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get('session')?.value;
-
   if (!token) return null;
-
   try {
     const { payload } = await jwtVerify(token, secret);
     return {
+      session_id: payload.session_id as string,
       email: payload.email as string,
       customerId: payload.customerId as string | undefined,
       exp: payload.exp as number | undefined,
@@ -161,6 +160,7 @@ export async function getCodeTimeRemaining(email: string): Promise<number> {
   if (!data) return 0;
   return Math.max(0, Math.floor((data.expiresAt - Date.now()) / 1000));
 }
+
 export function generateSecurePassword(): string {
   const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
   let password = '';

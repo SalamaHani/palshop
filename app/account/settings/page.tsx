@@ -1,6 +1,6 @@
 'use client';
 
-import { Lock, Bell, User, Globe, ExternalLink, } from "lucide-react";
+import { Lock, Bell, User, Globe, ExternalLink, Plane, } from "lucide-react";
 import Link from "next/link";
 
 import { useState } from "react";
@@ -125,23 +125,26 @@ export default function SettingsPage() {
                         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 bg-blue-50 dark:bg-blue-500/10 rounded-xl flex items-center justify-center">
-                                    <p className="font-semibold text-gray-900 dark:text-white">Opt out of data sharing</p>
+                                    <Plane className="w-5 h-5 text-purple-600" />
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">We use your personal information to show you more of what you like and to make your ads experience better on other websites.</p>
-                                    <p className="text-xs font-semibold text-[#677279] dark:text-gray-400">If you don’t want to share your personal information for targeted ads, you can opt out.</p>
-                                    <Link href="https://privacy.shopify.com/en/opt_out_requests/ads-sharing/new" className="text-[#215732] cursor-pointer hover:underline">opt_ou<ExternalLink className="w-4 h-4" /></Link>
+                                    <p className="font-semibold text-gray-900 dark:text-white">Opt out of data sharing</p>
+                                    <div className="flex flex-col gap-2">
+                                        <p className="font-semibold text-xs  text-gray-900 dark:text-white">We use your personal information to show you more of what you like and to make your ads experience better on other websites.</p>
+                                        <p className="text-xs font-semibold text-[#677279] dark:text-gray-400">If you don’t want to share your personal information for targeted ads, you can opt out.</p>
+                                        <Link target="_blank" href="https://privacy.shopify.com/en/opt_out_requests/ads-sharing/new" className="text-[#215732] cursor-pointer hover:underline">opt_ou<ExternalLink className="w-4 h-4" /></Link>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
+                        <div className="flex items-center border-t border-gray-100  justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl">
                             <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 bg-purple-50 dark:bg-purple-500/10 rounded-xl flex items-center justify-center">
                                     <Globe className="w-5 h-5 text-purple-600" />
                                 </div>
                                 <div>
-                                    <p className="font-semibold text-gray-900 dark:text-white">Delete your Shop account</p>
+                                    <p className="font-semibold text-gray-900 dark:text-white">Delete your Palshop account</p>
                                     <p className="text-xs font-medium text-[#677279] dark:text-gray-400">This action cannot be undone.</p>
                                 </div>
                             </div>
