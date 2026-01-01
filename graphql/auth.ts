@@ -291,8 +291,8 @@ mutation customerAddressCreate(
       address1
       city
       phone
-      state
-      zipCode
+      province
+      zip
       country
     }
     customerUserErrors {
@@ -368,8 +368,8 @@ query customerAddresses($customerAccessToken: String!) {
                 address1
                 city
                 phone
-                state
-                zipCode
+                province
+                zip
                 country
             }
         }

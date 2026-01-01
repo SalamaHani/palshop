@@ -1,14 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { fetchGraphQL } from '@/shopify/client';
-import {
-    GET_CART,
-    CREATE_CART,
-    ADD_TO_CART,
-    REMOVE_FROM_CART,
-    UPDATE_CART_ITEMS
-} from '@/graphql/cart';
 import { toast } from 'sonner';
 
 interface CartItem {
@@ -83,14 +75,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     const getCartId = useCallback(() => {
         if (typeof window !== 'undefined') {
-            return localStorage.getItem('cartId');
+            return localStorage.getItem('palshop_cart_id');
         }
         return null;
     }, []);
 
     const saveCartId = useCallback((id: string) => {
         if (typeof window !== 'undefined') {
-            localStorage.setItem('cartId', id);
+            localStorage.setItem('palshop_cart_id', id);
+        }
+    }, []);
+
+    const clearCartId = useCallback(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('palshop_cart_id');
         }
     }, []);
 
@@ -102,19 +100,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
 
         try {
-            const data = await fetchGraphQL(GET_CART, { cartId });
-            if (data?.cart) {
+            const response = await fetch(`/api/cart?cartId=${cartId}`);
+            const data = await response.json();
+
+            if (data.cart) {
                 setCart(data.cart);
             } else {
-                localStorage.removeItem('cartId');
+                clearCartId();
                 setCart(null);
             }
         } catch (error) {
             console.error('[CartContext] Load Error:', error);
+            clearCartId();
+            setCart(null);
         } finally {
             setIsLoading(false);
         }
-    }, [getCartId]);
+    }, [getCartId, clearCartId]);
 
     const addItem = async (variantId: string, quantity: number = 1) => {
         setIsUpdating(true);
@@ -122,28 +124,51 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             let cartId = getCartId();
 
             if (!cartId) {
-                const data = await fetchGraphQL(CREATE_CART, {
-                    lineItems: [{ merchandiseId: variantId, quantity }]
+                // Create new cart
+                const response = await fetch('/api/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'create',
+                        variantId,
+                        quantity
+                    }),
                 });
-                if (data?.cartCreate?.cart) {
-                    cartId = data.cartCreate.cart.id;
-                    saveCartId(cartId!);
-                    setCart(data.cartCreate.cart);
-                    toast.success('Added to cart');
-                }
-            } else {
-                const data = await fetchGraphQL(ADD_TO_CART, {
-                    cartId,
-                    lines: [{ merchandiseId: variantId, quantity }]
-                });
-                if (data?.cartLinesAdd?.cart) {
+
+                const data = await response.json();
+
+                if (response.ok && data.cart) {
+                    saveCartId(data.cart.id);
                     await loadCart();
                     toast.success('Added to cart');
+                } else {
+                    throw new Error(data.error || 'Failed to create cart');
+                }
+            } else {
+                // Add to existing cart
+                const response = await fetch('/api/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'addItem',
+                        cartId,
+                        variantId,
+                        quantity
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    await loadCart();
+                    toast.success('Added to cart');
+                } else {
+                    throw new Error(data.error || 'Failed to add item');
                 }
             }
         } catch (error) {
             console.error('[CartContext] Add Error:', error);
-            toast.error('Failed to add item');
+            toast.error(error instanceof Error ? error.message : 'Failed to add item');
         } finally {
             setIsUpdating(false);
         }
@@ -155,18 +180,27 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const cartId = getCartId();
             if (!cartId) return;
 
-            const data = await fetchGraphQL(REMOVE_FROM_CART, {
-                cartId,
-                lineIds: [lineId]
+            const response = await fetch('/api/cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'removeItem',
+                    cartId,
+                    lineId
+                }),
             });
 
-            if (data?.cartLinesRemove?.cart) {
+            const data = await response.json();
+
+            if (response.ok && data.success) {
                 await loadCart();
                 toast.success('Item removed');
+            } else {
+                throw new Error(data.error || 'Failed to remove item');
             }
         } catch (error) {
             console.error('[CartContext] Remove Error:', error);
-            toast.error('Failed to remove item');
+            toast.error(error instanceof Error ? error.message : 'Failed to remove item');
         } finally {
             setIsUpdating(false);
         }
@@ -183,17 +217,26 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const cartId = getCartId();
             if (!cartId) return;
 
-            const data = await fetchGraphQL(UPDATE_CART_ITEMS, {
-                cartId,
-                lines: [{ id: lineId, quantity }]
+            const response = await fetch('/api/cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'updateItem',
+                    cartId,
+                    lines: [{ id: lineId, quantity }]
+                }),
             });
 
-            if (data?.cartLinesUpdate?.cart) {
+            const data = await response.json();
+
+            if (response.ok && data.success) {
                 await loadCart();
+            } else {
+                throw new Error(data.error || 'Failed to update quantity');
             }
         } catch (error) {
             console.error('[CartContext] Update Error:', error);
-            toast.error('Failed to update quantity');
+            toast.error(error instanceof Error ? error.message : 'Failed to update quantity');
         } finally {
             setIsUpdating(false);
         }

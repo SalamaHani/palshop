@@ -34,8 +34,8 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
             phone: '',
             address1: '',
             city: '',
-            state: '',
-            zipCode: '',
+            province: '',
+            zip: '',
             country: 'Palestine',
         },
     });
@@ -116,8 +116,8 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                                         type="tel"
                                         placeholder="+970 599 000 000"
                                         className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400 ${errors.phone
-                                                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                                                : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
+                                            ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                                            : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
                                             }`}
                                     />
                                     {errors.phone && (
@@ -137,8 +137,8 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                                         type="text"
                                         placeholder="123 Main Street, Apt 4B"
                                         className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400 ${errors.address1
-                                                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                                                : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
+                                            ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                                            : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
                                             }`}
                                     />
                                     {errors.address1 && (
@@ -160,8 +160,8 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                                             type="text"
                                             placeholder="Ramallah"
                                             className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400 ${errors.city
-                                                    ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                                                    : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
+                                                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                                                : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
                                                 }`}
                                         />
                                         {errors.city && (
@@ -177,17 +177,17 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                                             State/Province
                                         </label>
                                         <input
-                                            {...register('state')}
+                                            {...register('province')}
                                             type="text"
                                             placeholder="West Bank"
-                                            className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400 ${errors.state
-                                                    ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                                                    : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
+                                            className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400 ${errors.province
+                                                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                                                : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
                                                 }`}
                                         />
-                                        {errors.state && (
+                                        {errors.province && (
                                             <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                                                {errors.state.message}
+                                                {errors.province.message}
                                             </p>
                                         )}
                                     </div>
@@ -198,17 +198,17 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                                             ZIP/Postal
                                         </label>
                                         <input
-                                            {...register('zipCode')}
+                                            {...register('zip')}
                                             type="text"
                                             placeholder="12345"
-                                            className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400 ${errors.zipCode
-                                                    ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                                                    : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
+                                            className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400 ${errors.zip
+                                                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                                                : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
                                                 }`}
                                         />
-                                        {errors.zipCode && (
+                                        {errors.zip && (
                                             <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-                                                {errors.zipCode.message}
+                                                {errors.zip.message}
                                             </p>
                                         )}
                                     </div>
@@ -222,8 +222,8 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                                     <select
                                         {...register('country')}
                                         className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium ${errors.country
-                                                ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
-                                                : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
+                                            ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                                            : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
                                             }`}
                                     >
                                         {COUNTRIES.map((country) => (

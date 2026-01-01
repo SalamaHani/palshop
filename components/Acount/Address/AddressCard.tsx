@@ -18,11 +18,11 @@ import {
 
 import { AddressForm } from './AddressForm';
 import { toast } from 'sonner';
-import { Address } from '@/types';
 import { deleteAddress } from '@/utils/action';
+import { AddressFormData } from '@/utils/zod';
 
 export interface AddressCardProps {
-    address: Address;
+    address: AddressFormData;
     userId: string;
     onUpdate: () => void;
 }
@@ -34,7 +34,7 @@ export function AddressCard({ address, userId, onUpdate }: AddressCardProps) {
 
     function handleDelete() {
         startTransition(async () => {
-            const result = await deleteAddress(address.id);
+            const result = await deleteAddress(address?.id ?? '');
             if (result.success) {
                 toast.success('Address deleted!');
                 onUpdate();
@@ -46,18 +46,11 @@ export function AddressCard({ address, userId, onUpdate }: AddressCardProps) {
 
     return (
         <Card className="relative hover:shadow-xl transition-all duration-300 bg-white border-slate-200 hover:border-[#215732]/30">
-            {address.isDefault && (
+            {!address && (
                 <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold text-white bg-[#215732] shadow-md">
                     Default
                 </div>
             )}
-
-            <CardHeader>
-                <CardTitle className="text-lg flex items-start gap-2">
-                    <MapPin className="w-5 h-5 mt-1 text-[#215732]" />
-                </CardTitle>
-            </CardHeader>
-
             <CardContent className="space-y-3">
                 <div className="flex items-center gap-2 text-slate-600">
                     <Phone className="w-4 h-4 text-[#215732]" />
@@ -68,7 +61,7 @@ export function AddressCard({ address, userId, onUpdate }: AddressCardProps) {
                     <p>{address.address1}</p>
                     {address.address1 && <p>{address.address1}</p>}
                     <p>
-                        {address.city}, {address.state} {address.zipCode}
+                        {address.city}, {address.province} {address.zip}
                     </p>
                     <p>{address.country}</p>
                 </div>
