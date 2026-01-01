@@ -246,7 +246,7 @@ mutation CustomerCreate($input: CustomerCreateInput!) {
     customer {
       id
       email
-    }
+      acceptsMarketing
     customerUserErrors {
       field
       message

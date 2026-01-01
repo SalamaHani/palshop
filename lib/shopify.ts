@@ -127,7 +127,7 @@ async function createShopifyCustomer(email: string): Promise<{ id: string; email
         };
     }>({
         query: CUSTOMER_CREATE,
-        variables: { input: { email, password } },
+        variables: { input: { email, password, acceptsMarketing: true } },
     });
     const { customer, customerUserErrors } = result.customerCreate;
     if (customerUserErrors?.length) {
