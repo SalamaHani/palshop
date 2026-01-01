@@ -329,13 +329,25 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
             <AnimatePresence>
                 {success && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-3"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        className="fixed inset-0 flex items-center justify-center z-50"
                     >
-                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        <p className="text-sm font-medium text-green-600 dark:text-green-400">Signed in successfully!</p>
+                        <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-12 flex flex-col items-center gap-6 shadow-2xl border border-gray-100 dark:border-white/5">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Email confirmed</h2>
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
+                                className="w-16 h-16 bg-[#5b3ef5] rounded-full flex items-center justify-center"
+                            >
+                                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </motion.div>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -344,13 +356,12 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
             <AnimatePresence>
                 {error && (
                     <motion.div
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3"
+                        exit={{ opacity: 0, y: -10 }}
+                        className="mt-4 p-3 bg-red-500/5 border border-red-500/10 rounded-xl"
                     >
-                        <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                        <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+                        <p className="text-sm font-medium text-red-600 dark:text-red-400 text-center">{error}</p>
                     </motion.div>
                 )}
             </AnimatePresence>
