@@ -49,12 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     phone: data.phone,
                 });
             } else {
-                setIsAuthenticated(false);
                 setCustomer(null);
             }
         } catch (error) {
             console.error('Failed to load customer:', error);
-            setIsAuthenticated(false);
             setCustomer(null);
         } finally {
             setIsLoading(false);
@@ -66,12 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function logout() {
         try {
             await fetch('/api/auth/signout', { method: 'POST' });
-            setIsAuthenticated(false);
             setCustomer(null);
         } catch (error) {
             console.error('Sign out error:', error);
-            // Still clear local state even if API call fails
-            setIsAuthenticated(false);
             setCustomer(null);
         }
     }

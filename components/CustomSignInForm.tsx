@@ -274,11 +274,11 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                                     className="flex items-center gap-2 group"
                                 >
                                     <span className="text-base font-bold text-gray-900 dark:text-white">{email}</span>
-                                    <ChevronDown className="w-3 h-3 text-gray-900 dark:text-white group-hover:translate-y-0.5 transition-transform" />
+                                    <ChevronDown className="w-3 h-3  text-gray-900 dark:text-white group-hover:translate-y-0.5 transition-transform" />
                                 </button>
 
                                 <div
-                                    className="grid grid-cols-6 gap-2 sm:gap-3 cursor-text"
+                                    className="grid grid-cols-6 gap-2 overflow-hidden sm:gap-3 cursor-text"
                                     onClick={() => {
                                         const indexToFocus = code.findIndex(d => !d);
                                         inputRefs.current[indexToFocus === -1 ? 5 : indexToFocus]?.focus();
@@ -335,13 +335,13 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                         transition={{ duration: 0.3, ease: "easeOut" }}
                         className="fixed inset-0 flex items-center justify-center z-50"
                     >
-                        <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-12 flex flex-col items-center gap-6 shadow-2xl border border-gray-100 dark:border-white/5">
+                        <div className=" p-2 flex flex-col items-center gap-6">
                             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Email confirmed</h2>
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
-                                className="w-16 h-16 bg-[#5b3ef5] rounded-full flex items-center justify-center"
+                                className="w-16 h-16 bg-[#215732] rounded-full flex items-center justify-center"
                             >
                                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
