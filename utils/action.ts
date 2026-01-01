@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { addressSchema, AddressFormData } from '@/utils/zod';
 import { shopifyFetch } from '@/lib/shopify';
-import { CustomerAddressesResult, CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateResult } from '@/types';
+import { CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateResult } from '@/types';
 import { CUSTOMER_ADDRESS_CREATE, CUSTOMER_ADDRESS_DELETE, CUSTOMER_ADDRESS_UPDATE, CUSTOMER_ADDRESSES } from '@/graphql/auth';
 import { getSessionHelper } from './session';
 type ActionResult = {
@@ -127,7 +127,7 @@ export async function deleteAddress(
     }
 } export async function getAddresses(): Promise<AddressResult> {
     try {
-        const data = await shopifyFetch<CustomerAddressesResult>({
+        const data = await shopifyFetch<any>({
             query: CUSTOMER_ADDRESSES,
             variables: {
                 customerAccessToken: await fetchShopifyToken(),
