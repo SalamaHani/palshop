@@ -360,19 +360,22 @@ mutation customerDefaultAddressUpdate(
 }
 `;
 export const CUSTOMER_ADDRESSES = `
-query customerAddresses($customerAccessToken: String!) {
-    customerAddresses(customerAccessToken: $customerAccessToken) {
-        edges {
-            node {
-                id
-                address1
-                city
-                phone
-                province
-                zip
-                country
-            }
+query getCustomerAddresses($customerAccessToken: String!) {
+  customer(customerAccessToken: $customerAccessToken) {
+    addresses(first: 20) {
+      edges {
+        node {
+          id
+          address1
+          city
+          phone
+          province
+          zip
+          country
         }
+      }
     }
-} `
+  }
+}
+`;
 

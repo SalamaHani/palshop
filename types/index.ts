@@ -1,6 +1,24 @@
 import { AddressFormData } from "@/utils/zod";
 import { StaticImport } from "next/dist/shared/lib/get-img-props";
 
+export type CustomerAddressesResult = {
+  customer: {
+    addresses: {
+      edges: {
+        node: {
+          id: string;
+          address1: string;
+          city: string;
+          phone: string;
+          province: string;
+          zip: string;
+          country: string;
+        };
+      }[];
+    } | null;
+  } | null;
+};
+
 export interface CustomerCreateResponse {
   customerCreate: {
     customer: {
@@ -116,22 +134,7 @@ export type CustomerCreateAddressResult = {
     userErrors: { message: string }[];
   };
 };
-export type CustomerAddressesResult = {
-  customerAddresses: {
-    edges: {
-      node: {
-        id: string;
-        address1: string;
-        city: string;
-        phone: string;
-        state: string;
-        zipCode: string;
-        country: string;
-      };
-    }[];
-    userErrors: { message: string }[];
-  };
-};
+
 
 export type CustomerDeleteAddressResult = {
   customerAddressDelete: {

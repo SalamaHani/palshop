@@ -4,34 +4,37 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { addressSchema, AddressFormData } from '@/utils/zod';
 import { shopifyFetch } from '@/lib/shopify';
-import { CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateResult } from '@/types';
+import { CustomerAddressesResult, CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateResult } from '@/types';
 import { CUSTOMER_ADDRESS_CREATE, CUSTOMER_ADDRESS_DELETE, CUSTOMER_ADDRESS_UPDATE, CUSTOMER_ADDRESSES } from '@/graphql/auth';
 import { getSessionHelper } from './session';
+
 type ActionResult = {
     success: boolean;
     error?: string;
 };
+
 export type ShopifyAddressNode = {
     node: AddressFormData;
 };
+
 type AddressResult = {
     success: boolean;
     error?: string;
     data?: ShopifyAddressNode[];
 };
+
 export async function fetchShopifyToken() {
     const sessionDB = await getSessionHelper();
 
     if (!sessionDB?.shopify_customer_token) {
-        // handle missing token
         throw new Error("Customer not logged in or token missing");
     }
 
     const customerAccessToken = sessionDB.shopify_customer_token;
-
     return customerAccessToken;
 }
-//update address    
+
+// update address    
 export async function updateCustomerAddress(
     formData: AddressFormData
 ): Promise<ActionResult> {
@@ -48,7 +51,7 @@ export async function updateCustomerAddress(
 
         const result = data.customerUpdate;
 
-        if (result.userErrors.length > 0) {
+        if (result?.userErrors?.length > 0) {
             return {
                 success: false,
                 error: result.userErrors[0].message,
@@ -66,7 +69,8 @@ export async function updateCustomerAddress(
         return { success: false, error: 'Failed to update address' };
     }
 }
-//create address
+
+// create address
 export async function createCustomerAddress(
     formData: AddressFormData
 ): Promise<ActionResult> {
@@ -80,7 +84,7 @@ export async function createCustomerAddress(
             },
         });
         const result = data.customerAddressCreate;
-        if (result.userErrors.length > 0) {
+        if (result?.userErrors?.length > 0) {
             return {
                 success: false,
                 error: result.userErrors[0].message,
@@ -96,7 +100,8 @@ export async function createCustomerAddress(
         return { success: false, error: 'Failed to create address' };
     }
 }
-//delete address
+
+// delete address
 export async function deleteAddress(
     addressId: string
 ): Promise<ActionResult> {
@@ -110,7 +115,7 @@ export async function deleteAddress(
         });
 
         const result = data.customerAddressDelete;
-        if (result.userErrors.length > 0) {
+        if (result?.userErrors?.length > 0) {
             return {
                 success: false,
                 error: result.userErrors[0].message,
@@ -125,22 +130,30 @@ export async function deleteAddress(
         }
         return { success: false, error: 'Failed to delete address' };
     }
-} export async function getAddresses(): Promise<AddressResult> {
+}
+
+export async function getAddresses(): Promise<AddressResult> {
     try {
-        const data = await shopifyFetch<any>({
+        const data = await shopifyFetch<CustomerAddressesResult>({
             query: CUSTOMER_ADDRESSES,
             variables: {
                 customerAccessToken: await fetchShopifyToken(),
             },
         });
-        const result = data.customerAddresses;
-        if (result.userErrors.length > 0) {
+
+        const customer = data?.customer;
+
+        if (!customer || !customer.addresses) {
             return {
                 success: false,
-                error: result.userErrors[0].message,
+                error: 'Customer or addresses not found',
             };
         }
-        return { success: true, data: result.edges };
+
+        return {
+            success: true,
+            data: customer.addresses.edges
+        };
     } catch (err) {
         console.log(`Error getting addresses: ${err}`);
         if (err instanceof z.ZodError) {
