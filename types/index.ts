@@ -116,6 +116,23 @@ export type CustomerCreateAddressResult = {
     userErrors: { message: string }[];
   };
 };
+export type CustomerAddressesResult = {
+  customerAddresses: {
+    edges: {
+      node: {
+        id: string;
+        address1: string;
+        city: string;
+        phone: string;
+        state: string;
+        zipCode: string;
+        country: string;
+      };
+    }[];
+    userErrors: { message: string }[];
+  };
+};
+
 export type CustomerDeleteAddressResult = {
   customerAddressDelete: {
     customer: {
@@ -127,7 +144,7 @@ export type CustomerDeleteAddressResult = {
 };
 
 
-
+export type CustomerAddress = any
 
 export interface ImageEdges {
   edges: ImageNode[];
