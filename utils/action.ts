@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { addressSchema, AddressFormData } from '@/utils/zod';
 import { shopifyFetch } from '@/lib/shopify';
-import { CustomerAddress, CustomerAddressesResult, CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateResult } from '@/types';
+import { CustomerAddressesResult, CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateResult } from '@/types';
 import { CUSTOMER_ADDRESS_CREATE, CUSTOMER_ADDRESS_DELETE, CUSTOMER_ADDRESS_UPDATE, CUSTOMER_ADDRESSES } from '@/graphql/auth';
 import { getSession } from '@/lib/auth';
 import { getSessionDB } from '@/lib/cereatAuthpass';
