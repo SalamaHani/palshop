@@ -7,7 +7,11 @@ export default function AccountLayout({
 }) {
     return (
         <ProtectedRoute>
-            {children}
+            <div className="min-h-screen bg-gray-50 dark:bg-black">
+                <div className="container mx-auto px-4 py-8 max-w-7xl">
+                    {children}
+                </div>
+            </div>
         </ProtectedRoute>
     );
 }
