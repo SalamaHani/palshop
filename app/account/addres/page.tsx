@@ -8,6 +8,7 @@ import { Plus } from 'lucide-react';
 export default async function AddressesPage() {
   const userId = 'user-123';
   const addresses = await getAddresses();
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -19,13 +20,13 @@ export default async function AddressesPage() {
         <AddressForm userId={userId} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {addresses.data?.map((address) => (
+        {addresses.data?.map((address: any) => (
           <AddressCard
             key={address.node.id}
-            address={address?.node}
+            address={address.node}
             userId={userId}
             onUpdate={() => {
-              updateCustomerAddress(address?.node);
+              updateCustomerAddress(address.node);
               // Revalidate will happen automatically via server action
             }}
           />
