@@ -230,6 +230,7 @@ export const ADMIN_CUSTOMER_CREATE = `
           customer {
             id
             email
+            acceptsMarketing
           }
           userErrors {
             message
@@ -247,6 +248,7 @@ mutation CustomerCreate($input: CustomerCreateInput!) {
       id
       email
       acceptsMarketing
+   }
     customerUserErrors {
       field
       message
