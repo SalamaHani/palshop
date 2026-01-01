@@ -1,37 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getSessionDB } from '@/lib/cereatAuthpass';
-
-const SHOPIFY_STORE_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-
-interface ShopifyOrder {
-    id: string;
-    name: string;
-    createdAt: string;
-    totalPrice: {
-        amount: string;
-        currencyCode: string;
-    };
-    fulfillmentStatus: string;
-    financialStatus: string;
-    lineItems: {
-        edges: Array<{
-            node: {
-                title: string;
-                quantity: number;
-                variant: {
-                    price: {
-                        amount: string;
-                        currencyCode: string;
-                    };
-                    image?: {
-                        url: string;
-                    };
-                };
-            };
-        }>;
-    };
-}
+import { shopifyFetch } from '@/lib/shopify';
 
 export async function GET() {
     try {
@@ -92,40 +62,20 @@ export async function GET() {
             }
         `;
 
-        // Make request to Shopify Storefront API
-        const response = await fetch(
-            `https://${SHOPIFY_STORE_DOMAIN}/api/2024-01/graphql.json`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Shopify-Storefront-Access-Token': process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN!,
-                },
-                body: JSON.stringify({
-                    query,
-                    variables: {
-                        customerAccessToken: sessionDB.shopify_customer_token,
-                    },
-                }),
-            }
-        );
+        // Make request using standard shopifyFetch
+        const data = await shopifyFetch<any>({
+            query,
+            variables: {
+                customerAccessToken: sessionDB.shopify_customer_token,
+            },
+        });
 
-        const data = await response.json();
-
-        if (data.errors) {
-            console.error('Shopify GraphQL errors:', data.errors);
-            return NextResponse.json(
-                { error: 'Failed to fetch orders', details: data.errors },
-                { status: 500 }
-            );
-        }
-
-        if (!data.data?.customer) {
+        if (!data?.customer) {
             return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
         }
 
         // Extract orders
-        const orders = data.data.customer.orders.edges.map((edge: any) => edge.node);
+        const orders = data.customer.orders.edges.map((edge: any) => edge.node);
 
         return NextResponse.json({
             success: true,

@@ -1,32 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getSessionDB } from '@/lib/cereatAuthpass';
-
-const SHOPIFY_STORE_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-const STOREFRONT_ACCESS_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
-
-async function shopifyFetch(query: string, variables: any = {}) {
-    const response = await fetch(
-        `https://${SHOPIFY_STORE_DOMAIN}/api/2024-01/graphql.json`,
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Shopify-Storefront-Access-Token': STOREFRONT_ACCESS_TOKEN!,
-            },
-            body: JSON.stringify({ query, variables }),
-        }
-    );
-
-    const data = await response.json();
-
-    if (data.errors) {
-        console.error('Shopify GraphQL errors:', data.errors);
-        throw new Error(data.errors[0]?.message || 'GraphQL error');
-    }
-
-    return data.data;
-}
+import { shopifyFetch } from '@/lib/shopify';
 
 // Get cart - with customer association if logged in
 export async function GET(request: Request) {
@@ -99,7 +74,7 @@ export async function GET(request: Request) {
             }
         `;
 
-        const data = await shopifyFetch(query, { cartId });
+        const data = await shopifyFetch<any>({ query, variables: { cartId } });
 
         return NextResponse.json({ cart: data.cart });
     } catch (error) {
@@ -115,7 +90,7 @@ export async function POST(request: Request) {
         const { action, cartId, variantId, quantity, lineId, lines } = body;
 
         // Try to get customer access token
-        let buyerIdentity = {};
+        let buyerIdentity: any = undefined;
         try {
             const session = await getSession();
             if (session?.session_id) {
@@ -167,9 +142,12 @@ export async function POST(request: Request) {
                     }
                 `;
 
-                const data = await shopifyFetch(query, {
-                    lineItems: [{ merchandiseId: variantId, quantity: quantity || 1 }],
-                    buyerIdentity
+                const data = await shopifyFetch<any>({
+                    query,
+                    variables: {
+                        lineItems: [{ merchandiseId: variantId, quantity: quantity || 1 }],
+                        buyerIdentity
+                    }
                 });
 
                 if (data.cartCreate.userErrors.length > 0) {
@@ -198,9 +176,12 @@ export async function POST(request: Request) {
                     }
                 `;
 
-                const data = await shopifyFetch(query, {
-                    cartId,
-                    lines: [{ merchandiseId: variantId, quantity: quantity || 1 }]
+                const data = await shopifyFetch<any>({
+                    query,
+                    variables: {
+                        cartId,
+                        lines: [{ merchandiseId: variantId, quantity: quantity || 1 }]
+                    }
                 });
 
                 if (data.cartLinesAdd.userErrors.length > 0) {
@@ -229,9 +210,12 @@ export async function POST(request: Request) {
                     }
                 `;
 
-                const data = await shopifyFetch(query, {
-                    cartId,
-                    lineIds: [lineId]
+                const data = await shopifyFetch<any>({
+                    query,
+                    variables: {
+                        cartId,
+                        lineIds: [lineId]
+                    }
                 });
 
                 if (data.cartLinesRemove.userErrors.length > 0) {
@@ -260,9 +244,12 @@ export async function POST(request: Request) {
                     }
                 `;
 
-                const data = await shopifyFetch(query, {
-                    cartId,
-                    lines
+                const data = await shopifyFetch<any>({
+                    query,
+                    variables: {
+                        cartId,
+                        lines
+                    }
                 });
 
                 if (data.cartLinesUpdate.userErrors.length > 0) {

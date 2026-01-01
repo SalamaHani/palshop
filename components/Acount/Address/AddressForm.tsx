@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Loader2 } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { toast } from 'sonner';
 import { AddressFormData, addressSchema } from '@/utils/zod';
 import { COUNTRIES } from '@/utils/countries';
 import { createCustomerAddress, updateCustomerAddress } from '@/utils/action';
@@ -54,12 +55,16 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                 : await createCustomerAddress(data);
 
             if (result.success) {
+                toast.success(address ? 'Address updated successfully' : 'Address added successfully');
                 setIsOpen(false);
                 reset();
                 onSuccess?.();
+            } else {
+                toast.error(result.error || 'Something went wrong');
             }
         } catch (error) {
             console.error('Address error:', error);
+            toast.error('Failed to save address');
         } finally {
             setIsLoading(false);
         }

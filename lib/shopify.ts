@@ -1,5 +1,8 @@
-const domain = process.env.SHOPIFY_STORE_DOMAIN!;
-const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
+
+const domain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+const adminAccessToken = process.env.SHOPIFY_ADMIN_ACCESS_TOKEN;
+
 import { ADMIN_CUSTOMER_BY_EMAIL, ADMIN_CUSTOMER_CREATE, CUSTOMER_ACCESS_TOKEN_CREATE, CUSTOMER_CREATE, CUSTOMER_QUERY, CUSTOMER_UPDATE_PROFILE } from '@/graphql/auth';
 import * as storage from './auth/storage';
 import { CustomerAccessTokenResult, CustomerQueryResult, ShopifyCustomer } from '@/types';
@@ -32,7 +35,7 @@ export async function shopifyFetch<T>({
         console.error('❌ Missing Shopify credentials:');
         console.error('   SHOPIFY_STORE_DOMAIN:', domain ? '✓ Set' : '✗ Missing');
         console.error('   SHOPIFY_STOREFRONT_ACCESS_TOKEN:', storefrontAccessToken ? '✓ Set' : '✗ Missing');
-        throw new Error('Shopify credentials not configured');
+        throw new Error('Shopify credentials not configured. Please check your .env file.');
     }
 
     const endpoint = `https://${domain}/api/2024-01/graphql.json`;
@@ -48,32 +51,20 @@ export async function shopifyFetch<T>({
             body: JSON.stringify({ query, variables }),
         });
 
-        console.log('📡 Shopify Response Status:', response.status, response.statusText);
-
         if (!response.ok) {
             const text = await response.text();
             console.error('❌ Shopify API Error Response:', text);
             throw new Error(`Shopify API returned ${response.status}: ${response.statusText}`);
         }
 
-        const text = await response.text();
-        if (!text) throw new Error('Shopify returned empty response');
+        const data: ShopifyResponse<T> = await response.json();
 
-        let json: ShopifyResponse<T>;
-        try {
-            json = JSON.parse(text);
-        } catch {
-            console.error('❌ Failed to parse Shopify response:', text.substring(0, 500));
-            throw new Error('Invalid JSON response from Shopify');
+        if (data.errors) {
+            console.error('❌ Shopify GraphQL Errors:', data.errors);
+            throw new Error(data.errors[0]?.message || 'Shopify API error');
         }
 
-        if (json.errors) {
-            console.error('❌ Shopify GraphQL Errors:', json.errors);
-            throw new Error(json.errors[0]?.message || 'Shopify API error');
-        }
-
-        console.log('✅ Shopify API Success');
-        return json.data;
+        return data.data;
     } catch (error) {
         console.error('❌ Shopify Fetch Error:', error);
         throw error;
@@ -84,34 +75,31 @@ export async function shopifyFetch<T>({
 // ADMIN API FETCH
 // ===========================================
 export async function shopifyAdminFetch<T = any>(query: string, variables?: Record<string, unknown>): Promise<T> {
-    const response = await fetch(`https://${process.env.SHOPIFY_STORE_DOMAIN}/admin/api/2025-10/graphql.json`, {
+    if (!domain || !adminAccessToken) {
+        throw new Error("Shopify Admin credentials not configured");
+    }
+
+    const response = await fetch(`https://${domain}/admin/api/2025-10/graphql.json`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-Shopify-Access-Token": process.env.SHOPIFY_ADMIN_ACCESS_TOKEN!,
+            "X-Shopify-Access-Token": adminAccessToken,
         },
         body: JSON.stringify({ query, variables }),
     });
 
-    const text = await response.text();
-
     if (!response.ok) {
-        console.error("❌ Shopify HTTP Error:", response.status);
+        const text = await response.text();
+        console.error("❌ Shopify Admin HTTP Error:", response.status);
         console.error("❌ Raw response:", text);
-        throw new Error(`Shopify HTTP ${response.status}`);
+        throw new Error(`Shopify Admin HTTP ${response.status}`);
     }
 
-    let json;
-    try { json = JSON.parse(text); }
-    catch { throw new Error("Shopify returned invalid JSON"); }
+    const json = await response.json();
 
     if (json.errors) throw new Error(json.errors[0]?.message || "Shopify Admin API error");
-    console.log("✅ Shopify Admin API Success" + json.data);
-    return json.data as T; // ✅ now the return type is T
+    return json.data as T;
 }
-
-
-
 
 // ===========================================
 // FIND CUSTOMER BY EMAIL (ADMIN API)
@@ -121,7 +109,7 @@ export async function findShopifyCustomerByEmail(email: string): Promise<{ id: s
     const normalizedEmail = email.toLowerCase().trim();
     const result = await shopifyAdminFetch<AdminCustomerByEmailResult>(
         ADMIN_CUSTOMER_BY_EMAIL,
-        { email: `email:${normalizedEmail}` } // pass variables as 2nd argument
+        { email: `email:${normalizedEmail}` }
     );
     const customer = result?.customers?.edges?.[0]?.node;
     return customer ?? null;
@@ -130,8 +118,6 @@ export async function findShopifyCustomerByEmail(email: string): Promise<{ id: s
 /**
  * Create a new customer via Shopify Admin API
  */
-
-
 async function createShopifyCustomer(email: string): Promise<{ id: string; email: string; password: string }> {
     const password = generateSecurePassword();
     const result = await shopifyFetch<{
@@ -152,7 +138,6 @@ async function createShopifyCustomer(email: string): Promise<{ id: string; email
         throw new Error('Failed to create customer');
     }
     const customerID = customer.id;
-    //cereat user databes
     await createUser(email, password, customerID);
     return { id: customer.id, email: customer.email, password: password };
 }
@@ -160,34 +145,19 @@ async function createShopifyCustomer(email: string): Promise<{ id: string; email
 /**
  * Create or get existing Shopify customer (Admin API)
  */
-// ===========================================
-// CREATE OR GET CUSTOMER (ADMIN API)
-// ===========================================
-
 export async function createOrGetShopifyCustomer(email: string): Promise<{ success: boolean; customerId?: string; isNew?: boolean; error?: string }> {
     const normalizedEmail = email.toLowerCase().trim();
     if (!normalizedEmail || !normalizedEmail.includes('@')) return { success: false, error: 'Invalid email address' };
 
     try {
-        // Generate a fresh password for this session
-        // 1️⃣ Search existing customer
         const existingCustomer = await findShopifyCustomerByEmail(normalizedEmail);
         if (existingCustomer) {
             if (existingCustomer.state === 'DISABLED') {
                 return { success: false, error: 'This account has been disabled.' };
             }
-            // Store the password in Redis so we can use it during verification   
-            // NOTE: In a real "passwordless" system, you might want to use the Admin API 
-            // to update the customer's password to this new one, but for simplicity 
-            // and security, we rely on the flow where we create/update the account.
-            // For now, we will update the password via Admin API if we can, 
-            // but setting it only on creation is what we had before.
             return { success: true, customerId: existingCustomer.id, isNew: false };
         }
-        // 2️⃣ Create customer via Admin API
         const newCustomer = await createShopifyCustomer(normalizedEmail);
-        // Store the password in Redis
-        console.log(`✅ Shopify Admin API Success: Created customer ${newCustomer.email}`);
         return { success: true, customerId: newCustomer.id, isNew: true };
     } catch (err: any) {
         console.error('Create/Get customer (Admin) error:', err);
@@ -269,4 +239,3 @@ export async function updateCustomerProfile(accessToken: string, customerData: {
         return { customer: null, error: error?.message || 'Failed to update profile' };
     }
 }
-

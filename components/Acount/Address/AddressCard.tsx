@@ -27,16 +27,16 @@ export interface AddressCardProps {
     onUpdate: () => void;
 }
 
+import { motion } from 'framer-motion';
+
 export function AddressCard({ address, userId, onUpdate }: AddressCardProps) {
     const [isPending, startTransition] = useTransition();
-
-
 
     function handleDelete() {
         startTransition(async () => {
             const result = await deleteAddress(address?.id ?? '');
             if (result.success) {
-                toast.success('Address deleted!');
+                toast.success('Address deleted successfully');
                 onUpdate();
             } else {
                 toast.error(result.error || 'Failed to delete');
@@ -45,60 +45,72 @@ export function AddressCard({ address, userId, onUpdate }: AddressCardProps) {
     }
 
     return (
-        <Card className="relative hover:shadow-xl transition-all duration-300 bg-white border-slate-200 hover:border-[#215732]/30">
-            {!address && (
-                <div className="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold text-white bg-[#215732] shadow-md">
-                    Default
-                </div>
-            )}
-            <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-slate-600">
-                    <Phone className="w-4 h-4 text-[#215732]" />
-                    <span className="text-sm">{address.phone}</span>
-                </div>
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+        >
+            <Card className="relative overflow-hidden group hover:shadow-2xl transition-all duration-500 bg-white dark:bg-[#0d0d0d] border-gray-100 dark:border-white/5 hover:border-[#215732]/30 rounded-2xl">
+                {/* Decorative background accent */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#215732]/5 rounded-full -mr-16 -mt-16 transition-transform duration-500 group-hover:scale-110" />
 
-                <div className="text-sm text-slate-700 leading-relaxed">
-                    <p>{address.address1}</p>
-                    {address.address1 && <p>{address.address1}</p>}
-                    <p>
-                        {address.city}, {address.province} {address.zip}
-                    </p>
-                    <p>{address.country}</p>
-                </div>
+                <CardContent className="p-6 space-y-4">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-gray-400">
+                        <div className="w-8 h-8 rounded-full bg-[#215732]/10 flex items-center justify-center">
+                            <Phone className="w-4 h-4 text-[#215732]" />
+                        </div>
+                        <span className="text-sm font-bold tracking-tight">{address.phone}</span>
+                    </div>
 
-                <div className="flex gap-2 pt-4 border-t">
-                    <AddressForm userId={userId} address={address} onSuccess={onUpdate} />
-                    <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={isPending}
-                                className="hover:bg-red-50 hover:text-red-600 hover:border-red-300"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Address?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This action cannot be undone. This will permanently delete this address.
-                                </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                    onClick={handleDelete}
-                                    className="bg-red-500 hover:bg-red-600"
+                    <div className="space-y-1">
+                        <p className="font-black text-lg text-gray-900 dark:text-white tracking-tight leading-tight">
+                            {address.address1}
+                        </p>
+                        <p className="text-[#677279] dark:text-gray-400 font-medium text-sm">
+                            {address.city}, {address.province} {address.zip}
+                        </p>
+                        <div className="flex items-center gap-1.5 pt-1">
+                            <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">{address.country}</p>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-4 border-t border-gray-100 dark:border-white/5">
+                        <div className="flex-1">
+                            <AddressForm userId={userId} address={address} onSuccess={onUpdate} />
+                        </div>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={isPending}
+                                    className="rounded-xl border-gray-200 dark:border-white/10 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-all duration-300 px-4"
                                 >
-                                    Delete
-                                </AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                    </AlertDialog>
-                </div>
-            </CardContent>
-        </Card>
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="rounded-3xl border-none shadow-2xl">
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle className="text-2xl font-bold">Delete Address?</AlertDialogTitle>
+                                    <AlertDialogDescription className="text-gray-500 py-2">
+                                        This action cannot be undone. This address will be removed from your account permanently.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="gap-2">
+                                    <AlertDialogCancel className="rounded-full px-6 bg-gray-100 border-none font-bold">Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={handleDelete}
+                                        className="rounded-full px-6 bg-red-500 hover:bg-red-600 font-bold shadow-lg shadow-red-500/20"
+                                    >
+                                        Delete
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                </CardContent>
+            </Card>
+        </motion.div>
     );
 }

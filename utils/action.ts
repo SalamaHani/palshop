@@ -58,6 +58,7 @@ export async function updateCustomerAddress(
             };
         }
 
+        revalidatePath('/account/addresses');
         return {
             success: true,
         };
