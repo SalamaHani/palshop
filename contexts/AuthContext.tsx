@@ -30,7 +30,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [customer, setCustomer] = useState<Customer | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -39,21 +38,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const response = await fetch('/api/auth/session');
             const data = await response.json();
-            console.log(data.authenticated);
+
             if (response.ok && data.authenticated) {
                 setIsAuthenticated(true);
-                setIsAuthModalOpen(false);
                 setCustomer({
                     id: data.customerId || '',
                     email: data.email,
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    phone: data.phone,
                 });
             } else {
                 setIsAuthenticated(false);
-                setIsAuthModalOpen(true);
                 setCustomer(null);
             }
         } catch (error) {
             console.error('Failed to load customer:', error);
+            setIsAuthenticated(false);
             setCustomer(null);
         } finally {
             setIsLoading(false);
@@ -65,24 +66,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function logout() {
         try {
             await fetch('/api/auth/signout', { method: 'POST' });
+            setIsAuthenticated(false);
             setCustomer(null);
         } catch (error) {
             console.error('Sign out error:', error);
             // Still clear local state even if API call fails
+            setIsAuthenticated(false);
             setCustomer(null);
         }
-        setCustomer(null);
     }
+
     async function updateProfile(firstName: string, phone: string) {
         try {
-            await fetch('/api/customer/update', { method: 'POST' });
-            setCustomer(null);
+            const response = await fetch('/api/customer/update', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ firstName, phone }),
+            });
+
+            if (response.ok) {
+                // Refresh customer data after update
+                await loadCustomer();
+            } else {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to update profile');
+            }
         } catch (error) {
-            console.error('Sign out error:', error);
-            // Still clear local state even if API call fails
-            setCustomer(null);
+            console.error('Update profile error:', error);
+            throw error;
         }
-        setCustomer(null);
     }
 
     return (

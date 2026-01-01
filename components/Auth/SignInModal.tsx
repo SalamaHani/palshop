@@ -29,15 +29,16 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             document.body.style.overflow = 'unset';
         };
     }, [isOpen]);
-    const { isAuthenticated } = useAuth();
-    const handleSignInSuccess = (customer: any) => {
-        if (isAuthenticated) {
-            console.log('Signed in:', customer);
-            onClose();
-            router.push('/account');
-        }
+    const { refreshCustomer } = useAuth();
 
-
+    const handleSignInSuccess = async (customer: any) => {
+        console.log('Signed in:', customer);
+        // Refresh the authentication context to get latest session
+        await refreshCustomer();
+        // Close modal
+        onClose();
+        // Redirect to account page
+        router.push('/account');
     };
 
     if (!mounted) return null;
