@@ -6,5 +6,6 @@ export async function getSessionHelper() {
     if (!session?.session_id) return null;
     // fetch session from your DB
     const sessionDB = await getSessionDB(session.session_id); // your DB helper
+    console.log(sessionDB?.shopify_customer_token);
     return sessionDB;
 }

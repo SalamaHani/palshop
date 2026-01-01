@@ -31,19 +31,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [customer, setCustomer] = useState<Customer | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [loading, setLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-    const [pendingRedirect, setPendingRedirect] = useState<string | null>(null);
+
 
     const loadCustomer = async () => {
         try {
             const response = await fetch('/api/auth/session');
             const data = await response.json();
+            console.log(data.authenticated);
             if (response.ok && data.authenticated) {
+                setIsAuthenticated(true);
+                setIsAuthModalOpen(false);
                 setCustomer({
                     id: data.customerId || '',
                     email: data.email,
                 });
             } else {
+                setIsAuthenticated(false);
+                setIsAuthModalOpen(true);
                 setCustomer(null);
             }
         } catch (error) {
@@ -83,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         <AuthContext.Provider
             value={{
                 customer,
-                isAuthenticated: !!customer,
+                isAuthenticated,
                 isLoading,
                 logout,
                 refreshCustomer: loadCustomer,

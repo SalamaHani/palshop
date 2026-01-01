@@ -29,13 +29,15 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
             document.body.style.overflow = 'unset';
         };
     }, [isOpen]);
-
+    const { isAuthenticated } = useAuth();
     const handleSignInSuccess = (customer: any) => {
-        console.log('Signed in:', customer);
-        // Close the modal
-        onClose();
-        // Redirect to account page
-        router.push('/account');
+        if (isAuthenticated) {
+            console.log('Signed in:', customer);
+            onClose();
+            router.push('/account');
+        }
+
+
     };
 
     if (!mounted) return null;
@@ -44,7 +46,6 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
         <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-[10000000] flex items-center justify-center p-4">
-                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}

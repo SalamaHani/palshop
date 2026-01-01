@@ -1,6 +1,6 @@
 // components/CustomSignInForm.tsx
 'use client';
-import { useState, useRef, useEffect, FormEvent, ChangeEvent, KeyboardEvent } from 'react';
+import { useState, useRef, useEffect, FormEvent, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, ChevronDown } from 'lucide-react';
 
