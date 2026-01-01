@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 import { Address } from '@/types';
 import { deleteAddress } from '@/utils/action';
 
-interface AddressCardProps {
+export interface AddressCardProps {
     address: Address;
     userId: string;
     onUpdate: () => void;
@@ -55,7 +55,6 @@ export function AddressCard({ address, userId, onUpdate }: AddressCardProps) {
             <CardHeader>
                 <CardTitle className="text-lg flex items-start gap-2">
                     <MapPin className="w-5 h-5 mt-1 text-[#215732]" />
-                    <span className="text-slate-800">{address.name}</span>
                 </CardTitle>
             </CardHeader>
 
@@ -66,8 +65,8 @@ export function AddressCard({ address, userId, onUpdate }: AddressCardProps) {
                 </div>
 
                 <div className="text-sm text-slate-700 leading-relaxed">
-                    <p>{address.addressLine1}</p>
-                    {address.addressLine2 && <p>{address.addressLine2}</p>}
+                    <p>{address.address1}</p>
+                    {address.address1 && <p>{address.address1}</p>}
                     <p>
                         {address.city}, {address.state} {address.zipCode}
                     </p>

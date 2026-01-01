@@ -2,12 +2,12 @@
 import { AddressCard } from '@/components/Acount/Address/AddressCard';
 import { AddressForm } from '@/components/Acount/Address/AddressForm';
 import { Card, CardContent } from '@/components/ui/card';
-import { getAddresses } from '@/utils/action';
+import { getAddresses, updateCustomerAddress } from '@/utils/action';
 import { Plus } from 'lucide-react';
 
 export default async function AddressesPage() {
   const userId = 'user-123';
-  const addresses = await getAddresses(userId);
+  const addresses = await getAddresses();
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -19,17 +19,18 @@ export default async function AddressesPage() {
         <AddressForm userId={userId} />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {addresses.map((address) => (
+        {addresses.data?.map((address) => (
           <AddressCard
-            key={address.id}
-            address={address}
+            key={address.node.id}
+            address={address?.node}
             userId={userId}
             onUpdate={() => {
+              updateCustomerAddress(address?.node);
               // Revalidate will happen automatically via server action
             }}
           />
         ))}
-        {addresses.length === 0 && (
+        {addresses.data?.length === 0 && (
           <Card className="border-2 border-dashed border-slate-300 bg-white/50 col-span-full">
             <CardContent className="flex flex-col items-center justify-center p-12">
               <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mb-4">

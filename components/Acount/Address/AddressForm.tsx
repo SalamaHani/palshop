@@ -32,12 +32,11 @@ import {
 import { createCustomerAddress, updateCustomerAddress } from '@/utils/action';
 import { toast } from 'sonner';
 import { useState, useTransition } from 'react';
-import { Address } from '@/types';
 import { AddressFormData, addressSchema } from '@/utils/zod';
 
-interface AddressFormProps {
+export interface AddressFormProps {
     userId: string;
-    address?: Address;
+    address?: AddressFormData;
     onSuccess?: () => void;
 }
 
@@ -48,10 +47,8 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
     const form = useForm<AddressFormData>({
         resolver: zodResolver(addressSchema),
         defaultValues: address || {
-            name: '',
             phone: '',
-            addressLine1: '',
-            addressLine2: '',
+            address1: '',
             city: '',
             state: '',
             zipCode: '',
@@ -106,26 +103,6 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel className="flex items-center gap-2">
-                                            <User className="w-4 h-4 text-[#215732]" />
-                                            Full Name
-                                        </FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                {...field}
-                                                placeholder="John Doe"
-                                                className="focus-visible:ring-[#215732] focus-visible:border-[#215732] focus-visible:shadow-lg focus-visible:shadow-[#215732]/20"
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
 
                             <FormField
                                 control={form.control}
@@ -151,7 +128,7 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
 
                         <FormField
                             control={form.control}
-                            name="addressLine1"
+                            name="address1"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="flex items-center gap-2">
@@ -170,23 +147,7 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                             )}
                         />
 
-                        <FormField
-                            control={form.control}
-                            name="addressLine2"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Address Line 2 (Optional)</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            {...field}
-                                            placeholder="Apartment, suite, etc."
-                                            className="focus-visible:ring-[#215732] focus-visible:border-[#215732] focus-visible:shadow-lg focus-visible:shadow-[#215732]/20"
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <FormField

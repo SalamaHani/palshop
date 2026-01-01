@@ -291,6 +291,8 @@ mutation customerAddressCreate(
       address1
       city
       phone
+      state
+      zipCode
       country
     }
     customerUserErrors {
@@ -357,4 +359,20 @@ mutation customerDefaultAddressUpdate(
   }
 }
 `;
+export const CUSTOMER_ADDRESSES = `
+query customerAddresses($customerAccessToken: String!) {
+    customerAddresses(customerAccessToken: $customerAccessToken) {
+        edges {
+            node {
+                id
+                address1
+                city
+                phone
+                state
+                zipCode
+                country
+            }
+        }
+    }
+} `
 
