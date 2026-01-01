@@ -9,8 +9,6 @@ import {
     Settings,
     HelpCircle,
     LogOut,
-    icons,
-    MapPinCheckInside
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -32,9 +30,9 @@ const navItems = [
         icon: Heart,
     },
     {
-        titele: "Shopping Addresses",
-        href: "/addres",
-        icons: MapPinCheckInside
+        title: "Shopping Addresses",
+        href: "/account/addresses",
+        icon: User,
     },
     {
         title: 'Settings',
