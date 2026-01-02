@@ -34,16 +34,15 @@ export async function GET(
         const data = await shopifyFetch<any>({
             query: orderDetailQuery,
             variables: {
-                id: fullOrderId,
                 customerAccessToken: sessionDB.shopify_customer_token
             },
         });
 
-        if (!data?.order) {
+        if (!data?.customer?.orders) {
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
 
-        const orders = data.order;
+        const orders = data.customer.orders.edges.map((edge: any) => edge.node);
 
         // Find the specific order in the results with high resilience
         // We decode Base64 IDs which are common in Storefront API
