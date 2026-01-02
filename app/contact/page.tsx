@@ -8,9 +8,10 @@ import { toast } from 'sonner';
 
 export default function ContactPage() {
     const [isLoading, setIsLoading] = useState(false);
+    const email = localStorage.getItem('email');
     const [formData, setFormData] = useState({
         name: '',
-        email: 'hanidiaab@gmail.com',
+        email: `${email}`,
         phone: '',
         topic: 'Topic',
         message: ''

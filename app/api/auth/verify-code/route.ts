@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import {
   verifyCode,
   generateSessionToken,
@@ -78,20 +77,9 @@ export async function POST(request: NextRequest) {
     // Set session cookie
     await setSessionCookie(sessionToken);
     const session = await getSession();
+    localStorage.setItem('email', normalizedEmail);
     //create session in database
     await createSession(session?.session_id, session?.customerId, authResult.accessToken, session?.exp);
-
-
-    // Set customerAccessToken for frontend Shopify Client
-    // const cookieStore = await cookies();
-    // cookieStore.set('customer', shopifyCustomer.email, {
-    //   httpOnly: false, // Visible to client JS
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'lax',
-    //   maxAge: 60 * 60 * 24 * 30, // 30 days
-    //   path: '/',
-    // });
-
     return NextResponse.json({
       success: true,
       email: normalizedEmail,
