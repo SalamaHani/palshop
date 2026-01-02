@@ -125,16 +125,6 @@ export default function ShopifySearchInput() {
                 <div className="flex flex-col gap-3 pb-4 px-2 lg:px-4">
                     {/* Header with History Icon */}
                     <div className="flex flex-col gap-4 sticky top-0 bg-white dark:bg-[#0a0a09] z-20 pb-4 pt-1">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-[13px] font-black uppercase tracking-widest text-gray-400">Suggestions</h3>
-                            <div
-                                className="w-5 h-5 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center shadow-inner cursor-pointer hover:bg-gray-100 transition-colors"
-                                onClick={handleRefresh}
-                            >
-                                <Clock className="w-3 h-3 text-gray-400" />
-                            </div>
-                        </div>
-
                         {/* Filter Tabs - Professional High-End Design */}
                         {query.trim().length > 0 && (
                             <div className="flex items-center gap-1.5 p-1 bg-gray-50 dark:bg-white/[0.03] rounded-full self-start">
