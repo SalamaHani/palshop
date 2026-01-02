@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getSessionDB } from '@/lib/cereatAuthpass';
 import { shopifyFetch } from '@/lib/shopify';
+import { orderDetailQuery } from '@/graphql/orders';
 
 export async function GET(
     request: NextRequest,
@@ -28,87 +29,21 @@ export async function GET(
         // GraphQL query to fetch customer orders
         // Fetching the last 100 orders is the most reliable way to find a specific one
         // because the Storefront API 'query' parameter is limited to status filters.
-        const query = `
-            query getCustomerOrders($customerAccessToken: String!) {
-                customer(customerAccessToken: $customerAccessToken) {
-                    orders(first: 100, sortKey: PROCESSED_AT, reverse: true) {
-                        edges {
-                            node {
-                                id
-                                name
-                                orderNumber
-                                processedAt
-                                financialStatus
-                                fulfillmentStatus
-                                totalPrice {
-                                    amount
-                                    currencyCode
-                                }
-                                subtotalPrice {
-                                    amount
-                                    currencyCode
-                                }
-                                totalTax {
-                                    amount
-                                    currencyCode
-                                }
-                                totalShippingPrice {
-                                    amount
-                                    currencyCode
-                                }
-                                shippingAddress {
-                                    firstName
-                                    lastName
-                                    address1
-                                    address2
-                                    city
-                                    province
-                                    zip
-                                    country
-                                    phone
-                                }
-                                lineItems(first: 100) {
-                                    edges {
-                                        node {
-                                            title
-                                            quantity
-                                            variant {
-                                                title
-                                                price {
-                                                    amount
-                                                    currencyCode
-                                                }
-                                                image {
-                                                    url
-                                                    altText
-                                                }
-                                                product {
-                                                    handle
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        `;
 
         // Make request using standard shopifyFetch
         const data = await shopifyFetch<any>({
-            query,
+            query: orderDetailQuery,
             variables: {
+                id: fullOrderId,
                 customerAccessToken: sessionDB.shopify_customer_token
             },
         });
 
-        if (!data?.customer) {
-            return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+        if (!data?.order) {
+            return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
 
-        const orders = data.customer.orders.edges.map((edge: any) => edge.node);
+        const orders = data.order;
 
         // Find the specific order in the results with high resilience
         // We decode Base64 IDs which are common in Storefront API
