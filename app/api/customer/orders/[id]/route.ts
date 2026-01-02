@@ -112,7 +112,7 @@ export async function GET(
 
         // Find the specific order in the results with high resilience
         // We decode Base64 IDs which are common in Storefront API
-        const order = orders.find((o: any) => {
+        let order = orders.find((o: any) => {
             const rawId = o.id; // Usually Base64
             let decodedId = rawId;
 
@@ -144,11 +144,126 @@ export async function GET(
             );
         });
 
+        // ===========================================
+        // ULTIMATE FALLBACK: Admin API Search
+        // ===========================================
+        // If storefront API fails (often due to sync delay or list limits), 
+        // we use the Admin API as a fallback, verifying the customer email.
         if (!order) {
-            console.warn(`[API] Order "${orderId}" not found among ${orders.length} customer orders.`);
-            if (orders.length > 0) {
-                console.warn(`[API] First item in list: ID=${orders[0].id}, Name=${orders[0].name}`);
+            try {
+                const { shopifyAdminFetch } = require('@/lib/shopify');
+                const adminQuery = `
+                    query findOrder($query: String!) {
+                        orders(first: 1, query: $query) {
+                            edges {
+                                node {
+                                    id
+                                    name
+                                    orderNumber
+                                    processedAt
+                                    financialStatus
+                                    fulfillmentStatus
+                                    customer {
+                                        email
+                                    }
+                                    totalPriceSet {
+                                        presentmentMoney {
+                                            amount
+                                            currencyCode
+                                        }
+                                    }
+                                    subtotalPriceSet {
+                                        presentmentMoney {
+                                            amount
+                                            currencyCode
+                                        }
+                                    }
+                                    totalTaxSet {
+                                        presentmentMoney {
+                                            amount
+                                            currencyCode
+                                        }
+                                    }
+                                    totalShippingPriceSet {
+                                        presentmentMoney {
+                                            amount
+                                            currencyCode
+                                        }
+                                    }
+                                    shippingAddress {
+                                        firstName
+                                        lastName
+                                        address1
+                                        address2
+                                        city
+                                        province
+                                        zip
+                                        country
+                                        phone
+                                    }
+                                    lineItems(first: 100) {
+                                        edges {
+                                            node {
+                                                title
+                                                quantity
+                                                variant {
+                                                    title
+                                                    price
+                                                    image {
+                                                        url
+                                                        altText
+                                                    }
+                                                    product {
+                                                        handle
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                `;
+
+                const adminData = await shopifyAdminFetch(adminQuery, {
+                    query: `name:${orderId} OR id:${orderId}`
+                });
+
+                const adminOrder = adminData?.orders?.edges?.[0]?.node;
+
+                // CRITICAL SECURITY: Verify this order actually belongs to the logged-in customer
+                if (adminOrder && adminOrder.customer?.email?.toLowerCase() === session.email?.toLowerCase()) {
+                    // Map Admin API experimental structure back to Storefront structure for the UI
+                    order = {
+                        ...adminOrder,
+                        totalPrice: adminOrder.totalPriceSet.presentmentMoney,
+                        subtotalPrice: adminOrder.subtotalPriceSet.presentmentMoney,
+                        totalTax: adminOrder.totalTaxSet.presentmentMoney,
+                        totalShippingPrice: adminOrder.totalShippingPriceSet.presentmentMoney,
+                        lineItems: {
+                            edges: adminOrder.lineItems.edges.map((edge: any) => ({
+                                node: {
+                                    ...edge.node,
+                                    variant: {
+                                        ...edge.node.variant,
+                                        price: {
+                                            amount: edge.node.variant.price,
+                                            currencyCode: adminOrder.totalPriceSet.presentmentMoney.currencyCode
+                                        }
+                                    }
+                                }
+                            }))
+                        }
+                    };
+                }
+            } catch (adminError) {
+                console.error('Admin API fallback error:', adminError);
             }
+        }
+
+        if (!order) {
+            console.warn(`[API] Order "${orderId}" totally not found for customer ${session.email}`);
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
 

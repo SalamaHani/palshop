@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,14 +8,21 @@ import { toast } from 'sonner';
 
 export default function ContactPage() {
     const [isLoading, setIsLoading] = useState(false);
-    const email = localStorage.getItem('email');
     const [formData, setFormData] = useState({
         name: '',
-        email: `${email}`,
+        email: '',
         phone: '',
         topic: 'Topic',
         message: ''
     });
+
+    useEffect(() => {
+        // Safe access to localStorage in client environment
+        const savedEmail = typeof window !== 'undefined' ? localStorage.getItem('email') : null;
+        if (savedEmail) {
+            setFormData(prev => ({ ...prev, email: savedEmail }));
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
