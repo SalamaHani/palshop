@@ -276,39 +276,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
             const data = await response.json();
 
-            // If the API call succeeded and gave us a checkout URL, use it
+            // Use the checkout URL provided by Shopify. 
+            // Since we've removed the rewrites in next.config.ts, 
+            // this will now correctly redirect to the external Shopify checkout.
             if (response.ok && data.cart?.checkoutUrl) {
-                let url = data.cart.checkoutUrl;
-
-                // Force shopify domain to escape the Next.js rewrite loop
-                const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-                const currentHostname = window.location.hostname;
-
-                // If the URL contains our current hostname, it might cause a loop or 404
-                // We must force it to the Shopify canonical domain
-                if (url.includes(currentHostname) && shopDomain && shopDomain !== currentHostname) {
-                    url = url.replace(currentHostname, shopDomain);
-                } else if (url.includes(currentHostname) && shopDomain === currentHostname) {
-                    // Critical: if env domain is also our current domain, we MUST use the .myshopify.com backup
-                    // This is a common misconfiguration. We'll try to use a common pattern or just keep it.
-                    console.warn('[CartContext] Potential checkout loop detected. Domain is same as app.');
-                }
-
-                window.location.href = url;
+                window.location.href = data.cart.checkoutUrl;
                 return;
             }
 
             // Fallback: If we have a cart object in state, use its existing checkoutUrl
             if (cart?.checkoutUrl) {
-                let url = cart.checkoutUrl;
-                const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-                const currentHostname = window.location.hostname;
-
-                if (url.includes(currentHostname) && shopDomain && shopDomain !== currentHostname) {
-                    url = url.replace(currentHostname, shopDomain);
-                }
-
-                window.location.href = url;
+                window.location.href = cart.checkoutUrl;
                 return;
             }
 
@@ -316,15 +294,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const refreshRes = await fetch(`/api/cart?cartId=${cartId}`);
             const refreshData = await refreshRes.json();
             if (refreshData.cart?.checkoutUrl) {
-                let url = refreshData.cart.checkoutUrl;
-                const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-                const currentHostname = window.location.hostname;
-
-                if (url.includes(currentHostname) && shopDomain && shopDomain !== currentHostname) {
-                    url = url.replace(currentHostname, shopDomain);
-                }
-
-                window.location.href = url;
+                window.location.href = refreshData.cart.checkoutUrl;
             } else {
                 throw new Error('Could not determine checkout URL');
             }
