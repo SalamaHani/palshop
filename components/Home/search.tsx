@@ -93,7 +93,7 @@ export default function ShopifySearchInput() {
     return (
         <div
             ref={containerRef}
-            className={`z-[100] w-full absolute transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            className={`z-[100] w-full absolute transition-all duration-100 ease-[cubic-bezier(0.23,1,0.32,1)] ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
                 } ${showSuggestions
                     ? 'p-2 md:p-3 rounded-[40px] bg-white dark:bg-[#0a0a09] shadow-[0px_20px_60px_rgba(0,0,0,0.12)] ring-1 ring-black/[0.03] dark:ring-white/[0.05]'
                     : 'p-0.5 rounded-full'}`}
@@ -107,7 +107,7 @@ export default function ShopifySearchInput() {
                     onFocus={() => setShowSuggestions(true)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="What are you shopping for today?"
-                    className={`w-full h-[42px] bg-transparent text-gray-700 dark:text-white font-medium text-[16px] md:text-[18px] transition-all outline-none placeholder:text-gray-400/80 ${showSuggestions ? 'pl-4 border-b border-gray-100 h-[32px] dark:border-white/10' : 'pl-2 text-center pr-[30px]'}`}
+                    className={`w-full h-[42px] bg-transparent text-gray-700 dark:text-white font-medium text-[16px] md:text-[18px] transition-all outline-none placeholder:text-gray-400/80 ${showSuggestions ? 'pl-4 border-b border-gray-100 h-[52px] dark:border-white/10' : 'pl-2 text-center pr-[30px]'}`}
                 />
 
                 <button
@@ -120,7 +120,7 @@ export default function ShopifySearchInput() {
 
             {/* Suggestions/Results Section */}
             <div
-                className={`transition-all duration-500 ease-in-out overflow-y-auto scrollbar-professional ${showSuggestions ? 'max-h-[50vh] opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}
+                className={`transition-all duration-500 ease-in-out overflow-y-auto scrollbar-professional ${showSuggestions ? 'max-h-[30vh] opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}
             >
                 <div className="flex flex-col gap-3 pb-4 px-2 lg:px-4">
                     {/* Header with History Icon */}
