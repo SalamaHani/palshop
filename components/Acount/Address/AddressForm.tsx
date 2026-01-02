@@ -34,6 +34,7 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
         defaultValues: address || {
             phone: '',
             address1: '',
+            address2: '',
             city: '',
             province: '',
             zip: '',
@@ -140,7 +141,7 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                                     <input
                                         {...register('address1')}
                                         type="text"
-                                        placeholder="123 Main Street, Apt 4B"
+                                        placeholder="123 Main Street"
                                         className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400 ${errors.address1
                                             ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
                                             : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
@@ -151,6 +152,22 @@ export function AddressForm({ userId, address, onSuccess }: AddressFormProps) {
                                             {errors.address1.message}
                                         </p>
                                     )}
+                                </div>
+
+                                {/* Address 2 */}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                        Apartment, suite, etc. (optional)
+                                    </label>
+                                    <input
+                                        {...register('address2')}
+                                        type="text"
+                                        placeholder="Apt 4B, Building C"
+                                        className={`w-full px-4 py-3 bg-white dark:bg-black border rounded-xl outline-none transition-all duration-200 text-base font-medium placeholder:text-gray-400 ${errors.address2
+                                            ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+                                            : 'border-gray-200 dark:border-white/10 focus:border-[#215732] focus:ring-2 focus:ring-[#215732]/20'
+                                            }`}
+                                    />
                                 </div>
 
                                 {/* City, State, ZIP - Grid */}

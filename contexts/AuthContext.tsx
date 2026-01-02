@@ -64,7 +64,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function logout() {
         try {
             await fetch('/api/auth/signout', { method: 'POST' });
-            setIsAuthenticated(false);
             setCustomer(null);
         } catch (error) {
             console.error('Sign out error:', error);

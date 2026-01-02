@@ -8,6 +8,7 @@ export type CustomerAddressesResult = {
         node: {
           id: string;
           address1: string;
+          address2?: string;
           city: string;
           phone: string;
           province: string;
@@ -116,33 +117,28 @@ export interface Address extends AddressFormData {
   createdAt: Date;
   updatedAt: Date;
 }
-export type CustomerUpdateResult = {
-  customerUpdate: {
-    customer: {
+export type CustomerUpdateAddressResult = {
+  customerAddressUpdate: {
+    customerAddress: {
       id: string;
-      firstName: string;
-    };
-    userErrors: { message: string }[];
-  };
-};
-export type CustomerCreateAddressResult = {
-  customerAddressCreate: {
-    customer: {
-      id: string;
-      firstName: string;
-    };
-    userErrors: { message: string }[];
+    } | null;
+    customerUserErrors: { message: string; field?: string[] }[];
   };
 };
 
+export type CustomerCreateAddressResult = {
+  customerAddressCreate: {
+    customerAddress: {
+      id: string;
+    } | null;
+    customerUserErrors: { message: string; field?: string[] }[];
+  };
+};
 
 export type CustomerDeleteAddressResult = {
   customerAddressDelete: {
-    customer: {
-      id: string;
-      firstName: string;
-    };
-    userErrors: { message: string }[];
+    deletedCustomerAddressId: string | null;
+    customerUserErrors: { message: string; field?: string[] }[];
   };
 };
 

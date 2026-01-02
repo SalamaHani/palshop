@@ -291,6 +291,7 @@ mutation customerAddressCreate(
     customerAddress {
       id
       address1
+      address2
       city
       phone
       province
@@ -318,6 +319,8 @@ mutation customerAddressUpdate(
   ) {
     customerAddress {
       id
+      address1
+      address2
     }
     customerUserErrors {
       message
@@ -369,6 +372,7 @@ query getCustomerAddresses($customerAccessToken: String!) {
         node {
           id
           address1
+          address2
           city
           phone
           province

@@ -64,7 +64,7 @@ export function AddressCard({ address, userId, onUpdate }: AddressCardProps) {
 
                     <div className="space-y-1">
                         <p className="font-black text-lg text-gray-900 dark:text-white tracking-tight leading-tight">
-                            {address.address1}
+                            {address.address1}{address.address2 ? `, ${address.address2}` : ''}
                         </p>
                         <p className="text-[#677279] dark:text-gray-400 font-medium text-sm">
                             {address.city}, {address.province} {address.zip}

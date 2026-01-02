@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { addressSchema, AddressFormData } from '@/utils/zod';
 import { shopifyFetch } from '@/lib/shopify';
-import { CustomerAddressesResult, CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateResult } from '@/types';
+import { CustomerAddressesResult, CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateAddressResult } from '@/types';
 import { CUSTOMER_ADDRESS_CREATE, CUSTOMER_ADDRESS_DELETE, CUSTOMER_ADDRESS_UPDATE, CUSTOMER_ADDRESSES } from '@/graphql/auth';
 import { getSessionHelper } from './session';
 
@@ -40,7 +40,7 @@ export async function updateCustomerAddress(
 ): Promise<ActionResult> {
     try {
         const address = addressSchema.parse(formData);
-        const data = await shopifyFetch<CustomerUpdateResult>({
+        const data = await shopifyFetch<CustomerUpdateAddressResult>({
             query: CUSTOMER_ADDRESS_UPDATE,
             variables: {
                 customerAccessToken: await fetchShopifyToken(),
@@ -49,12 +49,12 @@ export async function updateCustomerAddress(
             },
         });
 
-        const result = data.customerUpdate;
+        const result = data.customerAddressUpdate;
 
-        if (result?.userErrors?.length > 0) {
+        if (result?.customerUserErrors?.length > 0) {
             return {
                 success: false,
-                error: result.userErrors[0].message,
+                error: result.customerUserErrors[0].message,
             };
         }
 
@@ -85,10 +85,10 @@ export async function createCustomerAddress(
             },
         });
         const result = data.customerAddressCreate;
-        if (result?.userErrors?.length > 0) {
+        if (result?.customerUserErrors?.length > 0) {
             return {
                 success: false,
-                error: result.userErrors[0].message,
+                error: result.customerUserErrors[0].message,
             };
         }
         revalidatePath('/account/addresses');
@@ -116,10 +116,10 @@ export async function deleteAddress(
         });
 
         const result = data.customerAddressDelete;
-        if (result?.userErrors?.length > 0) {
+        if (result?.customerUserErrors?.length > 0) {
             return {
                 success: false,
-                error: result.userErrors[0].message,
+                error: result.customerUserErrors[0].message,
             };
         }
         revalidatePath('/account/addresses');

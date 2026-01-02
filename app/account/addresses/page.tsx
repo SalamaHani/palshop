@@ -5,8 +5,15 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getAddresses, updateCustomerAddress } from '@/utils/action';
 import { Plus } from 'lucide-react';
 
+import { getSessionHelper } from '@/utils/session';
+import { redirect } from 'next/navigation';
+
 export default async function AddressesPage() {
-  const userId = 'user-123';
+  const session = await getSessionHelper();
+  if (!session) {
+    redirect('/');
+  }
+  const userId = session.user_id;
   const addresses = await getAddresses();
 
   return (
@@ -26,7 +33,6 @@ export default async function AddressesPage() {
             address={address.node}
             userId={userId}
             onUpdate={() => {
-              updateCustomerAddress(address.node);
               // Revalidate will happen automatically via server action
             }}
           />

@@ -16,12 +16,11 @@ interface CustomSignInFormProps {
     onSuccess?: (customer: Customer | any) => void;
 }
 export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
-    const [step, setStep] = useState<'email' | 'code'>('email');
+    const [step, setStep] = useState<'email' | 'code' | 'success'>('email');
     const [email, setEmail] = useState<string>('');
     const [code, setCode] = useState<string[]>(['', '', '', '', '', '']);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
-    const [success, setSuccess] = useState<boolean>(false);
     const [resendTimer, setResendTimer] = useState<number>(0);
 
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -169,7 +168,7 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
             const data = await response.json();
 
             if (data.success) {
-                setSuccess(true);
+                setStep('success');
                 setTimeout(() => {
                     onSuccess?.(data.customer || { email: data.email, id: data.customerId });
                 }, 1500);
@@ -201,15 +200,15 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full relative min-h-[280px]">
             <AnimatePresence mode="wait">
                 {step === 'email' ? (
                     <motion.div
                         key="email-step"
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        transition={{ duration: 0.3 }}
+                        exit={{ opacity: 0, x: 10 }}
+                        transition={{ duration: 0.2 }}
                         className="space-y-3"
                     >
                         <div className="space-y-3 p-2">
@@ -243,7 +242,7 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                                 <button
                                     type="submit"
                                     disabled={loading || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
-                                    className="w-full bg-[#215732] text-white py-[10px] rounded-[14px] font-sans font-normal flex items-center justify-center transition-all duration-200 hover:opacity-90 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50"
+                                    className="w-full bg-[#215732] text-white py-[12px] rounded-[14px] font-sans font-normal flex items-center justify-center transition-all duration-200 hover:opacity-90 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50"
                                 >
                                     {loading ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -254,16 +253,16 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                             </form>
                         </div>
                     </motion.div>
-                ) : (
+                ) : step === 'code' ? (
                     <motion.div
                         key="code-step"
-                        initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: 10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        transition={{ duration: 0.3 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.2 }}
                         className="space-y-3 w-full"
                     >
-                        <div className="space-y-3 p-2 overflow-hidden">
+                        <div className="space-y-3 p-2">
                             <div className="flex items-center justify-start mb-2">
                                 <span className="text-xl font-black tracking-tighter text-[#215732]">PAL<span className="text-xl font-medium tracking-tighter text-[#215732]">shop</span></span>
                             </div>
@@ -274,11 +273,11 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                                     className="flex items-center gap-2 group"
                                 >
                                     <span className="text-base font-bold text-gray-900 dark:text-white">{email}</span>
-                                    <ChevronDown className="w-3 h-3  text-gray-900 dark:text-white group-hover:translate-y-0.5 transition-transform" />
+                                    <ChevronDown className="w-3 h-3 text-gray-900 dark:text-white group-hover:translate-y-0.5 transition-transform" />
                                 </button>
 
                                 <div
-                                    className="grid grid-cols-6 gap-2 overflow-hidden sm:gap-3 cursor-text"
+                                    className="grid grid-cols-6 gap-2 sm:gap-3 cursor-text"
                                     onClick={() => {
                                         const indexToFocus = code.findIndex(d => !d);
                                         inputRefs.current[indexToFocus === -1 ? 5 : indexToFocus]?.focus();
@@ -307,8 +306,6 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                                 </p>
                             </div>
 
-
-
                             <div className="flex flex-col items-center gap-6 pt-2">
                                 <button
                                     onClick={handleResendCode}
@@ -322,32 +319,27 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
                             </div>
                         </div>
                     </motion.div>
-                )}
-            </AnimatePresence>
-
-            {/* Success Message */}
-            <AnimatePresence>
-                {success && (
+                ) : (
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        key="success-step"
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.3, ease: "easeOut" }}
-                        className="fixed inset-0 flex items-center justify-center z-50"
+                        className="flex flex-col items-center justify-center py-8 space-y-6"
                     >
-                        <div className=" p-2 flex flex-col items-center gap-6">
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Email confirmed</h2>
-                            <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
-                                className="w-16 h-16 bg-[#215732] rounded-full flex items-center justify-center"
-                            >
-                                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                </svg>
-                            </motion.div>
-                        </div>
+                        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Email confirmed</h2>
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.1, type: "spring", stiffness: 200, damping: 15 }}
+                            className="w-16 h-16 bg-[#215732] rounded-full flex items-center justify-center shadow-lg shadow-[#215732]/20"
+                        >
+                            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                        </motion.div>
+                        <p className="text-sm text-gray-500 font-medium">Redirecting you...</p>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -356,9 +348,9 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
             <AnimatePresence>
                 {error && (
                     <motion.div
-                        initial={{ opacity: 0, y: -10 }}
+                        initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
+                        exit={{ opacity: 0, y: -5 }}
                         className="mt-4 p-3 bg-red-500/5 border border-red-500/10 rounded-xl"
                     >
                         <p className="text-sm font-medium text-red-600 dark:text-red-400 text-center">{error}</p>
