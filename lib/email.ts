@@ -25,14 +25,16 @@ export async function sendVerificationCodeEmail({
 
   try {
     const { error } = await resend.emails.send({
-      from: 'support@palshop.com',
+      from: 'support@palshop.app',
       to,
       subject: `PALshop sign-in code`,
       html: `
           <div style="max-width: 600px; margin: 0 auto;">
+
             <div style="margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid #eeeeee;">
               <span style="font-size: 24px; font-weight: 900; letter-spacing: -1.5px; color: #215732;">PAL<span style="font-weight: 500;">PAL<span style="font-weight: 500; font-size: 18px;">shop</span></span>
             </div>
+
             <div style="margin-bottom: 40px;">
               <p style="font-size: 16px; margin-bottom: 24px; color: #333333;">Sign in to PALshop as <a href="mailto:${to}" style="color: #215732; text-decoration: underline;">${to}</a>.</p>
               
