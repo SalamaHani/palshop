@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { RotateCcw, Loader2, ArrowRight, Clock } from 'lucide-react';
+import { Loader2, ArrowRight, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDebounce } from 'use-debounce';
@@ -28,6 +28,7 @@ export default function ShopifySearchInput() {
     const [isVisible, setIsVisible] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [activeFilter, setActiveFilter] = useState<'all' | 'collections' | 'products'>('all');
     const [results, setResults] = useState<{ products: ProductResult[]; collections: CollectionResult[] }>({
         products: [],
         collections: []
@@ -80,6 +81,7 @@ export default function ShopifySearchInput() {
     const handleRefresh = () => {
         setQuery('');
         setResults({ products: [], collections: [] });
+        setActiveFilter('all');
     };
 
     const handleSearch = () => {
@@ -93,7 +95,7 @@ export default function ShopifySearchInput() {
             ref={containerRef}
             className={`z-[100] w-full absolute transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
                 } ${showSuggestions
-                    ? 'p-4 md:p-6 rounded-[40px] bg-white dark:bg-[#0a0a09] shadow-[0px_20px_60px_rgba(0,0,0,0.12)] ring-1 ring-black/[0.03] dark:ring-white/[0.05]'
+                    ? 'p-2 md:p-3 rounded-[40px] bg-white dark:bg-[#0a0a09] shadow-[0px_20px_60px_rgba(0,0,0,0.12)] ring-1 ring-black/[0.03] dark:ring-white/[0.05]'
                     : 'p-0.5 rounded-full'}`}
         >
             {/* Search Input Container - Professional Pill Style */}
@@ -105,7 +107,7 @@ export default function ShopifySearchInput() {
                     onFocus={() => setShowSuggestions(true)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="What are you shopping for today?"
-                    className={`w-full h-[52px] bg-transparent text-gray-700 dark:text-white font-medium text-[16px] md:text-[18px] transition-all outline-none placeholder:text-gray-400/80 ${showSuggestions ? 'pl-4 border-b border-gray-100 dark:border-white/10' : 'pl-2 text-center pr-[30px]'}`}
+                    className={`w-full h-[42px] bg-transparent text-gray-700 dark:text-white font-medium text-[16px] md:text-[18px] transition-all outline-none placeholder:text-gray-400/80 ${showSuggestions ? 'pl-4 border-b border-gray-100 h-[32px] dark:border-white/10' : 'pl-2 text-center pr-[30px]'}`}
                 />
 
                 <button
@@ -118,18 +120,42 @@ export default function ShopifySearchInput() {
 
             {/* Suggestions/Results Section */}
             <div
-                className={`transition-all duration-500 ease-in-out overflow-y-auto scrollbar-professional ${showSuggestions ? 'max-h-[30vh] opacity-100 mt-8' : 'max-h-0 opacity-0 mt-0'}`}
+                className={`transition-all duration-500 ease-in-out overflow-y-auto scrollbar-professional ${showSuggestions ? 'max-h-[50vh] opacity-100 mt-4' : 'max-h-0 opacity-0 mt-0'}`}
             >
                 <div className="flex flex-col gap-3 pb-4 px-2 lg:px-4">
                     {/* Header with History Icon */}
-                    <div className="flex items-center justify-between sticky top-0 bg-white dark:bg-[#0a0a09] z-20 pb-4 pt-1">
-                        <h3 className="text-[13px] font-black uppercase tracking-widest text-gray-400">Suggestions</h3>
-                        <div
-                            className="w-5 h-5 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center shadow-inner cursor-pointer hover:bg-gray-100 transition-colors"
-                            onClick={handleRefresh}
-                        >
-                            <Clock className="w-3 h-3 text-gray-400" />
+                    <div className="flex flex-col gap-4 sticky top-0 bg-white dark:bg-[#0a0a09] z-20 pb-4 pt-1">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-[13px] font-black uppercase tracking-widest text-gray-400">Suggestions</h3>
+                            <div
+                                className="w-5 h-5 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center shadow-inner cursor-pointer hover:bg-gray-100 transition-colors"
+                                onClick={handleRefresh}
+                            >
+                                <Clock className="w-3 h-3 text-gray-400" />
+                            </div>
                         </div>
+
+                        {/* Filter Tabs - Professional High-End Design */}
+                        {query.trim().length > 0 && (
+                            <div className="flex items-center gap-1.5 p-1 bg-gray-50 dark:bg-white/[0.03] rounded-full self-start">
+                                {[
+                                    { id: 'all', label: 'All' },
+                                    { id: 'collections', label: 'Collections' },
+                                    { id: 'products', label: 'Products' }
+                                ].map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveFilter(tab.id as any)}
+                                        className={`px-4 py-1.5 rounded-full text-[12px] font-black uppercase tracking-wider transition-all duration-300 ${activeFilter === tab.id
+                                            ? 'bg-[#215732] text-white shadow-lg shadow-[#215732]/20'
+                                            : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                                            }`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Content Area */}
@@ -137,48 +163,56 @@ export default function ShopifySearchInput() {
                         {query.trim().length > 0 ? (
                             <div className="flex flex-col gap-2">
                                 {/* Collection List */}
-                                {results.collections.length > 0 && (
+                                {(activeFilter === 'all' || activeFilter === 'collections') && results.collections.length > 0 && (
                                     <div className="space-y-1">
+                                        {activeFilter === 'all' && <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest pl-2">Categories</span>}
                                         {results.collections.map((item) => (
                                             <Link
                                                 key={item.id}
                                                 href={`/categories/${item.handle}`}
                                                 className="flex items-center gap-2 p-2 rounded-[20px] hover:shadow-xl hover:shadow-black/[0.03] hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-all group"
                                             >
-                                                <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
-                                                    <GridIcon className="w-5 h-5 text-[#215732]" />
+                                                <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
+                                                    <GridIcon className="w-4 h-4 text-[#215732]" />
                                                 </div>
-                                                <span className="font-bold text-[16px] text-gray-900 dark:text-gray-100 group-hover:text-[#215732]">{item.title}</span>
+                                                <span className="font-bold text-[14px] text-gray-900 dark:text-gray-100 group-hover:text-[#215732]">{item.title}</span>
                                             </Link>
                                         ))}
                                     </div>
                                 )}
 
                                 {/* Product List */}
-                                {results.products.length > 0 && (
-                                    <div className="space-y-2">
+                                {(activeFilter === 'all' || activeFilter === 'products') && results.products.length > 0 && (
+                                    <div className="space-y-2 mt-2">
+                                        {activeFilter === 'all' && <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest pl-2">Products</span>}
                                         {results.products.map((product) => (
                                             <Link
                                                 key={product.id}
                                                 href={`/product/${product.handle}`}
-                                                className="flex items-center gap-2 p-2 rounded-[20px] bg-white hover:bg-[#f8f9fa] dark:bg-white/[0.02]  dark:border-white/5  hover:shadow-xl hover:shadow-black/[0.03] transition-all group"
+                                                className="flex items-center gap-2 p-2 rounded-[24px] bg-white hover:bg-[#f8f9fa] dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 hover:border-[#215732]/20 hover:shadow-xl hover:shadow-black/[0.03] transition-all group"
                                             >
-                                                <div className="w-10 h-10 rounded-[18px] bg-gray-50 dark:bg-white/10 overflow-hidden flex-shrink-0 relative">
+                                                <div className="w-12 h-12 rounded-[16px] bg-gray-50 dark:bg-white/10 overflow-hidden flex-shrink-0 relative">
                                                     {product.image ? (
-                                                        <Image src={product.image} alt={product.title} fill className="object-cover rounded-full group-hover:scale-105 transition-transform duration-700" />
+                                                        <Image src={product.image} alt={product.title} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center"><ShoppingBagIcon className="w-6 h-6 text-gray-200" /></div>
+                                                        <div className="w-full h-full flex items-center justify-center"><ShoppingBagIcon className="w-5 h-5 text-gray-200" /></div>
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col gap-0.5">
-                                                    <span className="font-bold text-sm text-gray-900 dark:text-gray-100 group-hover:text-[#215732] line-clamp-1">{product.title}</span>
-                                                    <span className="text-[14px] font-black text-[#215732] flex items-center gap-1.5">
+                                                    <span className="font-bold text-[13px] text-gray-900 dark:text-gray-100 group-hover:text-[#215732] line-clamp-1">{product.title}</span>
+                                                    <span className="text-[12px] font-black text-[#215732] flex items-center gap-1.5">
                                                         {Number(product.price).toFixed(2)}
-                                                        <span className="text-xs opacity-60">{product.currencyCode}</span>
+                                                        <span className="text-[10px] opacity-60">{product.currencyCode}</span>
                                                     </span>
                                                 </div>
                                             </Link>
                                         ))}
+                                    </div>
+                                )}
+
+                                {results.collections.length === 0 && results.products.length === 0 && !isLoading && (
+                                    <div className="py-10 text-center">
+                                        <p className="text-sm text-gray-400 font-medium">No results found for "{query}"</p>
                                     </div>
                                 )}
                             </div>
@@ -238,7 +272,7 @@ function GridIcon({ className }: { className?: string }) {
 function ShoppingBagIcon({ className }: { className?: string }) {
     return (
         <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
         </svg>
     )
 }

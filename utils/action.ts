@@ -7,8 +7,6 @@ import { shopifyFetch } from '@/lib/shopify';
 import { CustomerAddressesResult, CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateAddressResult } from '@/types';
 import { CUSTOMER_ADDRESS_CREATE, CUSTOMER_ADDRESS_DELETE, CUSTOMER_ADDRESS_UPDATE, CUSTOMER_ADDRESSES } from '@/graphql/auth';
 import { getSessionHelper } from './session';
-import serverBugsnag from '@/lib/bugsangSerever';
-
 type ActionResult = {
     success: boolean;
     error?: string;
@@ -74,7 +72,6 @@ export async function updateCustomerAddress(
         if (err instanceof z.ZodError) {
             return { success: false, error: err.message };
         }
-        serverBugsnag.notify(err instanceof Error ? err : new Error(String(err)));
         return { success: false, error: 'Failed to update address. Please check your connection.' };
     }
 }
@@ -108,7 +105,6 @@ export async function createCustomerAddress(
         if (err instanceof z.ZodError) {
             return { success: false, error: err.message };
         }
-        serverBugsnag.notify(err instanceof Error ? err : new Error(String(err)));
         return { success: false, error: 'Failed to create address. Please check your connection.' };
     }
 }
