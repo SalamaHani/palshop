@@ -278,13 +278,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
             // If the API call succeeded and gave us a checkout URL, use it
             if (response.ok && data.cart?.checkoutUrl) {
-                window.location.href = data.cart.checkoutUrl;
+                let url = data.cart.checkoutUrl;
+                // Force shopify domain if checkout URL points back to ourselves
+                if (url.includes(window.location.hostname)) {
+                    const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+                    if (shopDomain) url = url.replace(window.location.hostname, shopDomain);
+                }
+                window.location.href = url;
                 return;
             }
 
             // Fallback: If we have a cart object in state, use its existing checkoutUrl
             if (cart?.checkoutUrl) {
-                window.location.href = cart.checkoutUrl;
+                let url = cart.checkoutUrl;
+                if (url.includes(window.location.hostname)) {
+                    const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+                    if (shopDomain) url = url.replace(window.location.hostname, shopDomain);
+                }
+                window.location.href = url;
                 return;
             }
 
@@ -292,7 +303,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const refreshRes = await fetch(`/api/cart?cartId=${cartId}`);
             const refreshData = await refreshRes.json();
             if (refreshData.cart?.checkoutUrl) {
-                window.location.href = refreshData.cart.checkoutUrl;
+                let url = refreshData.cart.checkoutUrl;
+                if (url.includes(window.location.hostname)) {
+                    const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+                    if (shopDomain) url = url.replace(window.location.hostname, shopDomain);
+                }
+                window.location.href = url;
             } else {
                 throw new Error('Could not determine checkout URL');
             }

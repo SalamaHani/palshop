@@ -25,19 +25,53 @@ export async function sendVerificationCodeEmail({
 
   try {
     const { error } = await resend.emails.send({
-      from: 'support@palshop.app',
+      from: 'support@palshop.com',
       to,
-      subject: 'Your Sign-In Code',
+      subject: `${code} is your PALshop sign-in code`,
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>Your Verification Code</h2>
-          <p>Enter this code to sign in to your account:</p>
-          <div style="background: #215732; padding: 15px; font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0;">
-            ${code}
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 20px; background-color: #ffffff; color: #000000;">
+          <div style="max-width: 600px; margin: 0 auto;">
+            <!-- Logo Section -->
+            <div style="margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid #eeeeee;">
+              <span style="font-size: 24px; font-weight: 900; letter-spacing: -1.5px; color: #215732;">PAL<span style="font-weight: 500;">PAL<span style="font-weight: 500; font-size: 18px;">shop</span></span>
+            </div>
+
+            <!-- Content Area -->
+            <div style="margin-bottom: 40px;">
+              <p style="font-size: 16px; margin-bottom: 24px; color: #333333;">Sign in to PALshop as <a href="mailto:${to}" style="color: #215732; text-decoration: underline;">${to}</a>.</p>
+              
+              <p style="font-size: 16px; margin-bottom: 32px; color: #333333;">Enter this code to sign in:</p>
+
+              <div style="font-size: 48px; font-weight: 600; color: #215732; margin-bottom: 32px; letter-spacing: -1px;">
+                ${code}
+              </div>
+
+              <p style="font-size: 16px; color: #333333; margin-bottom: 40px;">This code will expire in 10 minutes and can only be used once.</p>
+            </div>
+
+            <!-- Divider -->
+            <div style="border-top: 1px solid #eeeeee; padding-top: 30px; margin-bottom: 24px;">
+              <span style="font-size: 20px; font-weight: 900; letter-spacing: -1.2px; color: #215732;">PAL<span style="font-weight: 500;">shop</span></span>
+            </div>
+
+            <!-- Footer Area -->
+            <div style="font-size: 12px; color: #666666; line-height: 1.6;">
+              <p style="margin-bottom: 16px;">Note: This email is not monitored for replies. If you need a hand, please visit our <a href="https://palshop.app/help" style="color: #215732; text-decoration: underline;">help center</a></p>
+              
+              <p style="margin-bottom: 4px;">You are receiving this email because you signed up for PALshop.</p>
+              <p style="margin-bottom: 4px;">PALshop | Al-Wahda St, Gaza City, Palestine</p>
+              <p>Copyright © 2025 PALshop, all rights reserved.</p>
+            </div>
           </div>
-          <p style="color: #666;">This code expires in 10 minutes.</p>
-        </div>
-      `
+        </body>
+        </html>
+    `
     })
 
     if (error) {
