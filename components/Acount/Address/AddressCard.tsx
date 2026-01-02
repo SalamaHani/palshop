@@ -24,7 +24,7 @@ import { AddressFormData } from '@/utils/zod';
 export interface AddressCardProps {
     address: AddressFormData;
     userId: string;
-    onUpdate: () => void;
+    onUpdate?: () => void;
 }
 
 import { motion } from 'framer-motion';
@@ -37,7 +37,7 @@ export function AddressCard({ address, userId, onUpdate }: AddressCardProps) {
             const result = await deleteAddress(address?.id ?? '');
             if (result.success) {
                 toast.success('Address deleted successfully');
-                onUpdate();
+                onUpdate?.();
             } else {
                 toast.error(result.error || 'Failed to delete');
             }

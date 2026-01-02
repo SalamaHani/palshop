@@ -32,9 +32,6 @@ export default async function AddressesPage() {
             key={address.node.id}
             address={address.node}
             userId={userId}
-            onUpdate={() => {
-              // Revalidate will happen automatically via server action
-            }}
           />
         ))}
         {addresses.data?.length === 0 && (

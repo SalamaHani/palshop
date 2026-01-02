@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
     async function logout() {
         try {
-            await fetch('/api/auth/signout', { method: 'POST' });
+            await fetch('/api/auth/logout', { method: 'POST' });
             setCustomer(null);
         } catch (error) {
             console.error('Sign out error:', error);

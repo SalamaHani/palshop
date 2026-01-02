@@ -200,7 +200,7 @@ export default function CustomSignInForm({ onSuccess }: CustomSignInFormProps) {
     };
 
     return (
-        <div className="w-full relative min-h-[280px]">
+        <div className="w-full relative ">
             <AnimatePresence mode="wait">
                 {step === 'email' ? (
                     <motion.div
