@@ -68,10 +68,10 @@ export function AccountSidebar() {
                 </nav>
 
                 {/* Logout Button */}
-                <div className="p-3 border-t border-gray-100 dark:border-white/5">
+                <div className="p-3 border-t cursor-pointer border-gray-100 dark:border-white/5">
                     <button
                         onClick={() => logout()}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-200 w-full"
+                        className="flex items-center cursor-pointer gap-3 px-4 py-3 rounded-xl font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-200 w-full"
                     >
                         <LogOut className="w-5 h-5" />
                         <span>Sign Out</span>
