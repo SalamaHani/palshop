@@ -7,6 +7,7 @@ import { shopifyFetch } from '@/lib/shopify';
 import { CustomerAddressesResult, CustomerCreateAddressResult, CustomerDeleteAddressResult, CustomerUpdateAddressResult } from '@/types';
 import { CUSTOMER_ADDRESS_CREATE, CUSTOMER_ADDRESS_DELETE, CUSTOMER_ADDRESS_UPDATE, CUSTOMER_ADDRESSES } from '@/graphql/auth';
 import { getSessionHelper } from './session';
+import serverBugsnag from '@/lib/bugsangSerever';
 
 type ActionResult = {
     success: boolean;
@@ -39,13 +40,19 @@ export async function updateCustomerAddress(
     formData: AddressFormData
 ): Promise<ActionResult> {
     try {
-        const address = addressSchema.parse(formData);
+        const validatedData = addressSchema.parse(formData);
+        const { id, ...addressInput } = validatedData;
+
+        if (!id) {
+            return { success: false, error: 'Address ID is missing' };
+        }
+
         const data = await shopifyFetch<CustomerUpdateAddressResult>({
             query: CUSTOMER_ADDRESS_UPDATE,
             variables: {
                 customerAccessToken: await fetchShopifyToken(),
-                id: address.id,
-                address,
+                id: id,
+                address: addressInput,
             },
         });
 
@@ -67,7 +74,8 @@ export async function updateCustomerAddress(
         if (err instanceof z.ZodError) {
             return { success: false, error: err.message };
         }
-        return { success: false, error: 'Failed to update address' };
+        serverBugsnag.notify(err instanceof Error ? err : new Error(String(err)));
+        return { success: false, error: 'Failed to update address. Please check your connection.' };
     }
 }
 
@@ -76,12 +84,14 @@ export async function createCustomerAddress(
     formData: AddressFormData
 ): Promise<ActionResult> {
     try {
-        const address = addressSchema.parse(formData);
+        const validatedData = addressSchema.parse(formData);
+        const { id, ...addressInput } = validatedData;
+
         const data = await shopifyFetch<CustomerCreateAddressResult>({
             query: CUSTOMER_ADDRESS_CREATE,
             variables: {
                 customerAccessToken: await fetchShopifyToken(),
-                address
+                address: addressInput
             },
         });
         const result = data.customerAddressCreate;
@@ -98,7 +108,8 @@ export async function createCustomerAddress(
         if (err instanceof z.ZodError) {
             return { success: false, error: err.message };
         }
-        return { success: false, error: 'Failed to create address' };
+        serverBugsnag.notify(err instanceof Error ? err : new Error(String(err)));
+        return { success: false, error: 'Failed to create address. Please check your connection.' };
     }
 }
 
