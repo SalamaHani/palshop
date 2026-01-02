@@ -1,11 +1,59 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export default function ContactPage() {
+    const [isLoading, setIsLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: 'hanidiaab@gmail.com',
+        phone: '',
+        topic: 'Topic',
+        message: ''
+    });
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!formData.name || !formData.message || formData.topic === 'Topic') {
+            toast.error('Please fill in all required fields');
+            return;
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                toast.success(data.message);
+                setFormData({
+                    name: '',
+                    email: 'hanidiaab@gmail.com',
+                    phone: '',
+                    topic: 'Topic',
+                    message: ''
+                });
+            } else {
+                throw new Error(data.error || 'Failed to send message');
+            }
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Something went wrong');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pt-20 pb-20 px-4">
             <div className="max-w-2xl mx-auto text-center">
@@ -33,14 +81,18 @@ export default function ContactPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
                     className="space-y-4 text-left"
-                    onSubmit={(e) => e.preventDefault()}
+                    onSubmit={handleSubmit}
                 >
                     {/* Name Input */}
                     <div className="relative">
                         <input
                             type="text"
                             placeholder="Your name"
-                            className="w-full px-5 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all placeholder:text-gray-500 font-medium"
+                            required
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            className="w-full px-5 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all placeholder:text-gray-500 font-medium disabled:opacity-50"
+                            disabled={isLoading}
                         />
                     </div>
 
@@ -51,8 +103,11 @@ export default function ContactPage() {
                         </div>
                         <input
                             type="email"
-                            defaultValue="hanidiaab@gmail.com"
-                            className="w-full px-5 pt-7 pb-2 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all font-medium"
+                            required
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            className="w-full px-5 pt-7 pb-2 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all font-medium disabled:opacity-50"
+                            disabled={isLoading}
                         />
                     </div>
 
@@ -61,7 +116,10 @@ export default function ContactPage() {
                         <input
                             type="tel"
                             placeholder="Your phone number (optional)"
-                            className="w-full px-5 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all placeholder:text-gray-500 font-medium"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            className="w-full px-5 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all placeholder:text-gray-500 font-medium disabled:opacity-50"
+                            disabled={isLoading}
                         />
                     </div>
 
@@ -71,13 +129,17 @@ export default function ContactPage() {
                             Topic
                         </div>
                         <select
-                            className="w-full px-5 pt-7 pb-2 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all font-medium appearance-none"
+                            required
+                            value={formData.topic}
+                            onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
+                            className="w-full px-5 pt-7 pb-2 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all font-medium appearance-none disabled:opacity-50"
+                            disabled={isLoading}
                         >
-                            <option>Topic</option>
-                            <option>Order Support</option>
-                            <option>Shipping & Delivery</option>
-                            <option>Product Inquiries</option>
-                            <option>Business Partnership</option>
+                            <option value="Topic" disabled>Topic</option>
+                            <option value="Order Support">Order Support</option>
+                            <option value="Shipping & Delivery">Shipping & Delivery</option>
+                            <option value="Product Inquiries">Product Inquiries</option>
+                            <option value="Business Partnership">Business Partnership</option>
                         </select>
                         <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-900 pointer-events-none" />
                     </div>
@@ -86,7 +148,11 @@ export default function ContactPage() {
                     <div className="relative">
                         <textarea
                             placeholder="How can we help you?"
-                            className="w-full px-5 py-5 h-[160px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[24px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all placeholder:text-gray-500 font-medium resize-none"
+                            required
+                            value={formData.message}
+                            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                            className="w-full px-5 py-5 h-[160px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[24px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all placeholder:text-gray-500 font-medium resize-none disabled:opacity-50"
+                            disabled={isLoading}
                         />
                         <div className="absolute bottom-3 right-5">
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-300">
@@ -118,13 +184,21 @@ export default function ContactPage() {
                         </div>
                     </div>
 
-                    {/* Submit Button (Optional but needed for functionality) */}
+                    {/* Submit Button with Loading State */}
                     <div className="mt-8">
                         <Button
                             type="submit"
-                            className="w-full h-14 bg-[#215732] hover:bg-[#1a4527] text-white text-[17px] font-bold rounded-[20px] shadow-lg shadow-[#215732]/20 active:scale-[0.98] transition-all"
+                            disabled={isLoading}
+                            className="w-full h-14 bg-[#215732] hover:bg-[#1a4527] text-white text-[17px] font-bold rounded-[20px] shadow-lg shadow-[#215732]/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                         >
-                            Send Message
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    Sending...
+                                </>
+                            ) : (
+                                'Send Message'
+                            )}
                         </Button>
                     </div>
                 </motion.form>

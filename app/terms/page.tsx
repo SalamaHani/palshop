@@ -64,8 +64,8 @@ export default function TermsOfServicePage() {
     ];
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pt-16 pb-24 px-4 overflow-hidden">
-            <div className="max-w-3xl mx-auto">
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pt-10 pb-24  overflow-hidden">
+            <div className="max-w-5xl mx-auto">
                 {/* Navigation Back */}
                 <motion.div
                     initial={{ opacity: 0, x: -10 }}

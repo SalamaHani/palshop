@@ -75,3 +75,61 @@ export async function sendVerificationCodeEmail({
     return { success: false, error: 'Failed to send email' };
   }
 }
+
+interface SendContactEmailParams {
+  name: string;
+  email: string;
+  phone?: string;
+  topic: string;
+  message: string;
+}
+
+export async function sendContactEmail({
+  name,
+  email,
+  phone,
+  topic,
+  message,
+}: SendContactEmailParams): Promise<{ success: boolean; error?: string }> {
+  if (!resend) {
+    console.log('========================================');
+    console.log('📧 CONTACT FORM SUBMISSION');
+    console.log(`From: ${name} (${email})`);
+    console.log(`Phone: ${phone || 'N/A'}`);
+    console.log(`Topic: ${topic}`);
+    console.log(`Message: ${message}`);
+    console.log('========================================');
+    return { success: true };
+  }
+
+  try {
+    const { error } = await resend.emails.send({
+      from: 'PALshop Contact <support@palshop.app>',
+      to: 'support@palshop.app', // Send to store support
+      replyTo: email,
+      subject: `New Contact Form Submission: ${topic}`,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #215732;">New Inquiry from ${name}</h2>
+          <p><strong>Topic:</strong> ${topic}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+          <div style="margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #215732; border-radius: 4px;">
+            <p style="white-space: pre-wrap;">${message}</p>
+          </div>
+          <p style="margin-top: 30px; font-size: 12px; color: #666;">This email was sent from the contact form on PALshop.</p>
+        </div>
+      `
+    });
+
+    if (error) {
+      console.error('Contact email send error:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error('Contact email service error:', err);
+    return { success: false, error: 'Failed to send inquiry' };
+  }
+}
