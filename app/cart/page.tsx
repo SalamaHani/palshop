@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
+import EmptyState from '@/components/global/EmptyState';
 
 export default function CartPage() {
     const { cart, isLoading, updateItem, removeItem, cartCount, refreshCart, checkout, isCheckoutLoading } = useCart();
@@ -35,21 +36,13 @@ export default function CartPage() {
 
     if (!cart || cartCount === 0) {
         return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
-                <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6">
-                    <ShoppingBag className="w-10 h-10 text-gray-400" />
-                </div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Your cart is empty</h1>
-                <p className="text-gray-600 dark:text-gray-400 mb-8 text-center max-w-md">
-                    Looks like you haven't added anything to your cart yet. Explore our products and find something special.
-                </p>
-                <Link
-                    href="/shop"
-                    className="px-8 py-3 bg-[#215732] text-white font-semibold rounded-xl hover:bg-[#1a4527] transition-colors"
-                >
-                    Start Shopping
-                </Link>
-            </div>
+            <EmptyState
+                icon={ShoppingBag}
+                title="Your cart is empty"
+                description="Looks like you haven't added anything to your cart yet. Explore our community of artisans and find something special."
+                actionText="Start Exploring"
+                actionHref="/"
+            />
         );
     }
 

@@ -107,7 +107,7 @@ export default function ShopifySearchInput() {
                     onFocus={() => setShowSuggestions(true)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="What are you shopping for today?"
-                    className={`w-full h-[52px] bg-transparent text-gray-700 dark:text-white font-medium text-[16px] md:text-[18px] transition-all outline-none placeholder:text-gray-400/80 ${showSuggestions ? 'pl-4 border-b border-gray-100 h-[32px] dark:border-white/10' : 'pl-2 text-center pr-[30px]'}`}
+                    className={`w-full h-[56px] bg-transparent text-gray-700 dark:text-white font-medium text-[16px] md:text-[18px] transition-all outline-none placeholder:text-gray-400/80 ${showSuggestions ? 'pl-4 border-b border-gray-100 h-[32px] dark:border-white/10' : 'pl-2 text-center pr-[30px]'}`}
                 />
 
                 <button
@@ -124,10 +124,10 @@ export default function ShopifySearchInput() {
             >
                 <div className="flex flex-col gap-3 pb-4 px-2 lg:px-4">
                     {/* Header with History Icon */}
-                    <div className="flex flex-col gap-4 sticky top-0 bg-white dark:bg-[#0a0a09] z-20 pb-4 pt-1">
+                    <div className="flex flex-col gap-2 sticky top-0 bg-white dark:bg-[#0a0a09] z-20 pb-1 pt-1">
                         {/* Filter Tabs - Professional High-End Design */}
                         {query.trim().length > 0 && (
-                            <div className="flex items-center gap-1.5 p-1 bg-gray-50 dark:bg-white/[0.03] rounded-full self-start">
+                            <div className="flex items-center gap-1 p-1 bg-gray-50 dark:bg-white/[0.03] rounded-full self-start">
                                 {[
                                     { id: 'all', label: 'All' },
                                     { id: 'collections', label: 'Collections' },
@@ -136,7 +136,7 @@ export default function ShopifySearchInput() {
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveFilter(tab.id as any)}
-                                        className={`px-4 py-1.5 rounded-full text-[12px] font-black uppercase tracking-wider transition-all duration-300 ${activeFilter === tab.id
+                                        className={`px-4 py-1 rounded-full text-[12px] font-black uppercase tracking-wider transition-all duration-300 ${activeFilter === tab.id
                                             ? 'bg-[#215732] text-white shadow-lg shadow-[#215732]/20'
                                             : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
                                             }`}
