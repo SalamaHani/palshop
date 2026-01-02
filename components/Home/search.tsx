@@ -91,13 +91,13 @@ export default function ShopifySearchInput() {
     return (
         <div
             ref={containerRef}
-            className={`z-[100] w-full absolute transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            className={`z-[100] w-full absolute transition-all duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
                 } ${showSuggestions
                     ? 'p-4 md:p-6 rounded-[40px] bg-white dark:bg-[#0a0a09] shadow-[0px_20px_60px_rgba(0,0,0,0.12)] ring-1 ring-black/[0.03] dark:ring-white/[0.05]'
                     : 'p-0.5 rounded-full'}`}
         >
             {/* Search Input Container - Professional Pill Style */}
-            <div className={`relative flex items-center transition-all duration-500 overflow-hidden ${!showSuggestions ? 'bg-white dark:bg-white/[0.03] rounded-full shadow-[0px_8px_30px_rgba(0,0,0,0.06)] ring-[4.5px] ring-black/[0.02] dark:ring-white/[0.02]' : ''}`}>
+            <div className={`relative flex items-center transition-all duration-300 overflow-hidden ${!showSuggestions ? 'bg-white dark:bg-white/[0.03] rounded-full shadow-[0px_8px_30px_rgba(0,0,0,0.06)] ring-[4.5px] ring-black/[0.02] dark:ring-white/[0.02]' : ''}`}>
                 <input
                     type="text"
                     value={query}
@@ -105,12 +105,12 @@ export default function ShopifySearchInput() {
                     onFocus={() => setShowSuggestions(true)}
                     onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                     placeholder="What are you shopping for today?"
-                    className={`w-full h-[72px] bg-transparent text-gray-700 dark:text-white font-medium text-[16px] md:text-[18px] transition-all outline-none placeholder:text-gray-400/80 ${showSuggestions ? 'pl-4 border-b border-gray-100 dark:border-white/10' : 'pl-10 text-center pr-[80px]'}`}
+                    className={`w-full h-[52px] bg-transparent text-gray-700 dark:text-white font-medium text-[16px] md:text-[18px] transition-all outline-none placeholder:text-gray-400/80 ${showSuggestions ? 'pl-4 border-b border-gray-100 dark:border-white/10' : 'pl-2 text-center pr-[30px]'}`}
                 />
 
                 <button
                     onClick={handleSearch}
-                    className={`absolute right-2.5 w-[56px] h-[56px] bg-[#215732] rounded-full text-white flex items-center justify-center hover:bg-[#1a4528] active:scale-95 transition-all duration-300 shadow-[0px_4px_15px_rgba(33,87,50,0.3)] z-10 ${showSuggestions ? 'top-1/2 -translate-y-1/2' : ''}`}
+                    className={`absolute right-2.5 w-[36px] h-[36px] bg-[#215732] rounded-full text-white flex items-center justify-center hover:bg-[#1a4528] active:scale-95 transition-all shadow-[0px_4px_15px_rgba(33,87,50,0.3)] z-10 ${showSuggestions ? 'top-1/2 -translate-y-1/2' : ''}`}
                 >
                     {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-white/90" /> : <ArrowRight className="w-6 h-6" />}
                 </button>
@@ -118,32 +118,32 @@ export default function ShopifySearchInput() {
 
             {/* Suggestions/Results Section */}
             <div
-                className={`transition-all duration-500 ease-in-out overflow-y-auto scrollbar-professional ${showSuggestions ? 'max-h-[65vh] opacity-100 mt-8' : 'max-h-0 opacity-0 mt-0'}`}
+                className={`transition-all duration-500 ease-in-out overflow-y-auto scrollbar-professional ${showSuggestions ? 'max-h-[30vh] opacity-100 mt-8' : 'max-h-0 opacity-0 mt-0'}`}
             >
-                <div className="flex flex-col gap-8 pb-10 px-2 lg:px-4">
+                <div className="flex flex-col gap-3 pb-4 px-2 lg:px-4">
                     {/* Header with History Icon */}
                     <div className="flex items-center justify-between sticky top-0 bg-white dark:bg-[#0a0a09] z-20 pb-4 pt-1">
                         <h3 className="text-[13px] font-black uppercase tracking-widest text-gray-400">Suggestions</h3>
                         <div
-                            className="w-10 h-10 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center shadow-inner cursor-pointer hover:bg-gray-100 transition-colors"
+                            className="w-5 h-5 rounded-full bg-gray-50 dark:bg-white/5 flex items-center justify-center shadow-inner cursor-pointer hover:bg-gray-100 transition-colors"
                             onClick={handleRefresh}
                         >
-                            <Clock className="w-4 h-4 text-gray-400" />
+                            <Clock className="w-3 h-3 text-gray-400" />
                         </div>
                     </div>
 
                     {/* Content Area */}
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-2">
                         {query.trim().length > 0 ? (
-                            <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-2">
                                 {/* Collection List */}
                                 {results.collections.length > 0 && (
-                                    <div className="space-y-2">
+                                    <div className="space-y-1">
                                         {results.collections.map((item) => (
                                             <Link
                                                 key={item.id}
                                                 href={`/categories/${item.handle}`}
-                                                className="flex items-center gap-4 p-3 rounded-[20px] hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-all group"
+                                                className="flex items-center gap-2 p-2 rounded-[20px] hover:shadow-xl hover:shadow-black/[0.03] hover:bg-[#f8f9fa] dark:hover:bg-white/5 transition-all group"
                                             >
                                                 <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
                                                     <GridIcon className="w-5 h-5 text-[#215732]" />
@@ -156,12 +156,12 @@ export default function ShopifySearchInput() {
 
                                 {/* Product List */}
                                 {results.products.length > 0 && (
-                                    <div className="space-y-3">
+                                    <div className="space-y-2">
                                         {results.products.map((product) => (
                                             <Link
                                                 key={product.id}
                                                 href={`/product/${product.handle}`}
-                                                className="flex items-center gap-3 p-3.5 rounded-[20px] bg-white hover:bg-[#f8f9fa] dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 hover:border-[#215732]/20 hover:shadow-xl hover:shadow-black/[0.03] transition-all group"
+                                                className="flex items-center gap-2 p-2 rounded-[20px] bg-white hover:bg-[#f8f9fa] dark:bg-white/[0.02]  dark:border-white/5  hover:shadow-xl hover:shadow-black/[0.03] transition-all group"
                                             >
                                                 <div className="w-10 h-10 rounded-[18px] bg-gray-50 dark:bg-white/10 overflow-hidden flex-shrink-0 relative">
                                                     {product.image ? (
@@ -184,12 +184,12 @@ export default function ShopifySearchInput() {
                             </div>
                         ) : (
                             /* Trending Pills Column */
-                            <div className="flex flex-col items-start gap-4">
+                            <div className="flex flex-col items-start gap-2">
                                 {trendingSuggestions.map((suggestion, index) => (
                                     <button
                                         key={index}
                                         onClick={() => setQuery(suggestion)}
-                                        className="px-6 py-4 bg-[#f1f3f5] dark:bg-white/5 rounded-full text-[15px] font-bold text-gray-800 dark:text-gray-200 hover:bg-[#e9ecef] dark:hover:bg-white/10 hover:scale-[1.01] active:scale-[0.98] transition-all text-left max-w-full"
+                                        className="px-3 py-2 bg-[#f1f3f5] dark:bg-white/5 rounded-full text-[15px] font-bold text-gray-800 dark:text-gray-200 hover:bg-[#e9ecef] dark:hover:bg-white/10 hover:scale-[1.01] active:scale-[0.98] transition-all text-left max-w-full"
                                     >
                                         {suggestion}
                                     </button>
