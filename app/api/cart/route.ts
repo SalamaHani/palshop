@@ -97,7 +97,8 @@ export async function POST(request: Request) {
                 const sessionDB = await getSessionDB(session.session_id);
                 if (sessionDB?.shopify_customer_token) {
                     buyerIdentity = {
-                        customerAccessToken: sessionDB.shopify_customer_token
+                        customerAccessToken: sessionDB.shopify_customer_token,
+                        email: session.email
                     };
                 }
             }
@@ -260,6 +261,40 @@ export async function POST(request: Request) {
                 }
 
                 return NextResponse.json({ success: true, cart: data.cartLinesUpdate.cart });
+            }
+
+            case 'updateBuyerIdentity': {
+                const query = `
+                    mutation cartBuyerIdentityUpdate($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
+                        cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
+                            cart {
+                                id
+                                checkoutUrl
+                            }
+                            userErrors {
+                                field
+                                message
+                            }
+                        }
+                    }
+                `;
+
+                const data = await shopifyFetch<any>({
+                    query,
+                    variables: {
+                        cartId,
+                        buyerIdentity
+                    }
+                });
+
+                if (data.cartBuyerIdentityUpdate.userErrors.length > 0) {
+                    return NextResponse.json(
+                        { error: data.cartBuyerIdentityUpdate.userErrors[0].message },
+                        { status: 400 }
+                    );
+                }
+
+                return NextResponse.json({ success: true, cart: data.cartBuyerIdentityUpdate.cart });
             }
 
             default:

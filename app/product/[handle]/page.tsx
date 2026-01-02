@@ -26,7 +26,7 @@ import PolicyModal from "@/components/Product/PolicyModal";
 
 const Product = () => {
   const params = useParams();
-  const { addItem, isUpdating } = useCart();
+  const { addItem, isUpdating, checkout, isCheckoutLoading } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const { isAuthenticated, setIsAuthModalOpen } = useAuth();
 
@@ -239,19 +239,28 @@ const Product = () => {
             </Button>
 
             <Button
-              className="w-full h-14 rounded-full bg-black text-white hover:bg-gray-900 text-lg font-bold shadow-xl transition-all active:scale-[0.98]"
-              disabled={!selectedVariant}
-              onClick={() => {
+              className="w-full h-14 rounded-full bg-black text-white hover:bg-gray-900 text-lg font-bold shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+              disabled={!selectedVariant || isUpdating || isCheckoutLoading}
+              onClick={async () => {
                 if (!isAuthenticated) {
                   setIsAuthModalOpen(true);
-                } else {
-                  // Proceed with Buy Now logic if any, or just add to cart and go to checkout
-                  handleAddtoCart();
-                  // router.push(cart.checkoutUrl); // If available
+                  return;
+                }
+                if (selectedVariant) {
+                  try {
+                    await addItem(selectedVariant.id, quantity);
+                    await checkout();
+                  } catch (error) {
+                    console.error("Buy now error:", error);
+                  }
                 }
               }}
             >
-              Buy now
+              {isCheckoutLoading ? (
+                <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                "Buy now"
+              )}
             </Button>
 
 

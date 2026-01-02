@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
-    const { cart, isLoading, updateItem, removeItem, cartCount, refreshCart } = useCart();
+    const { cart, isLoading, updateItem, removeItem, cartCount, refreshCart, checkout, isCheckoutLoading } = useCart();
     const { isAuthenticated, isLoading: isAuthLoading, setIsAuthModalOpen } = useAuth();
     const router = useRouter();
 
@@ -158,13 +158,23 @@ export default function CartPage() {
                             </div>
                         </div>
 
-                        <a
-                            href={cart.checkoutUrl}
-                            className="w-full py-4 bg-[#215732] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#1a4527] transition-all shadow-lg shadow-[#215732]/20 group"
+                        <button
+                            onClick={checkout}
+                            disabled={isCheckoutLoading}
+                            className="w-full py-4 bg-[#215732] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#1a4527] transition-all shadow-lg shadow-[#215732]/20 group disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            Proceed to Checkout
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </a>
+                            {isCheckoutLoading ? (
+                                <>
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    Processing...
+                                </>
+                            ) : (
+                                <>
+                                    Proceed to Checkout
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
+                        </button>
 
                         <div className="mt-6 flex flex-col items-center gap-4">
                             <p className="text-xs text-gray-500 text-center">

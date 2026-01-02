@@ -62,8 +62,10 @@ interface CartContextType {
     addItem: (variantId: string, quantity?: number) => Promise<void>;
     removeItem: (lineId: string) => Promise<void>;
     updateItem: (lineId: string, quantity: number) => Promise<void>;
+    checkout: () => Promise<void>;
     refreshCart: () => Promise<void>;
     cartCount: number;
+    isCheckoutLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -72,6 +74,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     const [cart, setCart] = useState<Cart | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
 
     const getCartId = useCallback(() => {
         if (typeof window !== 'undefined') {
@@ -242,6 +245,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const checkout = async () => {
+        if (!cart) return;
+        setIsCheckoutLoading(true);
+
+        try {
+            // Update buyer identity if possible before redirecting
+            // This ensures the checkout knows who the customer is if they just logged in
+            const response = await fetch('/api/cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'updateBuyerIdentity',
+                    cartId: cart.id
+                }),
+            });
+
+            const data = await response.json();
+            const checkoutUrl = data.cart?.checkoutUrl || cart.checkoutUrl;
+
+            // Redirect to Shopify checkout
+            window.location.href = checkoutUrl;
+        } catch (error) {
+            console.error('[CartContext] Checkout Error:', error);
+            // Fallback to existing checkout URL if update fails
+            window.location.href = cart.checkoutUrl;
+        } finally {
+            setIsCheckoutLoading(false);
+        }
+    };
+
     useEffect(() => {
         loadCart();
     }, [loadCart]);
@@ -254,8 +287,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             addItem,
             removeItem,
             updateItem,
+            checkout,
             refreshCart: loadCart,
-            cartCount: cart?.totalQuantity || 0
+            cartCount: cart?.totalQuantity || 0,
+            isCheckoutLoading
         }}>
             {children}
         </CartContext.Provider>
