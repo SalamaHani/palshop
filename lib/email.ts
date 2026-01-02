@@ -104,7 +104,7 @@ export async function sendContactEmail({
 
   try {
     const { error } = await resend.emails.send({
-      from: 'support@palshop.app',
+      from: 'Palshop',
       to: 'support@palshop.app', // Send to store support
       replyTo: email,
       subject: `New Contact Form Submission: ${topic}`,
