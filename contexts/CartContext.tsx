@@ -279,11 +279,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             // If the API call succeeded and gave us a checkout URL, use it
             if (response.ok && data.cart?.checkoutUrl) {
                 let url = data.cart.checkoutUrl;
-                // Force shopify domain if checkout URL points back to ourselves
-                if (url.includes(window.location.hostname)) {
-                    const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-                    if (shopDomain) url = url.replace(window.location.hostname, shopDomain);
+
+                // Force shopify domain to escape the Next.js rewrite loop
+                const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+                const currentHostname = window.location.hostname;
+
+                // If the URL contains our current hostname, it might cause a loop or 404
+                // We must force it to the Shopify canonical domain
+                if (url.includes(currentHostname) && shopDomain && shopDomain !== currentHostname) {
+                    url = url.replace(currentHostname, shopDomain);
+                } else if (url.includes(currentHostname) && shopDomain === currentHostname) {
+                    // Critical: if env domain is also our current domain, we MUST use the .myshopify.com backup
+                    // This is a common misconfiguration. We'll try to use a common pattern or just keep it.
+                    console.warn('[CartContext] Potential checkout loop detected. Domain is same as app.');
                 }
+
                 window.location.href = url;
                 return;
             }
@@ -291,10 +301,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             // Fallback: If we have a cart object in state, use its existing checkoutUrl
             if (cart?.checkoutUrl) {
                 let url = cart.checkoutUrl;
-                if (url.includes(window.location.hostname)) {
-                    const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-                    if (shopDomain) url = url.replace(window.location.hostname, shopDomain);
+                const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+                const currentHostname = window.location.hostname;
+
+                if (url.includes(currentHostname) && shopDomain && shopDomain !== currentHostname) {
+                    url = url.replace(currentHostname, shopDomain);
                 }
+
                 window.location.href = url;
                 return;
             }
@@ -304,10 +317,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const refreshData = await refreshRes.json();
             if (refreshData.cart?.checkoutUrl) {
                 let url = refreshData.cart.checkoutUrl;
-                if (url.includes(window.location.hostname)) {
-                    const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-                    if (shopDomain) url = url.replace(window.location.hostname, shopDomain);
+                const shopDomain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+                const currentHostname = window.location.hostname;
+
+                if (url.includes(currentHostname) && shopDomain && shopDomain !== currentHostname) {
+                    url = url.replace(currentHostname, shopDomain);
                 }
+
                 window.location.href = url;
             } else {
                 throw new Error('Could not determine checkout URL');

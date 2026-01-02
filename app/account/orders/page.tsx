@@ -169,64 +169,105 @@ export default function OrdersPage() {
     return (
         <div className="flex flex-col gap-8">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">My Orders</h1>
-                    <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium">
-                        {orders.length} {orders.length === 1 ? 'order' : 'orders'} found
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-8 bg-[#215732] rounded-full" />
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">My Orders</h1>
+                    </div>
+                    <p className="text-[#677279] dark:text-gray-400 font-medium ml-5 italic">
+                        {orders.length} {orders.length === 1 ? 'order' : 'orders'} in your history
                     </p>
                 </div>
+
+                <Link href="/shop" className="ml-5 sm:ml-0">
+                    <Button variant="outline" className="rounded-full border-[#215732]/20 text-[#215732] font-black uppercase text-[12px] tracking-widest hover:bg-[#215732] hover:text-white transition-all px-8 h-12">
+                        Shop More
+                    </Button>
+                </Link>
             </div>
 
-            {/* Orders Table */}
-            <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden">
-                <Table>
-                    <TableHeader>
-                        <TableRow className="border-gray-100 dark:border-white/5 hover:bg-transparent">
-                            <TableHead className="font-bold text-gray-900 dark:text-white">Order</TableHead>
-                            <TableHead className="font-bold text-gray-900 dark:text-white">Date</TableHead>
-                            <TableHead className="font-bold text-gray-900 dark:text-white">Items</TableHead>
-                            <TableHead className="font-bold text-gray-900 dark:text-white">Total</TableHead>
-                            <TableHead className="font-bold text-gray-900 dark:text-white">Payment</TableHead>
-                            <TableHead className="font-bold text-gray-900 dark:text-white">Status</TableHead>
-                            <TableHead className="font-bold text-gray-900 dark:text-white text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {orders.map((order) => (
-                            <TableRow key={order.id} className="border-gray-100 dark:border-white/5">
-                                <TableCell className="font-bold text-gray-900 dark:text-white">
-                                    {order.name}
-                                </TableCell>
-                                <TableCell className="text-gray-600 dark:text-gray-400 font-medium">
-                                    {formatDate(order.processedAt)}
-                                </TableCell>
-                                <TableCell className="text-gray-600 dark:text-gray-400 font-medium">
-                                    {order.lineItems.edges.reduce((sum, item) => sum + item.node.quantity, 0)} items
-                                </TableCell>
-                                <TableCell className="font-bold text-gray-900 dark:text-white">
-                                    {formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode)}
-                                </TableCell>
-                                <TableCell>
-                                    {getStatusBadge(order.financialStatus)}
-                                </TableCell>
-                                <TableCell>
-                                    {getStatusBadge(order.fulfillmentStatus)}
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <Link
-                                        href={`/account/orders/${order.id.split('/').pop()}`}
-                                        className="inline-flex items-center gap-2 text-[#215732] hover:text-[#1a4528] font-semibold transition-colors"
-                                    >
-                                        View
-                                        <ExternalLink className="w-4 h-4" />
-                                    </Link>
-                                </TableCell>
+            {/* Orders Table Container */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white dark:bg-[#0d0d0d] rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm"
+            >
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-gray-50 dark:border-white/5 hover:bg-transparent bg-gray-50/50 dark:bg-white/[0.02]">
+                                <TableHead className="font-black text-gray-400 uppercase text-[11px] tracking-widest h-14 pl-8">Order</TableHead>
+                                <TableHead className="font-black text-gray-400 uppercase text-[11px] tracking-widest h-14">Date</TableHead>
+                                <TableHead className="font-black text-gray-400 uppercase text-[11px] tracking-widest h-14">Items</TableHead>
+                                <TableHead className="font-black text-gray-400 uppercase text-[11px] tracking-widest h-14 text-center">Payment</TableHead>
+                                <TableHead className="font-black text-gray-400 uppercase text-[11px] tracking-widest h-14 text-center">Fulfillment</TableHead>
+                                <TableHead className="font-black text-gray-400 uppercase text-[11px] tracking-widest h-14 text-right pr-8">Total</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {orders.map((order, index) => (
+                                <TableRow
+                                    key={order.id}
+                                    className="border-gray-50 dark:border-white/5 cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors group"
+                                    onClick={() => window.location.href = `/account/orders/${order.id.split('/').pop()}`}
+                                >
+                                    <TableCell className="h-20 pl-8">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-[#215732]/5 flex items-center justify-center group-hover:bg-[#215732]/10 transition-colors">
+                                                <Package className="w-5 h-5 text-[#215732]" />
+                                            </div>
+                                            <div>
+                                                <p className="font-black text-gray-900 dark:text-white tracking-tight">{order.name}</p>
+                                                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">#{order.orderNumber}</p>
+                                            </div>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-gray-600 dark:text-gray-400 font-bold text-sm">
+                                        {formatDate(order.processedAt)}
+                                    </TableCell>
+                                    <TableCell className="text-gray-600 dark:text-gray-400 font-bold text-sm">
+                                        {order.lineItems.edges.reduce((sum, item) => sum + item.node.quantity, 0)} items
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                        {getStatusBadge(order.financialStatus)}
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                        {getStatusBadge(order.fulfillmentStatus)}
+                                    </TableCell>
+                                    <TableCell className="text-right pr-8">
+                                        <div className="flex flex-col items-end">
+                                            <p className="font-black text-gray-900 dark:text-white">
+                                                {formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode)}
+                                            </p>
+                                            <Link
+                                                href={`/account/orders/${order.id.split('/').pop()}`}
+                                                className="text-[12px] font-bold text-[#215732] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+                                                onClick={(e) => e.stopPropagation()}
+                                            >
+                                                Details <ChevronRight className="w-3 h-3" />
+                                            </Link>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            </motion.div>
+
+            {/* Support Box */}
+            <div className="flex flex-col items-center justify-center py-12 border-t border-gray-100 dark:border-white/5">
+                <p className="text-gray-500 font-medium mb-4 italic">Having trouble with an order?</p>
+                <Link href="/account/support">
+                    <Button variant="ghost" className="text-[#215732] font-black h-12 uppercase tracking-widest text-[12px] hover:bg-[#215732]/5 rounded-full px-8">
+                        Contact Support Team
+                    </Button>
+                </Link>
             </div>
         </div>
     );
 }
+
+import { ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
