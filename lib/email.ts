@@ -32,7 +32,7 @@ export async function sendVerificationCodeEmail({
           <div style="max-width: 600px; margin: 0 auto;">
 
             <div style="margin-bottom: 30px; padding-bottom: 15px; border-bottom: 1px solid #eeeeee;">
-              <span style="font-size: 24px; font-weight: 900; letter-spacing: -1.5px; color: #215732;">PAL<span style="font-weight: 500;">PAL<span style="font-weight: 500; font-size: 18px;">shop</span></span>
+              <span style="font-size: 24px; font-weight: 900; letter-spacing: -1.5px; color: #215732;">PAL<span style="font-weight: 500;"><span style="font-weight: 500; font-size: 18px;">shop</span></span>
             </div>
 
             <div style="margin-bottom: 40px;">
