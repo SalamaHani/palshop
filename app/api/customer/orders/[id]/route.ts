@@ -25,12 +25,13 @@ export async function GET(
             return NextResponse.json({ error: 'No Shopify token found' }, { status: 401 });
         }
 
-        // GraphQL query to fetch a specific order using the 'query' parameter
-        // This is the most robust way to find an order by name, number, or ID
+        // GraphQL query to fetch customer orders
+        // Fetching the last 100 orders is the most reliable way to find a specific one
+        // because the Storefront API 'query' parameter is limited to status filters.
         const query = `
-            query getSpecificOrder($customerAccessToken: String!, $orderQuery: String!) {
+            query getCustomerOrders($customerAccessToken: String!) {
                 customer(customerAccessToken: $customerAccessToken) {
-                    orders(first: 5, query: $orderQuery) {
+                    orders(first: 100, sortKey: PROCESSED_AT, reverse: true) {
                         edges {
                             node {
                                 id
@@ -95,15 +96,11 @@ export async function GET(
             }
         `;
 
-        // Support various search formats: name, id, or number
-        const orderQuery = orderId.startsWith('#') ? `name:'${orderId}'` : `name:'#${orderId}' OR name:'${orderId}' OR id:${orderId}`;
-
         // Make request using standard shopifyFetch
         const data = await shopifyFetch<any>({
             query,
             variables: {
-                customerAccessToken: sessionDB.shopify_customer_token,
-                orderQuery: orderQuery
+                customerAccessToken: sessionDB.shopify_customer_token
             },
         });
 
@@ -113,20 +110,23 @@ export async function GET(
 
         const orders = data.customer.orders.edges.map((edge: any) => edge.node);
 
-        // Find the specific order in the results
+        // Find the specific order in the results with high resilience
         const order = orders.find((o: any) => {
-            const normalizedParamId = orderId.replace('#', '').toLowerCase();
+            const normalizedParamId = decodeURIComponent(orderId).replace('#', '').toLowerCase();
             const normalizedOrderName = o.name.replace('#', '').toLowerCase();
+            const gIDPart = o.id.split('/').pop();
 
             return (
-                o.id === orderId ||
-                o.id.split('/').pop() === orderId ||
-                o.name.toLowerCase() === orderId.toLowerCase() ||
-                normalizedOrderName === normalizedParamId
+                o.id === orderId ||                          // Exact GID match
+                gIDPart === orderId ||                       // Numeric tail match
+                o.name.toLowerCase() === orderId.toLowerCase() || // Display name match (e.g. #1001)
+                normalizedOrderName === normalizedParamId || // Normalized name match (e.g. 1001)
+                o.orderNumber?.toString() === normalizedParamId // Order number match
             );
         });
 
         if (!order) {
+            console.warn(`[API] Order ${orderId} not found among ${orders.length} orders for customer.`);
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
 
