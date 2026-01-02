@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import {
     ShoppingBag,
     Package,
@@ -82,19 +82,23 @@ interface Order {
     };
 }
 
-export default function OrderDetailsPage({ params }: { params: { id: string } }) {
+
+export default function OrderDetailsPage({ params: paramsPromise }: { params: Promise<{ id: string }> }) {
+    const params = use(paramsPromise);
     const [order, setOrder] = useState<Order | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchOrderDetails();
+        if (params.id) {
+            fetchOrderDetails(params.id);
+        }
     }, [params.id]);
 
-    async function fetchOrderDetails() {
+    async function fetchOrderDetails(orderId: string) {
         try {
             setIsLoading(true);
-            const response = await fetch(`/api/customer/orders/${params.id}`);
+            const response = await fetch(`/api/customer/orders/${orderId}`);
             const data = await response.json();
 
             if (data.success) {

@@ -1,14 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { getSessionDB } from '@/lib/cereatAuthpass';
 import { shopifyFetch } from '@/lib/shopify';
 
 export async function GET(
-    request: Request,
-    { params }: { params: { id: string } }
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const orderId = params.id;
+        const { id: orderId } = await params;
         const fullOrderId = `gid://shopify/Order/${orderId}`;
 
         // Get current session
