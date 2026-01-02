@@ -77,7 +77,6 @@ export async function POST(request: NextRequest) {
     // Set session cookie
     await setSessionCookie(sessionToken);
     const session = await getSession();
-    localStorage.setItem('email', normalizedEmail);
     //create session in database
     await createSession(session?.session_id, session?.customerId, authResult.accessToken, session?.exp);
     return NextResponse.json({

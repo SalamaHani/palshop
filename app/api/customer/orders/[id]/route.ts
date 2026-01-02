@@ -113,34 +113,42 @@ export async function GET(
         // Find the specific order in the results with high resilience
         // We decode Base64 IDs which are common in Storefront API
         const order = orders.find((o: any) => {
-            const rawId = o.id;
+            const rawId = o.id; // Usually Base64
             let decodedId = rawId;
 
+            // Attempt to decode Base64
             if (!rawId.startsWith('gid://')) {
                 try {
-                    decodedId = Buffer.from(rawId, 'base64').toString('utf-8');
+                    const decoded = Buffer.from(rawId, 'base64').toString('utf-8');
+                    if (decoded.startsWith('gid://')) {
+                        decodedId = decoded;
+                    }
                 } catch (e) {
-                    // Not base64, keep as is
+                    // Not base64 or failed, continue with rawId
                 }
             }
 
             const numericId = decodedId.split('/').pop();
             const paramId = decodeURIComponent(orderId).trim();
             const normalizedParamId = paramId.replace('#', '').toLowerCase();
-            const normalizedOrderName = o.name.replace('#', '').toLowerCase();
+            const normalizedOrderName = (o.name || '').replace('#', '').toLowerCase();
 
             return (
                 rawId === paramId ||                         // Match raw GID (Base64)
                 decodedId === paramId ||                     // Match decoded GID (gid://...)
                 numericId === paramId ||                     // Match numeric tail (e.g. 63001002)
-                o.name.toLowerCase() === paramId.toLowerCase() || // Match name (#63001002PAL)
+                (o.name && o.name.toLowerCase() === paramId.toLowerCase()) || // Match name (#63001002PAL)
                 normalizedOrderName === normalizedParamId || // Match normalized name (63001002pal)
-                o.orderNumber?.toString() === paramId        // Match numeric order number
+                o.orderNumber?.toString() === paramId ||     // Match numeric order number
+                o.orderNumber?.toString() === normalizedParamId
             );
         });
 
         if (!order) {
-            console.warn(`[API] Order ${orderId} not found among ${orders.length} orders. Sample ID: ${orders[0]?.id}`);
+            console.warn(`[API] Order "${orderId}" not found among ${orders.length} customer orders.`);
+            if (orders.length > 0) {
+                console.warn(`[API] First item in list: ID=${orders[0].id}, Name=${orders[0].name}`);
+            }
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
         }
 
