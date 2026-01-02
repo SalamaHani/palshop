@@ -64,10 +64,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async function logout() {
         try {
             await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/';
             setCustomer(null);
+            setIsAuthenticated(false);
         } catch (error) {
             console.error('Sign out error:', error);
             setCustomer(null);
+            setIsAuthenticated(false);
+            window.location.href = '/';
         }
     }
 
