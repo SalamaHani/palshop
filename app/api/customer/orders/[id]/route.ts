@@ -25,14 +25,12 @@ export async function GET(
             return NextResponse.json({ error: 'No Shopify token found' }, { status: 401 });
         }
 
-        // GraphQL query to fetch a specific order
-        // In Storefront API, we can use the node query if we have the GID
-        // But we must ensure it belongs to the customer. 
-        // Another way is to fetch customer and filter orders, but node is more efficient.
+        // GraphQL query to fetch customer orders
+        // We fetch the last 100 orders and find the matching one to be safe
         const query = `
-            query getOrder($id: ID!, $customerAccessToken: String!) {
+            query getCustomerOrders($customerAccessToken: String!) {
                 customer(customerAccessToken: $customerAccessToken) {
-                    orders(first: 1, query: $id) {
+                    orders(first: 50, sortKey: PROCESSED_AT, reverse: true) {
                         edges {
                             node {
                                 id
@@ -68,7 +66,7 @@ export async function GET(
                                     country
                                     phone
                                 }
-                                lineItems(first: 50) {
+                                lineItems(first: 100) {
                                     edges {
                                         node {
                                             title
@@ -101,18 +99,21 @@ export async function GET(
         const data = await shopifyFetch<any>({
             query,
             variables: {
-                customerAccessToken: sessionDB.shopify_customer_token,
-                id: `id:${orderId}` // Search by order number or ID part
+                customerAccessToken: sessionDB.shopify_customer_token
             },
         });
 
-        // The query filter in Storefront API for orders is limited.
-        // Let's try matching the full ID in the returned list.
-        // Or better, fetch the last N orders and find the one.
-        // Given Storefront API limitations, the most reliable way is often to fetch recent orders.
+        if (!data?.customer) {
+            return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+        }
 
-        const orders = data?.customer?.orders?.edges?.map((edge: any) => edge.node) || [];
-        const order = orders.find((o: any) => o.id.endsWith(orderId));
+        const orders = data.customer.orders.edges.map((edge: any) => edge.node);
+
+        // Find the specific order that matches the ID from parameters
+        // We check if the ID ends with the orderId (which is the numeric part)
+        const order = orders.find((o: any) =>
+            o.id.split('/').pop() === orderId || o.id === orderId || o.name === orderId
+        );
 
         if (!order) {
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
