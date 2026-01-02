@@ -66,19 +66,31 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/privacy"
+                  href="/contact"
                   className="text-[15px] font-medium text-[#677279] dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
                 >
-                  Privacy Policy
+                  Contact Us
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/privacy"
+                <a
+                  href="https://www.shopify.com/legal/privacy/consumers?utm_medium=website&utm_source=shop-website"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[15px] font-medium text-[#677279] dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                >
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://privacy.shopify.com/en/opt_out_requests/ads-sharing/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-[15px] font-medium text-[#677279] dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
                 >
                   Do Not Sell or Share My Personal Information
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -95,11 +107,11 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-3.5 text-[#677279] dark:text-gray-400">
                 <Phone className="w-5 h-5 mt-0.5 flex-shrink-0 text-gray-400" />
-                <span className="text-[15px] font-medium">+970 xx xxx xxxx</span>
+                <span className="text-[15px] font-medium">+970 0569020042</span>
               </li>
               <li className="flex items-start gap-3.5 text-[#677279] dark:text-gray-400">
                 <Mail className="w-5 h-5 mt-0.5 flex-shrink-0 text-gray-400" />
-                <span className="text-[15px] font-medium">info@palshop.app</span>
+                <span className="text-[15px] font-medium">support@palshop.com</span>
               </li>
             </ul>
           </div>

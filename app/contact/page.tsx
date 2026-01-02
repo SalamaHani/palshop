@@ -1,129 +1,133 @@
 'use client';
 
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function ContactPage() {
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a] py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-16">
-                    <motion.h1
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-4xl font-bold text-gray-900 dark:text-white mb-4"
-                    >
-                        Contact Us
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-lg text-gray-600 dark:text-gray-400"
-                    >
-                        We're here to help. Reach out to us for any questions or support.
-                    </motion.p>
-                </div>
+        <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pt-20 pb-20 px-4">
+            <div className="max-w-2xl mx-auto text-center">
+                {/* Header */}
+                <motion.h1
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-[40px] font-bold text-gray-900 dark:text-white mb-4 tracking-tight"
+                >
+                    Contact
+                </motion.h1>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    {/* Contact Info */}
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="space-y-8"
-                    >
-                        <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
-                            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Get in Touch</h2>
+                <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="text-[17px] text-gray-900 dark:text-gray-300 mb-12 max-w-lg mx-auto leading-snug font-medium"
+                >
+                    If you can't find what you're looking for, complete this contact form and a support specialist will reach out.
+                </motion.p>
 
-                            <div className="space-y-6">
-                                <div className="flex items-start gap-4">
-                                    <div className="w-12 h-12 bg-[#215732]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                                        <Mail className="w-6 h-6 text-[#215732]" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">Email</p>
-                                        <p className="text-gray-600 dark:text-gray-400">info@palshop.app</p>
-                                    </div>
-                                </div>
+                {/* Form Container */}
+                <motion.form
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="space-y-4 text-left"
+                    onSubmit={(e) => e.preventDefault()}
+                >
+                    {/* Name Input */}
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Your name"
+                            className="w-full px-5 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all placeholder:text-gray-500 font-medium"
+                        />
+                    </div>
 
-                                <div className="flex items-start gap-4">
-                                    <div className="w-12 h-12 bg-[#215732]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                                        <Phone className="w-6 h-6 text-[#215732]" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">Phone</p>
-                                        <p className="text-gray-600 dark:text-gray-400">+970 xx xxx xxxx</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4">
-                                    <div className="w-12 h-12 bg-[#215732]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                                        <MapPin className="w-6 h-6 text-[#215732]" />
-                                    </div>
-                                    <div>
-                                        <p className="font-medium text-gray-900 dark:text-white">Office</p>
-                                        <p className="text-gray-600 dark:text-gray-400">Palestine, Ramallah</p>
-                                    </div>
-                                </div>
-                            </div>
+                    {/* Email Input */}
+                    <div className="relative group">
+                        <div className="absolute left-5 top-3.5 text-[12px] text-gray-500 font-medium h-4">
+                            Email address *
                         </div>
-                    </motion.div>
+                        <input
+                            type="email"
+                            defaultValue="hanidiaab@gmail.com"
+                            className="w-full px-5 pt-7 pb-2 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all font-medium"
+                        />
+                    </div>
 
-                    {/* Contact Form */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 }}
-                    >
-                        <form className="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 space-y-6">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-900 dark:text-white">First Name</label>
-                                    <input
-                                        type="text"
-                                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-[#215732] transition-ring"
-                                        placeholder="John"
-                                    />
+                    {/* Phone Input */}
+                    <div className="relative">
+                        <input
+                            type="tel"
+                            placeholder="Your phone number (optional)"
+                            className="w-full px-5 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all placeholder:text-gray-500 font-medium"
+                        />
+                    </div>
+
+                    {/* Topic Select */}
+                    <div className="relative group">
+                        <div className="absolute left-5 top-3.5 text-[12px] text-gray-500 font-medium h-4">
+                            Topic
+                        </div>
+                        <select
+                            className="w-full px-5 pt-7 pb-2 h-[68px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[20px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all font-medium appearance-none"
+                        >
+                            <option>Topic</option>
+                            <option>Order Support</option>
+                            <option>Shipping & Delivery</option>
+                            <option>Product Inquiries</option>
+                            <option>Business Partnership</option>
+                        </select>
+                        <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-900 pointer-events-none" />
+                    </div>
+
+                    {/* Message Textarea */}
+                    <div className="relative">
+                        <textarea
+                            placeholder="How can we help you?"
+                            className="w-full px-5 py-5 h-[160px] text-[16px] bg-white dark:bg-gray-900 border-[1.5px] border-gray-200 dark:border-gray-800 rounded-[24px] focus:ring-2 focus:ring-[#215732] focus:border-[#215732] outline-none transition-all placeholder:text-gray-500 font-medium resize-none"
+                        />
+                        <div className="absolute bottom-3 right-5">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-300">
+                                <path d="M1 11L11 1M11 1H4M11 1V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    {/* reCAPTCHA Placeholder */}
+                    <div className="flex justify-center mt-6">
+                        <div className="w-[300px] h-[74px] bg-[#f9f9f9] dark:bg-gray-800 border border-[#d3d3d3] dark:border-gray-700 rounded-sm flex items-center px-3 gap-3">
+                            <div className="flex flex-col items-center">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#4a90e2]">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor" />
+                                    <path d="M12.5 7H11V13L16.25 16.15L17 14.92L12.5 12.25V7Z" fill="currentColor" />
+                                </svg>
+                                <span className="text-[9px] text-gray-500 mt-0.5">reCAPTCHA</span>
+                                <div className="flex gap-1 text-[8px] text-gray-400 mt-0.5">
+                                    <span>الخصوصية</span>
+                                    <span>-</span>
+                                    <span>البنود</span>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-gray-900 dark:text-white">Last Name</label>
-                                    <input
-                                        type="text"
-                                        className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-[#215732] transition-ring"
-                                        placeholder="Doe"
-                                    />
-                                </div>
                             </div>
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-900 dark:text-white">Email Address</label>
-                                <input
-                                    type="email"
-                                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-[#215732] transition-ring"
-                                    placeholder="john@example.com"
-                                />
+                            <div className="flex-1 text-right">
+                                <p className="text-[13px] text-gray-700 dark:text-gray-300 font-medium">أنا لست برنامج روبوت</p>
+                                <p className="text-[8px] text-gray-400 leading-tight">سیتم تعییر بنود خدمة reCAPTCHA . <span className="underline">یجب اتخاذ إجراء</span></p>
                             </div>
+                            <div className="w-6 h-6 border-2 border-gray-300 rounded bg-white"></div>
+                        </div>
+                    </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-900 dark:text-white">Message</label>
-                                <textarea
-                                    rows={4}
-                                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-[#215732] transition-ring"
-                                    placeholder="How can we help you?"
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="w-full py-3 bg-[#215732] hover:bg-[#1a4527] text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Send className="w-4 h-4" />
-                                Send Message
-                            </button>
-                        </form>
-                    </motion.div>
-                </div>
+                    {/* Submit Button (Optional but needed for functionality) */}
+                    <div className="mt-8">
+                        <Button
+                            type="submit"
+                            className="w-full h-14 bg-[#215732] hover:bg-[#1a4527] text-white text-[17px] font-bold rounded-[20px] shadow-lg shadow-[#215732]/20 active:scale-[0.98] transition-all"
+                        >
+                            Send Message
+                        </Button>
+                    </div>
+                </motion.form>
             </div>
         </div>
     );
