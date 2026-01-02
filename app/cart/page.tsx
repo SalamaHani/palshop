@@ -159,7 +159,7 @@ export default function CartPage() {
                         </div>
 
                         <button
-                            onClick={checkout}
+                            onClick={() => checkout()}
                             disabled={isCheckoutLoading}
                             className="w-full py-4 bg-[#215732] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#1a4527] transition-all shadow-lg shadow-[#215732]/20 group disabled:opacity-70 disabled:cursor-not-allowed"
                         >

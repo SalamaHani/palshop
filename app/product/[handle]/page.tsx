@@ -248,8 +248,10 @@ const Product = () => {
                 }
                 if (selectedVariant) {
                   try {
-                    await addItem(selectedVariant.id, quantity);
-                    await checkout();
+                    const newCart = await addItem(selectedVariant.id, quantity);
+                    if (newCart) {
+                      await checkout(newCart.id);
+                    }
                   } catch (error) {
                     console.error("Buy now error:", error);
                   }

@@ -77,7 +77,7 @@ export default async function RootLayout({
         <body
           className={`${inter.variable} antialiased`}
         >
-          <Toaster theme="dark" position="bottom-center" />
+          <Toaster theme="dark" position="bottom-center" closeButton expand={false} />
           <Navbar />
           <div className="block lg:hidden md:block">
             <MobileNav />

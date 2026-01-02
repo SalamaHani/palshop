@@ -264,6 +264,24 @@ export async function POST(request: Request) {
             }
 
             case 'updateBuyerIdentity': {
+                if (!cartId) {
+                    return NextResponse.json({ error: 'Cart ID is required' }, { status: 400 });
+                }
+
+                // If no buyer identity can be found, just return the current cart info
+                if (!buyerIdentity) {
+                    const query = `
+                        query getCart($cartId: ID!) {
+                            cart(id: $cartId) {
+                                id
+                                checkoutUrl
+                            }
+                        }
+                    `;
+                    const data = await shopifyFetch<any>({ query, variables: { cartId } });
+                    return NextResponse.json({ success: true, cart: data.cart });
+                }
+
                 const query = `
                     mutation cartBuyerIdentityUpdate($cartId: ID!, $buyerIdentity: CartBuyerIdentityInput!) {
                         cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: $buyerIdentity) {
