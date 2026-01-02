@@ -25,12 +25,12 @@ export async function GET(
             return NextResponse.json({ error: 'No Shopify token found' }, { status: 401 });
         }
 
-        // GraphQL query to fetch customer orders
-        // We fetch the last 100 orders and find the matching one to be safe
+        // GraphQL query to fetch a specific order using the 'query' parameter
+        // This is the most robust way to find an order by name, number, or ID
         const query = `
-            query getCustomerOrders($customerAccessToken: String!) {
+            query getSpecificOrder($customerAccessToken: String!, $orderQuery: String!) {
                 customer(customerAccessToken: $customerAccessToken) {
-                    orders(first: 50, sortKey: PROCESSED_AT, reverse: true) {
+                    orders(first: 5, query: $orderQuery) {
                         edges {
                             node {
                                 id
@@ -95,11 +95,15 @@ export async function GET(
             }
         `;
 
+        // Support various search formats: name, id, or number
+        const orderQuery = orderId.startsWith('#') ? `name:'${orderId}'` : `name:'#${orderId}' OR name:'${orderId}' OR id:${orderId}`;
+
         // Make request using standard shopifyFetch
         const data = await shopifyFetch<any>({
             query,
             variables: {
-                customerAccessToken: sessionDB.shopify_customer_token
+                customerAccessToken: sessionDB.shopify_customer_token,
+                orderQuery: orderQuery
             },
         });
 
@@ -109,11 +113,18 @@ export async function GET(
 
         const orders = data.customer.orders.edges.map((edge: any) => edge.node);
 
-        // Find the specific order that matches the ID from parameters
-        // We check if the ID ends with the orderId (which is the numeric part)
-        const order = orders.find((o: any) =>
-            o.id.split('/').pop() === orderId || o.id === orderId || o.name === orderId
-        );
+        // Find the specific order in the results
+        const order = orders.find((o: any) => {
+            const normalizedParamId = orderId.replace('#', '').toLowerCase();
+            const normalizedOrderName = o.name.replace('#', '').toLowerCase();
+
+            return (
+                o.id === orderId ||
+                o.id.split('/').pop() === orderId ||
+                o.name.toLowerCase() === orderId.toLowerCase() ||
+                normalizedOrderName === normalizedParamId
+            );
+        });
 
         if (!order) {
             return NextResponse.json({ error: 'Order not found' }, { status: 404 });
