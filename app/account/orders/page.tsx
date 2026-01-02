@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ShoppingBag, Package, Loader2, ExternalLink } from 'lucide-react';
+import { ShoppingBag, Package, Loader2, ExternalLink, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -268,6 +270,3 @@ export default function OrdersPage() {
         </div>
     );
 }
-
-import { ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
