@@ -65,8 +65,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-              </li>
-              <li>
                 <a
                   href="https://www.shopify.com/legal/privacy/consumers?utm_medium=website&utm_source=shop-website"
                   target="_blank"
