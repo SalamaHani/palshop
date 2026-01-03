@@ -26,9 +26,8 @@ export async function sendVerificationCodeEmail({
   try {
     const { error } = await resend.emails.send({
       from: 'Palshop Verification <support@palshop.app>',
-      to: 'support@palshop.app',
-      replyTo: to,
-      subject: `PALshop sign-in code`,
+      to: to,
+      subject: `PALshop sign-in Verification Code`,
       html: `
           <div style="max-width: 600px; margin: 0 auto;">
 
