@@ -41,7 +41,7 @@ export default function Home() {
               <div className="z-999 flex w-full flex-col items-center justify-center px-space-16 h-[60svh]  md:h-[calc(60svh-1rem)] lg:h-[calc(65svh-1rem)] pointer-events-none absolute">
                 <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center text-5xl md:text-7xl lg:text-8xl xl:text-[120px] font-bold mb-6 md:mb-8">
                   <span className="text-6xl font-bold bg-[#215732] bg-clip-text text-transparent">
-                    Shop
+                    Collections
                   </span>
                 </motion.h1>
 

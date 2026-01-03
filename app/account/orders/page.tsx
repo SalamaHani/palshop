@@ -158,7 +158,7 @@ export default function OrdersPage() {
                         You haven't placed any orders yet. Once you do, they will appear here.
                     </p>
                     <Link
-                        href="/shop"
+                        href="/categories"
                         className="inline-block px-10 py-4 bg-[#215732] text-white font-bold rounded-full hover:bg-[#1a4528] transition-all shadow-lg shadow-[#215732]/20"
                     >
                         Check out the Shop
@@ -182,7 +182,7 @@ export default function OrdersPage() {
                     </p>
                 </div>
 
-                <Link href="/shop" className="ml-5 sm:ml-0">
+                <Link href="/categories" className="ml-5 sm:ml-0">
                     <Button variant="outline" className="rounded-full border-[#215732]/20 text-[#215732] font-black uppercase text-[12px] tracking-widest hover:bg-[#215732] hover:text-white transition-all px-8 h-12">
                         Shop More
                     </Button>

@@ -58,7 +58,8 @@ export default function SupportPage() {
         <div className="flex flex-col gap-12 pb-20">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Support Center</h1>
+                <div className="w-2 h-8 bg-[#215732] rounded-full" />
+                <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">Support Center</h1>
                 <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium italic">Your gateway to the heart of Palestinian craftsmanship</p>
             </div>
 

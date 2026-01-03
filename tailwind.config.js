@@ -4,14 +4,15 @@ const plugin = require("tailwindcss/plugin");
 
 module.exports = {
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-geist-sans)"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui"],
+        display: ["var(--font-outfit)", "ui-sans-serif", "system-ui"],
       },
       keyframes: {
         fadeIn: {

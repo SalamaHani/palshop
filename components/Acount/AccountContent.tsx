@@ -105,7 +105,7 @@ export function AccountContent() {
                         Your shopping history will appear here once you make your first purchase.
                     </p>
                     <Link
-                        href="/shop"
+                        href="/categories"
                         className="inline-block px-10 py-4 bg-[#215732] text-white font-bold rounded-full hover:bg-[#1a4528] transition-all shadow-lg shadow-[#215732]/20"
                     >
                         Start Exploring

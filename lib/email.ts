@@ -25,8 +25,9 @@ export async function sendVerificationCodeEmail({
 
   try {
     const { error } = await resend.emails.send({
-      from: 'support@palshop.app',
-      to,
+      from: 'Palshop Verification <support@palshop.app>',
+      to: 'support@palshop.app',
+      replyTo: to,
       subject: `PALshop sign-in code`,
       html: `
           <div style="max-width: 600px; margin: 0 auto;">
@@ -104,7 +105,7 @@ export async function sendContactEmail({
 
   try {
     const { error } = await resend.emails.send({
-      from: 'Palshop',
+      from: 'Palshop Contact <support@palshop.app>',
       to: 'support@palshop.app', // Send to store support
       replyTo: email,
       subject: `New Contact Form Submission: ${topic}`,

@@ -71,7 +71,7 @@ export default function Navbar({
                         <div className="flex items-center space-x-8">
                             {route.map((item, index) => {
 
-                                if (item.title == 'Home' || item.title == 'Categories' || item.title == 'Offers') {
+                                if (item.title === 'Home' || item.title === 'Collections' || item.title === 'Offers') {
                                     return (
                                         <Link
                                             key={index}
@@ -87,14 +87,14 @@ export default function Navbar({
                                             />
 
                                             {/* Icon with color transitions */}
-                                            <p
-                                                className={`relative z-10 transition-all  text-[#215732] font-medium duration-300 ${item.isActive
+                                            <span
+                                                className={`relative z-10 transition-all font-medium duration-300 ${item.isActive
                                                     ? 'text-white scale-110'
                                                     : `${inactiveColor} scale-100 group-hover:bg-gray-200 group-hover:text-[#215734] `
                                                     }`}
                                             >
                                                 {item.title}
-                                            </p>
+                                            </span>
 
 
                                         </Link>

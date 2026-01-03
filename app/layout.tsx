@@ -1,17 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers";
 import Script from "next/script";
 
 import { Toaster } from "@/components/ui/sonner";
 import Navbar from "@/components/Layout/Navbar";
-import Continer from "@/components/global/Continer";
+import Container from "@/components/global/Container";
 import MobileNav from "@/components/Layout/MobileNav";
 import Footer from "@/components/Footer";
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -105,17 +110,17 @@ export default async function RootLayout({
       </head>
       <Providers>
         <body
-          className={`${inter.variable} antialiased`}
+          className={`${inter.variable} ${outfit.variable} font-sans antialiased`}
         >
           <Toaster theme="dark" position="bottom-center" closeButton expand={false} />
           <Navbar />
           <div className="block lg:hidden md:block">
             <MobileNav />
           </div>
-          <Continer>
+          <Container>
             {children}
             <Footer />
-          </Continer>
+          </Container>
         </body>
       </Providers>
     </html>

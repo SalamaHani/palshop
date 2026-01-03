@@ -220,7 +220,7 @@ const Product = () => {
               className={cn(
                 "w-full h-14 rounded-full text-white text-lg font-bold shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2",
                 isAdded
-                  ? "bg-green-600 hover:bg-green-700 shadow-green-600/20"
+                  ? "bg-green-700 hover:bg-green-700 shadow-green-600/20"
                   : "bg-[#215732] hover:bg-[#1a4527] shadow-[#215732]/30"
               )}
               disabled={!selectedVariant || isUpdating}

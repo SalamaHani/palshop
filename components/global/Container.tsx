@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import React from "react";
 
-export default function Continer({
+export default function Container({
   children,
   className,
 }: {

@@ -174,7 +174,7 @@ export default function CartPage() {
                                 Secure checkout with Shopify. Prices include VAT where applicable.
                             </p>
                             <Link
-                                href="/shop"
+                                href="/categories"
                                 className="text-sm font-medium text-[#215732] hover:underline"
                             >
                                 Continue Shopping

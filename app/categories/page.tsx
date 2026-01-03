@@ -199,7 +199,7 @@ export default function CategoriesPage() {
                         <p className="text-gray-500 dark:text-gray-400">Our customer support team is always ready to help you discover the perfect item.</p>
                     </div>
                     <Link
-                        href="/shop"
+                        href="/categories"
                         className="px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-full font-bold hover:scale-105 transition-transform"
                     >
                         Browse All Store

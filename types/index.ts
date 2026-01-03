@@ -148,6 +148,10 @@ export type CustomerAddress = any
 export interface ImageEdges {
   edges: ImageNode[];
 }
+export interface metaData {
+  total: number;
+  totalPage: number;
+}
 export const HIDDEN_PRODUCT_TAG = "nextjs-frontend-hidden";
 export const DEFAULT_OPTION = "Default Title";
 export const SHOPIFY_GRAPHQL_API_ENDPOINT = "/api/2015-10/graphql.json";

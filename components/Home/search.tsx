@@ -86,7 +86,7 @@ export default function ShopifySearchInput() {
 
     const handleSearch = () => {
         if (query.trim()) {
-            window.location.href = `/shop?q=${encodeURIComponent(query)}`;
+            window.location.href = `/categories?q=${encodeURIComponent(query)}`;
         }
     };
 
