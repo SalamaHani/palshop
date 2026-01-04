@@ -3,19 +3,19 @@
 import { ProductPriceRange } from "@/types/shopify-graphql";
 import React from "react";
 
-const ProductPrice = ({ priceRange }: { priceRange: ProductPriceRange }) => {
+const ProductPrice = ({
+  priceRange,
+  compareAtPriceRange
+}: {
+  priceRange: ProductPriceRange;
+  compareAtPriceRange?: ProductPriceRange;
+}) => {
   const formatPrice = (amount: string, currencyCode: string) => {
     try {
-      // Handle legacy/invalid "US$" code if it still exists
-      const code = currencyCode === "US$" ? "USD" : currencyCode;
-
-      return new Intl.NumberFormat(undefined, {
-        style: "currency",
-        currency: code,
-        currencyDisplay: "narrowSymbol",
-      }).format(parseFloat(amount));
+      const val = parseFloat(amount).toFixed(2);
+      const displayCurrency = currencyCode === "USD" ? "US$" : currencyCode;
+      return `${val} ${displayCurrency}`;
     } catch (e) {
-      console.warn("Invalid currency code:", currencyCode);
       return `${amount} ${currencyCode}`;
     }
   };
@@ -25,14 +25,23 @@ const ProductPrice = ({ priceRange }: { priceRange: ProductPriceRange }) => {
     priceRange.minVariantPrice.currencyCode
   );
 
-  const hasRange = priceRange.maxVariantPrice?.amount && priceRange.maxVariantPrice.amount !== priceRange.minVariantPrice.amount;
+  const comparePrice = compareAtPriceRange?.minVariantPrice?.amount
+    ? formatPrice(
+      compareAtPriceRange.minVariantPrice.amount,
+      compareAtPriceRange.minVariantPrice.currencyCode
+    )
+    : null;
 
   return (
-    <div className="flex items-center gap-2">
-      <p suppressHydrationWarning className="text-sm font-bold text-gray-900">
+    <div className="flex items-center gap-2 flex-wrap">
+      <p suppressHydrationWarning className="text-[18px] font-black text-gray-900">
         {minPrice}
-        {hasRange && <span className="text-xs font-normal text-gray-500 ml-1">+</span>}
       </p>
+      {comparePrice && parseFloat(compareAtPriceRange?.minVariantPrice?.amount || "0") > parseFloat(priceRange.minVariantPrice.amount) && (
+        <p suppressHydrationWarning className="text-[15px] font-bold text-gray-400 line-through">
+          {comparePrice}
+        </p>
+      )}
     </div>
   );
 };

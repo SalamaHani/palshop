@@ -71,7 +71,7 @@ export default function Navbar({
                         <div className="flex items-center space-x-8">
                             {route.map((item, index) => {
 
-                                if (item.title === 'Home' || item.title === 'Collections' || item.title === 'Offers') {
+                                if (item.title === 'Home' || item.title === 'Categories' || item.title === 'Offers') {
                                     return (
                                         <Link
                                             key={index}
