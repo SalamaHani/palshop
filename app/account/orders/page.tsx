@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton, TableRowSkeleton } from '@/components/ui/skeleton';
 
 interface OrderItem {
     title: string;
@@ -106,13 +107,20 @@ export default function OrdersPage() {
     if (isLoading) {
         return (
             <div className="flex flex-col gap-8">
-                <div>
-                    <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">My Orders</h1>
-                    <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium">Track and manage your orders</p>
+                <div className="space-y-3">
+                    <Skeleton className="h-10 w-48" />
+                    <Skeleton className="h-4 w-64" />
                 </div>
-                <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden min-h-[400px] flex flex-col items-center justify-center p-8">
-                    <Loader2 className="w-12 h-12 text-[#215732] animate-spin" />
-                    <p className="text-gray-500 dark:text-gray-400 mt-4 font-medium">Loading your orders...</p>
+                <div className="bg-white dark:bg-[#0d0d0d] rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden shadow-sm">
+                    <div className="h-14 bg-gray-50/50 dark:bg-white/[0.02] border-b border-gray-50 dark:border-white/5 flex items-center px-8 gap-4">
+                        <Skeleton className="h-4 w-16" />
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-4 w-32 ml-auto" />
+                    </div>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <TableRowSkeleton key={i} />
+                    ))}
                 </div>
             </div>
         );

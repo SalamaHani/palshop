@@ -6,7 +6,7 @@ import { useStorefrontInfiniteQuery } from "@/hooks/useStorefront";
 import { GET_COLLECTION_BY_HANDLE_WITH_PAGINATION_QUERY } from "@/graphql/collections";
 import { GetCollectionByHandleQuery, Product } from "@/types/shopify-graphql";
 import ProductCard from "@/components/view/ProductCard";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, ProductCardSkeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -51,14 +51,20 @@ export default function CategoriesDetailPage() {
     if (isLoading) {
         return (
             <div className="max-w-7xl mx-auto px-6 py-20">
-                <Skeleton className="h-48 w-full rounded-[2.5rem] mb-12" />
+                <Skeleton className="h-[300px] md:h-[400px] w-full rounded-[3rem] mb-12" />
                 <div className="flex justify-between items-center mb-10">
-                    <Skeleton className="h-10 w-48 rounded-lg" />
-                    <Skeleton className="h-10 w-32 rounded-lg" />
+                    <div className="flex gap-4">
+                        <Skeleton className="h-12 w-12 rounded-2xl" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-4 w-32" />
+                            <Skeleton className="h-6 w-24" />
+                        </div>
+                    </div>
+                    <Skeleton className="h-12 w-32 rounded-2xl" />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {Array.from({ length: 8 }).map((_, index) => (
-                        <Skeleton key={index} className="h-[450px] w-full rounded-2xl" />
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-x-4 gap-y-10">
+                    {Array.from({ length: 14 }).map((_, index) => (
+                        <ProductCardSkeleton key={index} />
                     ))}
                 </div>
             </div>

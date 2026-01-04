@@ -38,17 +38,17 @@ export default function ProductCardHero({ product, className = '' }: ProductCard
     };
 
     return (
-        <div className={`w-44 bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 cursor-pointer flex flex-col gap-2 p-1 ${className}`}>
+        <div className={`w-44 bg-white dark:bg-[#0d0d0d] rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100/50 dark:border-white/5 hover:shadow-2xl hover:shadow-[#215732]/10 transition-all duration-700 hover:-translate-y-2 cursor-pointer flex flex-col gap-2 p-1.5 ${className}`}>
             {/* Image Container */}
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#F3F3F3] flex items-center justify-center">
+            <div className="relative aspect-square rounded-[1.5rem] overflow-hidden bg-[#F8F9FA] dark:bg-white/[0.02] flex items-center justify-center">
                 <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-contain mix-blend-multiply"
+                    className="w-[85%] h-[85%] object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-700 hover:scale-110"
                 />
                 {discount && (
-                    <div className="absolute top-2 left-2 bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
-                        {discount}% off
+                    <div className="absolute top-3 left-3 bg-black dark:bg-white text-white dark:text-black text-[9px] font-black px-2 py-0.5 rounded-lg shadow-xl backdrop-blur-md">
+                        {discount}% OFF
                     </div>
                 )}
 
@@ -56,37 +56,31 @@ export default function ProductCardHero({ product, className = '' }: ProductCard
                 <button
                     onClick={toggleSave}
                     className={cn(
-                        "absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm backdrop-blur-md active:scale-95 z-10",
+                        "absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-xl active:scale-95 z-10",
                         isSaved
                             ? "bg-[#215732] text-white"
-                            : "bg-white/80 text-gray-400 hover:text-red-500"
+                            : "bg-white/90 dark:bg-black/80 text-gray-400 hover:text-red-500"
                     )}
                 >
-                    <Heart className={cn("w-3.5 h-3.5", isSaved && "fill-current")} />
+                    <Heart className={cn("w-4 h-4 transition-all", isSaved && "fill-current scale-110")} />
                 </button>
             </div>
 
             {/* Product Info */}
-            <div className="px-2 pb-2 flex flex-col gap-0.5">
-                <h3 className="text-[10px] font-bold text-gray-900 truncate">
+            <div className="px-2.5 pb-2.5 flex flex-col gap-1">
+                <h3 className="text-[11px] font-black text-gray-900 dark:text-white truncate tracking-tight">
                     {product.name}
                 </h3>
 
-                {/* Rating */}
-                <div className="flex items-center gap-1">
-                    <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                            <Star
-                                key={i}
-                                className={`w-2 h-2 ${i < Math.floor(product.rating)
-                                    ? 'fill-yellow-400 text-yellow-400'
-                                    : 'fill-gray-200 text-gray-200'
-                                    }`}
-                            />
-                        ))}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                        <Star className="w-2.5 h-2.5 fill-[#FBBF24] text-[#FBBF24]" />
+                        <span className="text-[10px] text-gray-900 dark:text-white font-black">
+                            {product.rating}
+                        </span>
                     </div>
-                    <span className="text-[8px] text-gray-500 font-medium">
-                        ({product.reviews})
+                    <span className="text-[11px] font-black text-[#215732] dark:text-[#34d399]">
+                        ${product.price.toFixed(2)}
                     </span>
                 </div>
             </div>

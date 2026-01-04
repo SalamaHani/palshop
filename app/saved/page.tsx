@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '@/components/view/ProductCard';
 import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/global/EmptyState';
+import { Skeleton, ProductCardSkeleton } from '@/components/ui/skeleton';
 
 export default function SavedPage() {
     const { wishlist, isLoading, wishlistCount, refreshWishlist } = useWishlist();
@@ -30,9 +31,16 @@ export default function SavedPage() {
 
     if (isAuthLoading || (isLoading && wishlist.length === 0)) {
         return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center">
-                <Loader2 className="w-10 h-10 text-[#215732] animate-spin mb-4" />
-                <p className="text-gray-500 font-medium animate-pulse">Loading your treasures...</p>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+                <div className="space-y-4 mb-12">
+                    <Skeleton className="h-12 w-48" />
+                    <Skeleton className="h-4 w-64" />
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                        <ProductCardSkeleton key={i} />
+                    ))}
+                </div>
             </div>
         );
     }

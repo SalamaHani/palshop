@@ -77,16 +77,41 @@ const Product = () => {
 
   if (isLoading)
     return (
-      <div className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-2 gap-12">
-        <Skeleton className="aspect-square w-full rounded-3xl" />
-        <div className="space-y-6">
-          <Skeleton className="h-4 w-32" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-6 w-24" />
-          <div className="flex gap-2">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-10 w-10 rounded-full" />)}
+      <div className="max-w-7xl mx-auto px-4 py-8 md:py-10 lg:py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10 lg:gap-12">
+          {/* Left: Image Skeleton */}
+          <div className="md:col-span-12 lg:col-span-7">
+            <Skeleton className="aspect-square w-full rounded-[3rem]" />
+            <div className="grid grid-cols-4 gap-4 mt-6">
+              {[1, 2, 3, 4].map(i => <Skeleton key={i} className="aspect-square rounded-2xl w-full" />)}
+            </div>
           </div>
-          <Skeleton className="h-14 w-full rounded-full" />
+
+          {/* Right: Info Skeleton */}
+          <div className="md:col-span-12 lg:col-span-5 space-y-8">
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-8 w-48" />
+            </div>
+
+            <div className="space-y-4 pt-4 border-t border-gray-100">
+              <Skeleton className="h-4 w-24" />
+              <div className="flex gap-3">
+                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-12 w-12 rounded-full" />)}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <Skeleton className="h-14 w-full rounded-full" />
+              <Skeleton className="h-14 w-full rounded-full" />
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Skeleton className="h-14 flex-1 rounded-full" />
+              <Skeleton className="h-14 flex-1 rounded-full" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -270,16 +295,17 @@ const Product = () => {
                 variant="outline"
                 size="icon"
                 className={cn(
-                  "flex-1 h-14 rounded-full border-gray-100 gap-2 font-bold hover:bg-gray-50 transition-all text-gray-900 shadow-sm flex items-center justify-center",
-                  isSaved ? "bg-[#215732]/10 border-[#215732]/20" : "bg-white"
+                  "flex-1 h-14  rounded-full hover:bg-[#215732]/10 gap-2 font-bold hover:bg-gray-50 transition-all text-gray-900 shadow-sm flex items-center justify-center",
+                  isSaved ? " border-[#215732]/20" : ""
                 )}
                 onClick={handleToggleWishlist}
               >
                 <Heart className={cn("w-5 h-5 transition-colors", isSaved ? "fill-[#215732] text-[#215732]" : "text-gray-400 group-hover:text-red-500")} />
+                <span className="text-[15px] font-bold">Save Product</span>
               </Button>
               <Button
                 variant="outline"
-                className="flex-1 h-14 rounded-full border-gray-100 gap-2 font-bold hover:bg-gray-50 transition-all text-gray-900 shadow-sm flex items-center justify-center"
+                className="flex-1 h-14 rounded-full hover:bg-[#215732]/10 border-gray-100 gap-2 font-bold hover:bg-gray-50 transition-all text-gray-900 shadow-sm flex items-center justify-center"
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href);
                   toast.success('Link copied to clipboard!');

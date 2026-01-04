@@ -1,13 +1,48 @@
 'use client';
 
 import { useAuth } from "@/contexts/AuthContext";
+import { AccountStatSkeleton, Skeleton } from "@/components/ui/skeleton";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { ShoppingBag, MapPin, Heart, Shield, Clock } from "lucide-react";
 import Link from "next/link";
 
 export function AccountContent() {
-    const { customer } = useAuth();
+    const { customer, isLoading } = useAuth();
     const { wishlistCount } = useWishlist();
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col gap-8">
+                <div className="space-y-3">
+                    <Skeleton className="h-10 w-64" />
+                    <Skeleton className="h-4 w-96" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <AccountStatSkeleton />
+                    <AccountStatSkeleton />
+                    <AccountStatSkeleton />
+                </div>
+                <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden">
+                    <div className="px-8 py-6 border-b border-gray-100 dark:border-white/5">
+                        <Skeleton className="h-6 w-48" />
+                    </div>
+                    <div className="p-8 space-y-8">
+                        <div className="flex items-center gap-4">
+                            <Skeleton className="w-16 h-16 rounded-full" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-6 w-48" />
+                                <Skeleton className="h-4 w-32" />
+                            </div>
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <Skeleton className="h-20 rounded-2xl" />
+                            <Skeleton className="h-20 rounded-2xl" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-8">

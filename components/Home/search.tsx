@@ -5,6 +5,7 @@ import { Loader2, ArrowRight, Clock } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useDebounce } from 'use-debounce';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface ProductResult {
     id: string;
@@ -150,7 +151,29 @@ export default function ShopifySearchInput() {
 
                     {/* Content Area */}
                     <div className="flex flex-col gap-2">
-                        {query.trim().length > 0 ? (
+                        {isLoading ? (
+                            <div className="flex flex-col gap-4 py-2">
+                                <div className="space-y-3">
+                                    <Skeleton className="h-3 w-20" />
+                                    <div className="flex items-center gap-3 p-2">
+                                        <Skeleton className="w-8 h-8 rounded-full" />
+                                        <Skeleton className="h-4 w-32" />
+                                    </div>
+                                </div>
+                                <div className="space-y-3 mt-2">
+                                    <Skeleton className="h-3 w-20" />
+                                    {[1, 2, 3].map(i => (
+                                        <div key={i} className="flex items-center gap-3 p-2 rounded-[24px] border border-gray-100 dark:border-white/5">
+                                            <Skeleton className="w-12 h-12 rounded-[16px]" />
+                                            <div className="space-y-2">
+                                                <Skeleton className="h-4 w-48" />
+                                                <Skeleton className="h-3 w-24" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : query.trim().length > 0 ? (
                             <div className="flex flex-col gap-2">
                                 {/* Collection List */}
                                 {(activeFilter === 'all' || activeFilter === 'collections') && results.collections.length > 0 && (
