@@ -270,14 +270,13 @@ const Product = () => {
                 variant="outline"
                 size="icon"
                 className={cn(
-                  "w-11 h-11 rounded-full border-gray-100 shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center shrink-0",
+                  "flex-1 h-14 rounded-full border-gray-100 gap-2 font-bold hover:bg-gray-50 transition-all text-gray-900 shadow-sm flex items-center justify-center",
                   isSaved ? "bg-[#215732]/10 border-[#215732]/20" : "bg-white"
                 )}
                 onClick={handleToggleWishlist}
               >
                 <Heart className={cn("w-5 h-5 transition-colors", isSaved ? "fill-[#215732] text-[#215732]" : "text-gray-400 group-hover:text-red-500")} />
               </Button>
-
               <Button
                 variant="outline"
                 className="flex-1 h-14 rounded-full border-gray-100 gap-2 font-bold hover:bg-gray-50 transition-all text-gray-900 shadow-sm flex items-center justify-center"
