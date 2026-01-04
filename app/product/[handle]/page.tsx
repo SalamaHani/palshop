@@ -133,12 +133,12 @@ const Product = () => {
     <div className="max-w-7xl mx-auto px-4 py-8 md:py-10 lg:py-12">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-12">
         {/* Left Side: Images */}
-        <div className="md:col-span-12 lg:col-span-6 lg:sticky lg:top-28 lg:self-start">
+        <div className="md:col-span-12 lg:col-span-7 lg:sticky lg:top-28 lg:self-start">
           <ProductCarousel images={product.images.edges as ImageEdge[]} />
         </div>
 
         {/* Right Side: Product Info */}
-        <div className="md:col-span-12 lg:col-span-6 flex flex-col lg:sticky lg:top-28 lg:self-start gap-1">
+        <div className="md:col-span-12 lg:col-span-5 flex flex-col lg:sticky lg:top-28 lg:self-start gap-1">
           {/* Brand Info & Menu */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -194,22 +194,22 @@ const Product = () => {
 
           {/* Quantity Selector */}
           <div className="mb-8">
-            <label className="text-sm font-bold text-gray-900 block mb-3">
+            <label className="text-sm font-bold text-gray-900 block mb-3 uppercase tracking-wider">
               Quantity
             </label>
-            <div className="inline-flex items-center border border-gray-100 rounded-full h-12 px-2 bg-gray-50/50">
+            <div className="inline-flex items-center border border-gray-200 rounded-full h-11 px-1 bg-white shadow-sm">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white transition-all text-gray-400 hover:text-black"
+                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all text-gray-400 hover:text-black active:scale-90"
               >
-                <span className="text-xl font-light">−</span>
+                <span className="text-lg font-medium">−</span>
               </button>
-              <span className="w-10 text-center font-bold text-gray-900 text-sm">{quantity}</span>
+              <span className="w-12 text-center font-bold text-gray-900 text-[15px]">{quantity}</span>
               <button
                 onClick={() => setQuantity(quantity + 1)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white transition-all text-gray-400 hover:text-black"
+                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-50 transition-all text-gray-400 hover:text-black active:scale-90"
               >
-                <span className="text-xl font-light">+</span>
+                <span className="text-lg font-medium">+</span>
               </button>
             </div>
           </div>
@@ -220,7 +220,7 @@ const Product = () => {
               className={cn(
                 "w-full h-14 rounded-full text-white text-lg font-bold shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2",
                 isAdded
-                  ? "bg-green-700 hover:bg-green-700 shadow-green-600/20"
+                  ? "bg-[#215732] hover:bg-[#1a4527] shadow-[#215732]/20"
                   : "bg-[#215732] hover:bg-[#1a4527] shadow-[#215732]/30"
               )}
               disabled={!selectedVariant || isUpdating}
@@ -265,30 +265,29 @@ const Product = () => {
               )}
             </Button>
 
-
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-3 mt-4 items-center">
               <Button
                 variant="outline"
                 size="icon"
                 className={cn(
-                  "w-8 h-8 rounded-full border-gray-200 shadow-sm hover:bg-gray-50 transition-all group",
-                  isSaved && "border-[#215732] bg-[#215732]/5"
+                  "w-11 h-11 rounded-full border-gray-100 shadow-sm hover:bg-gray-50 transition-all flex items-center justify-center shrink-0",
+                  isSaved ? "bg-[#215732]/10 border-[#215732]/20" : "bg-white"
                 )}
                 onClick={handleToggleWishlist}
               >
-                <Heart className={cn("w-6 h-6 transition-colors", isSaved ? "fill-[#215732] text-[#215732]" : "text-gray-400 group-hover:text-red-500")} />
+                <Heart className={cn("w-5 h-5 transition-colors", isSaved ? "fill-[#215732] text-[#215732]" : "text-gray-400 group-hover:text-red-500")} />
               </Button>
 
               <Button
                 variant="outline"
-                className="flex-1 h-14 rounded-full border-gray-200 gap-2 font-bold hover:bg-gray-100 transition-all font-bold text-gray-900"
+                className="flex-1 h-14 rounded-full border-gray-100 gap-2 font-bold hover:bg-gray-50 transition-all text-gray-900 shadow-sm flex items-center justify-center"
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href);
                   toast.success('Link copied to clipboard!');
                 }}
               >
                 <Share2 className="w-5 h-5 text-gray-500" />
-                Share Product
+                <span className="text-[15px] font-bold">Share Product</span>
               </Button>
             </div>
           </div>
