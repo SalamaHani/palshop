@@ -80,7 +80,7 @@ export default function CategoriesPage() {
     const allCollections = allCollectionsData?.collections?.edges || [];
 
     // Filter for specific categories requested
-    const targetCategories = ["Women", "Men", "Kids & baby", "Home & Living", "Accessories"];
+    const targetCategories = ["Women's", "Men's", "Kids & baby", "Home & Living", "Accessories"];
     const featuredCollections = allCollections
         .filter(edge => targetCategories.some(cat => edge.node.title.toLowerCase() === cat.toLowerCase()))
         .sort((a, b) => {
@@ -180,20 +180,20 @@ export default function CategoriesPage() {
                 </div>
 
                 {isProductsLoading && allProducts.length === 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-10">
-                        {Array.from({ length: 12 }).map((_, index) => (
+                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-12">
+                        {Array.from({ length: 15 }).map((_, index) => (
                             <ProductCardSkeleton key={index} />
                         ))}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-10">
+                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-x-6 gap-y-12">
                         <AnimatePresence>
                             {allProducts.map((edge: any, idx) => (
                                 <motion.div
                                     key={edge.node.id}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: (idx % 24) * 0.02 }}
+                                    transition={{ delay: (idx % 20) * 0.02 }}
                                 >
                                     <ProductCard product={edge.node as Product} />
                                 </motion.div>
