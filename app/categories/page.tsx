@@ -6,7 +6,7 @@ import { GET_COLLECTIONS_QUERY } from '@/graphql/collections';
 import { GetCollectionsQuery } from '@/types/shopify-graphql';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import MenuCategories from '@/components/view/MenuCategories';
 
@@ -40,12 +40,20 @@ const itemVariants = {
 } as const;
 
 export default function CategoriesPage() {
+    const [activeMenu, setActiveMenu] = React.useState('women');
     const { data: allCollectionsData, isLoading: isAllLoading } = useStorefrontQuery<GetCollectionsQuery>(
         ['collections-all'],
         {
             query: GET_COLLECTIONS_QUERY,
         }
     );
+
+    const categories = [
+        { id: 'women', label: 'Women' },
+        { id: 'men', label: 'Men' },
+        { id: 'baby-toddler', label: 'Baby' },
+        { id: 'home', label: 'Home' },
+    ];
 
     const allCollections = allCollectionsData?.collections?.edges || [];
 
@@ -76,8 +84,9 @@ export default function CategoriesPage() {
         }
     });
 
+    const curatedIds = categories.map(c => c.id);
     const displayGroups = Object.entries(groupedCollections)
-        .filter(([name]) => name.toLowerCase() !== 'women') // Exclude "Women" as it is featured above
+        .filter(([name]) => !curatedIds.includes(name.toLowerCase())) // Exclude featured categories
         .map(([name, group]) => ({
             name,
             ...group
@@ -112,13 +121,49 @@ export default function CategoriesPage() {
                     </div>
                 ) : (
                     <div className="space-y-24">
-                        {/* Curated Section - Example for "Women" as requested */}
+                        {/* Dynamic Curated Section */}
                         <section>
-                            <div className="flex items-center gap-4 mb-10">
-                                <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Women's Collection</h2>
-                                <div className="h-[2px] flex-1 bg-gray-100 dark:bg-white/5" />
+                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-8 bg-[#215732] rounded-full" />
+                                        <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+                                            Curated {categories.find(c => c.id === activeMenu)?.label}
+                                        </h2>
+                                    </div>
+                                    <p className="text-gray-500 font-medium max-w-md">
+                                        Hand-picked collections featuring the finest Palestinian craftsmanship for {activeMenu}.
+                                    </p>
+                                </div>
+
+                                {/* High-End Switcher */}
+                                <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 dark:bg-white/5 rounded-[2rem] border border-gray-100 dark:border-white/10 shadow-sm self-start">
+                                    {categories.map((cat) => (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => setActiveMenu(cat.id)}
+                                            className={`px-6 py-2.5 rounded-full text-sm font-black transition-all duration-500 uppercase tracking-wider ${activeMenu === cat.id
+                                                ? 'bg-[#215732] text-white shadow-xl shadow-[#215732]/30 scale-105'
+                                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-white/5'
+                                                }`}
+                                        >
+                                            {cat.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
-                            <MenuCategories handle="women" />
+
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={activeMenu}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                >
+                                    <MenuCategories handle={activeMenu} />
+                                </motion.div>
+                            </AnimatePresence>
                         </section>
 
                         <section>

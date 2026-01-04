@@ -12,6 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight, LayoutGrid, Filter, ArrowLeft, Loader2 } from "lucide-react";
 import { useInView } from "react-intersection-observer";
+import MenuCategories from "@/components/view/MenuCategories";
 
 export default function CategoriesDetailPage() {
     const params = useParams();
@@ -126,7 +127,6 @@ export default function CategoriesDetailPage() {
             </div>
 
             <div className="max-w-[1400px] mx-auto px-6 mt-12">
-                {/* Stats & Actions */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12 border-b border-gray-100 dark:border-white/10 pb-8">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-gray-100 dark:bg-white/5 rounded-2xl">
@@ -143,6 +143,17 @@ export default function CategoriesDetailPage() {
                         Filter & Sort
                     </button>
                 </div>
+
+                {/* Curated Sub-collections if handle matches */}
+                {(targetHandle === 'women' || targetHandle === 'men' || targetHandle === 'home') && (
+                    <div className="mb-20">
+                        <div className="flex items-center gap-4 mb-8">
+                            <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Explore {targetHandle} categories</h2>
+                            <div className="h-px flex-1 bg-gray-100 dark:bg-white/5" />
+                        </div>
+                        <MenuCategories handle={targetHandle} />
+                    </div>
+                )}
 
                 {/* Product Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-x-4 gap-y-10">
