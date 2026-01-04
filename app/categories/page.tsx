@@ -76,10 +76,12 @@ export default function CategoriesPage() {
         }
     });
 
-    const displayGroups = Object.entries(groupedCollections).map(([name, group]) => ({
-        name,
-        ...group
-    }));
+    const displayGroups = Object.entries(groupedCollections)
+        .filter(([name]) => name.toLowerCase() !== 'women') // Exclude "Women" as it is featured above
+        .map(([name, group]) => ({
+            name,
+            ...group
+        }));
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#0a0a0a] pb-32">
