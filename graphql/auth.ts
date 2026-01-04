@@ -192,17 +192,17 @@ export const CUSTOMER_QUERY = `
         province
         zip
       }
-      orders(first: 10) {
+      orders(first: 100) {
         edges {
           node {
             id
-            orderNumber
-            totalPrice {
-              amount
-              currencyCode
-            }
-            processedAt
-            fulfillmentStatus
+          }
+        }
+      }
+      addresses(first: 100) {
+        edges {
+          node {
+            id
           }
         }
       }
@@ -269,6 +269,7 @@ mutation customerUpdate(
     customer {
       id
       firstName
+      lastName
       phone
     }
     customerUserErrors {

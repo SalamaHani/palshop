@@ -157,7 +157,7 @@ export default function CategoriesDetailPage() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-6 gap-x-6 gap-y-10"
+                            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 xl:grid-cols-7 gap-x-6 gap-y-10"
                         >
                             {products.map((edge, idx) => (
                                 <motion.div

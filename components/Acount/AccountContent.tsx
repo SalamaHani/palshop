@@ -1,18 +1,22 @@
 'use client';
 
 import { useAuth } from "@/contexts/AuthContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { ShoppingBag, MapPin, Heart, Shield, Clock } from "lucide-react";
 import Link from "next/link";
 
 export function AccountContent() {
     const { customer } = useAuth();
+    const { wishlistCount } = useWishlist();
 
     return (
         <div className="flex flex-col gap-8">
             {/* Welcome Section */}
             <div>
                 <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-                    Hello, <span className="text-[#215732]">{customer?.email?.split('@')[0]}</span>
+                    Hello, <span className="text-[#215732]">
+                        {customer?.firstName || customer?.email?.split('@')[0]}
+                    </span>
                 </h1>
                 <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium">
                     Welcome to your personal dashboard. Manage your orders and preferences here.
@@ -21,35 +25,35 @@ export function AccountContent() {
 
             {/* Stats/Quick Glance */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3">
-                    <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center">
+                <Link href="/account/orders" className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3 hover:border-[#215732]/20 transition-all group">
+                    <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                         <ShoppingBag className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{customer?.orderCount || 0}</p>
                         <p className="text-sm font-semibold text-[#677279] dark:text-gray-400">Total Orders</p>
                     </div>
-                </div>
+                </Link>
 
-                <div className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3">
-                    <div className="w-12 h-12 bg-rose-50 dark:bg-rose-500/10 rounded-xl flex items-center justify-center">
+                <Link href="/account/saved" className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3 hover:border-rose-200 dark:hover:border-rose-500/20 transition-all group">
+                    <div className="w-12 h-12 bg-rose-50 dark:bg-rose-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Heart className="w-6 h-6 text-rose-600" />
                     </div>
                     <div>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">0</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{wishlistCount || 0}</p>
                         <p className="text-sm font-semibold text-[#677279] dark:text-gray-400">Wishlist Items</p>
                     </div>
-                </div>
+                </Link>
 
-                <div className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3">
-                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 rounded-xl flex items-center justify-center">
+                <Link href="/account/addresses" className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3 hover:border-blue-200 dark:hover:border-blue-500/20 transition-all group">
+                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                         <MapPin className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">1</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{customer?.addressCount || 0}</p>
                         <p className="text-sm font-semibold text-[#677279] dark:text-gray-400">Saved Addresses</p>
                     </div>
-                </div>
+                </Link>
             </div>
 
             {/* Account Security Card */}
@@ -90,28 +94,6 @@ export function AccountContent() {
                 </div>
             </div>
 
-            {/* Recent Orders Section */}
-            <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden">
-                <div className="px-8 py-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-white">Recent Orders</h2>
-                    <Link href="/account/orders" className="text-sm font-bold text-[#677279] dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors">View all</Link>
-                </div>
-                <div className="p-16 text-center">
-                    <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-3xl flex items-center justify-center mx-auto mb-6 transform rotate-3">
-                        <ShoppingBag className="w-10 h-10 text-gray-300 dark:text-white/10" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No orders yet</h3>
-                    <p className="text-[#677279] dark:text-gray-400 mb-8 max-w-xs mx-auto font-medium">
-                        Your shopping history will appear here once you make your first purchase.
-                    </p>
-                    <Link
-                        href="/categories"
-                        className="inline-block px-10 py-4 bg-[#215732] text-white font-bold rounded-full hover:bg-[#1a4528] transition-all shadow-lg shadow-[#215732]/20"
-                    >
-                        Start Exploring
-                    </Link>
-                </div>
-            </div>
         </div>
     );
 }

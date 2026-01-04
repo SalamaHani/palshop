@@ -4,6 +4,7 @@ import React from 'react';
 import { HelpCircle, Mail, MessageSquare, Phone, ExternalLink, Package, Heart, Globe, CreditCard, ShieldCheck, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
 import { Accordion, AccordionItem } from "@/components/ui/accordion";
+import Link from 'next/link';
 
 export default function SupportPage() {
     const featuredTopics = [
@@ -57,10 +58,14 @@ export default function SupportPage() {
     return (
         <div className="flex flex-col gap-12 pb-20">
             {/* Header */}
-            <div>
-                <div className="w-2 h-8 bg-[#215732] rounded-full" />
-                <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">Support Center</h1>
-                <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium italic">Your gateway to the heart of Palestinian craftsmanship</p>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-8 bg-[#215732] rounded-full" />
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">Support Center</h1>
+                    </div>
+                    <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium italic">Your gateway to the heart of Palestinian craftsmanship</p>
+                </div>
             </div>
 
             {/* Featured Box Grid */}
@@ -98,10 +103,10 @@ export default function SupportPage() {
                     <p className="text-gray-500 font-medium">Our Palestinian-based support team is here for you.</p>
                 </div>
                 <div className="flex items-center gap-4">
-                    <a href="mailto:support@palshop.com" className="px-6 py-3 bg-[#215732] text-white rounded-full font-bold hover:bg-[#1a4527] transition-all flex items-center gap-2">
+                    <Link href="/contact" className="px-6 py-3 bg-[#215732] text-white rounded-full font-bold hover:bg-[#1a4527] transition-all flex items-center gap-2">
                         <Mail className="w-4 h-4" />
                         Email Support
-                    </a>
+                    </Link>
                     <button className="px-6 py-3 bg-white dark:bg-transparent border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white rounded-full font-bold hover:bg-gray-50 transition-all flex items-center gap-2">
                         <MessageSquare className="w-4 h-4" />
                         Live Chat

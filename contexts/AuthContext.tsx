@@ -8,6 +8,8 @@ interface Customer {
     firstName?: string;
     lastName?: string;
     phone?: string;
+    orderCount?: number;
+    addressCount?: number;
 }
 
 interface AuthContextType {
@@ -18,7 +20,7 @@ interface AuthContextType {
     refreshCustomer: () => Promise<void>;
     isAuthModalOpen: boolean;
     setIsAuthModalOpen: (open: boolean) => void;
-    updateProfile: (firstName: string, phone: string) => Promise<void>;
+    updateProfile: (firstName: string, lastName: string, phone: string) => Promise<void>;
 }
 interface User {
     email: string;
@@ -47,6 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     firstName: data.firstName,
                     lastName: data.lastName,
                     phone: data.phone,
+                    orderCount: data.orderCount,
+                    addressCount: data.addressCount,
                 });
             } else {
                 setCustomer(null);
@@ -73,12 +77,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    async function updateProfile(firstName: string, phone: string) {
+    async function updateProfile(firstName: string, lastName: string, phone: string) {
         try {
             const response = await fetch('/api/customer/update', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ firstName, phone }),
+                body: JSON.stringify({ firstName, lastName, phone }),
             });
 
             if (response.ok) {

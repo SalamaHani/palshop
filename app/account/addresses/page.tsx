@@ -18,9 +18,14 @@ export default async function AddressesPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Shopping Addresses</h1>
-        <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium">Manage your delivery addresses</p>
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-8 bg-[#215732] rounded-full" />
+            <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">Shopping Addresses</h1>
+          </div>
+          <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium">Manage your delivery addresses</p>
+        </div>
       </div>
 
       <div className="max-w-6xl mx-auto">

@@ -237,14 +237,14 @@ export default function OrdersPage() {
                                     <TableCell className="text-center">
                                         {getStatusBadge(order.fulfillmentStatus)}
                                     </TableCell>
-                                    <TableCell className="text-right pr-8">
+                                    <TableCell className="text-right pr-6">
                                         <div className="flex flex-col items-end">
                                             <p className="font-black text-gray-900 dark:text-white">
                                                 {formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode)}
                                             </p>
                                             <Link
                                                 href={`/account/orders/${order.id.split('/').pop()}`}
-                                                className="text-[12px] font-bold text-[#215732] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+                                                className="text-[10px] font-bold text-[#215732] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
                                                 onClick={(e) => e.stopPropagation()}
                                             >
                                                 Details <ChevronRight className="w-3 h-3" />

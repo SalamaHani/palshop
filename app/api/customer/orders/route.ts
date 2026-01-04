@@ -8,15 +8,24 @@ export async function GET() {
         // Get current session
         const session = await getSession();
 
-        if (!session?.session_id) {
+        if (!session?.email) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
         }
 
-        // Get Shopify customer access token from MongoDB
-        const sessionDB = await getSessionDB(session.session_id);
+        // Get Shopify customer access token (prefer session DB, fallback to generating new one)
+        let token = null;
+        const sessionDB = session.session_id ? await getSessionDB(session.session_id) : null;
 
-        if (!sessionDB?.shopify_customer_token) {
-            return NextResponse.json({ error: 'No Shopify token found' }, { status: 401 });
+        if (sessionDB?.shopify_customer_token) {
+            token = sessionDB.shopify_customer_token;
+        } else {
+            const { getCustomerAccessToken } = await import('@/lib/shopify');
+            const authResult = await getCustomerAccessToken(session.email);
+            token = authResult.accessToken;
+        }
+
+        if (!token) {
+            return NextResponse.json({ error: 'No authorization token found' }, { status: 401 });
         }
 
         // GraphQL query to fetch customer orders
@@ -66,7 +75,7 @@ export async function GET() {
         const data = await shopifyFetch<any>({
             query,
             variables: {
-                customerAccessToken: sessionDB.shopify_customer_token,
+                customerAccessToken: token,
             },
         });
 

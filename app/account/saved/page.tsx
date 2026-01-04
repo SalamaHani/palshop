@@ -6,10 +6,14 @@ import Link from "next/link";
 export default function AccountSavedPage() {
     return (
         <div className="flex flex-col gap-8">
-            <div>
-                <div className="w-2 h-8 bg-[#215732] rounded-full" />
-                <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">Saved Items</h1>
-                <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium">Manage your personal wishlist and favorites</p>
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+                <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                        <div className="w-2 h-8 bg-[#215732] rounded-full" />
+                        <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">My Orders</h1>
+                    </div>
+                    <p className="text-[#677279] dark:text-gray-400 mt-2 font-medium">Manage your personal wishlist and favorites</p>
+                </div>
             </div>
 
             <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl border border-gray-100 dark:border-white/5 overflow-hidden min-h-[400px] flex flex-col items-center justify-center p-8 text-center">
@@ -21,7 +25,7 @@ export default function AccountSavedPage() {
                     Start building your collection of authentic Palestinian treasures.
                 </p>
                 <Link
-                    href="/categories"
+                    href="/shop"
                     className="inline-block px-10 py-4 bg-[#215732] text-white font-bold rounded-full hover:bg-[#1a4528] transition-all shadow-lg shadow-[#215732]/20"
                 >
                     Explore Products

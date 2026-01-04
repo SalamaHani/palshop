@@ -154,7 +154,7 @@ export default function OrderDetailsPage({ params: paramsPromise }: { params: Pr
         return (
             <div className="flex flex-col items-center justify-center min-h-[400px]">
                 <Loader2 className="w-12 h-12 text-[#215732] animate-spin mb-4" />
-                <p className="text-gray-500 font-medium italic">Retreiving your order details...</p>
+                <p className="text-gray-500 font-medium italic">Retrieving your order details...</p>
             </div>
         );
     }
@@ -374,7 +374,7 @@ function OrderSummary({ order, formatPrice }: { order: Order, formatPrice: Funct
                 <Separator className="my-4 bg-gray-100 dark:bg-white/5" />
 
                 <div className="flex justify-between items-center">
-                    <span className="text-[17px] font-black text-gray-900 dark:text-white tracking-tight">Total Total</span>
+                    <span className="text-[17px] font-black text-gray-900 dark:text-white tracking-tight">Summary Total</span>
                     <span className="text-2xl font-black text-[#215732] tracking-tighter">
                         {formatPrice(order.totalPrice.amount, order.totalPrice.currencyCode)}
                     </span>

@@ -102,7 +102,7 @@ export default function CategoriesPage() {
             {/* Grid */}
             <div className="max-w-7xl mx-auto px-6">
                 {isLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-5">
                         {[...Array(4)].map((_, i) => (
                             <Skeleton key={i} className="h-64 rounded-3xl w-full" />
                         ))}
@@ -112,7 +112,7 @@ export default function CategoriesPage() {
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
-                        className="grid grid-cols-1 md:grid-cols-2 gap-8"
+                        className="grid grid-cols-3 md:grid-cols-4 gap-5"
                     >
                         {displayGroups.map((group, index) => {
                             const styleIndex = index % categoriesStyles.length;
