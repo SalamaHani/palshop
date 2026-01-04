@@ -35,7 +35,7 @@ export function AccountContent() {
                     </div>
                 </Link>
 
-                <Link href="/account/saved" className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3 hover:border-rose-200 dark:hover:border-rose-500/20 transition-all group">
+                <Link href="/saved" className="bg-white dark:bg-[#0d0d0d] p-6 rounded-2xl border border-gray-100 dark:border-white/5 flex flex-col gap-3 hover:border-rose-200 dark:hover:border-rose-500/20 transition-all group">
                     <div className="w-12 h-12 bg-rose-50 dark:bg-rose-500/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                         <Heart className="w-6 h-6 text-rose-600" />
                     </div>

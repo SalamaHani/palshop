@@ -15,7 +15,7 @@ const useRouteNav = () => {
       },
       {
         id: "categories",
-        title: "Collections",
+        title: "Categories",
         href: "/categories",
         icon: Grid,
         isActive: pathname == "/categories" || pathname.startsWith("/categories/") || pathname.startsWith("/product/"),
