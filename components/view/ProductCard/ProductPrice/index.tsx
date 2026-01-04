@@ -34,11 +34,11 @@ const ProductPrice = ({
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      <p suppressHydrationWarning className="text-[18px] font-black text-gray-900">
+      <p suppressHydrationWarning className="text-[16px] font-bold text-gray-900">
         {minPrice}
       </p>
       {comparePrice && parseFloat(compareAtPriceRange?.minVariantPrice?.amount || "0") > parseFloat(priceRange.minVariantPrice.amount) && (
-        <p suppressHydrationWarning className="text-[15px] font-bold text-gray-400 line-through">
+        <p suppressHydrationWarning className="text-[13px] font-bold text-gray-400 line-through">
           {comparePrice}
         </p>
       )}

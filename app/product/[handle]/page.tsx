@@ -133,12 +133,12 @@ const Product = () => {
     <div className="max-w-7xl mx-auto px-4 py-8 md:py-10 lg:py-12">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 lg:gap-12">
         {/* Left Side: Images */}
-        <div className="md:col-span-12 lg:col-span-7 lg:sticky lg:top-28 lg:self-start">
+        <div className="md:col-span-12 lg:col-span-6 lg:sticky lg:top-28 lg:self-start">
           <ProductCarousel images={product.images.edges as ImageEdge[]} />
         </div>
 
         {/* Right Side: Product Info */}
-        <div className="md:col-span-12 lg:col-span-5 flex flex-col lg:sticky lg:top-28 lg:self-start gap-1">
+        <div className="md:col-span-12 lg:col-span-6 flex flex-col lg:sticky lg:top-28 lg:self-start gap-1">
           {/* Brand Info & Menu */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
@@ -266,28 +266,29 @@ const Product = () => {
             </Button>
 
 
-            <div className="flex gap-4 mt-2">
+            <div className="flex gap-2 mt-2">
               <Button
                 variant="outline"
+                size="icon"
                 className={cn(
-                  "flex-1 h-12 rounded-full border-gray-200 gap-2 font-bold hover:bg-gray-100 transition-all group",
-                  isSaved && "border-[#215732] "
+                  "w-8 h-8 rounded-full border-gray-200 shadow-sm hover:bg-gray-50 transition-all group",
+                  isSaved && "border-[#215732] bg-[#215732]/5"
                 )}
                 onClick={handleToggleWishlist}
               >
-                <Heart className={cn("w-5 h-5 transition-colors", isSaved ? "fill-[#215732] text-[#215732]" : "group-hover:fill-red-500 group-hover:text-red-500")} />
-                Save
+                <Heart className={cn("w-6 h-6 transition-colors", isSaved ? "fill-[#215732] text-[#215732]" : "text-gray-400 group-hover:text-red-500")} />
               </Button>
+
               <Button
                 variant="outline"
-                className="flex-1 h-12 rounded-full border-gray-200 gap-2 font-bold hover:bg-gray-100 transition-all"
+                className="flex-1 h-14 rounded-full border-gray-200 gap-2 font-bold hover:bg-gray-100 transition-all font-bold text-gray-900"
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href);
                   toast.success('Link copied to clipboard!');
                 }}
               >
-                <Share2 className="w-5 h-5" />
-                Share
+                <Share2 className="w-5 h-5 text-gray-500" />
+                Share Product
               </Button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { QueryKey, useMutation, useQuery } from "@tanstack/react-query";
+import { QueryKey, useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { RequestDocument } from "graphql-request";
 import { fetchShopify } from "@/shopify/client";
 
@@ -26,6 +26,22 @@ export function useStorefrontQuery<TData = unknown>(
     },
     enabled,
     ...options,
+  });
+}
+
+export function useStorefrontInfiniteQuery<TData = any>(
+  queryKey: QueryKey,
+  { query, variables, endpointType = "storefront" }: QueryVariables,
+  getNextPageParam: (lastPage: TData) => string | null | undefined
+) {
+  return useInfiniteQuery({
+    queryKey,
+    queryFn: async ({ pageParam }) => {
+      const vars = { ...variables, after: pageParam };
+      return fetchShopify<TData>(query, vars, endpointType);
+    },
+    initialPageParam: null as string | null,
+    getNextPageParam,
   });
 }
 

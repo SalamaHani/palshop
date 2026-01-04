@@ -72,7 +72,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           onClick={toggleSave}
           disabled={isToggling}
           className={cn(
-            "absolute bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-md active:scale-95 z-10",
+            "absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl backdrop-blur-md active:scale-95 z-10",
             isSaved
               ? "bg-[#215732] text-white"
               : "bg-black/30 text-white hover:bg-black/50",
@@ -80,19 +80,34 @@ const ProductCard = ({ product }: { product: Product }) => {
           )}
         >
           {isToggling ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : (
-            <Heart className={cn("w-6 h-6", isSaved && "fill-current")} />
+            <Heart className={cn("w-5 h-5", isSaved && "fill-current")} />
           )}
         </button>
       </div>
 
       {/* Info Section */}
-      <div className="px-1 flex flex-col gap-1.5">
-        {/* Product Title (Bold, Professional) */}
-        <h3 className="text-[17px] font-bold text-gray-900 tracking-tight truncate leading-tight">
+      <div className="px-1 flex flex-col gap-0.5 mt-1.5">
+        {/* Product Title (sm text, bold) */}
+        <h3 className="text-[13px] font-bold text-gray-900 tracking-tight truncate leading-tight">
           {product.title}
         </h3>
+
+        {/* Rating Section (Stars + Count) */}
+        <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className="w-2.5 h-2.5 fill-[#FBBF24] text-[#FBBF24]"
+              />
+            ))}
+          </div>
+          <span className="text-[11px] font-bold text-gray-400">
+            (1.3 ألف)
+          </span>
+        </div>
 
         <ProductPrice
           priceRange={product.priceRange}
