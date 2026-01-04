@@ -112,39 +112,26 @@ export default function CategoriesPage() {
             </header>
 
             {/* Grid */}
-            <div className="max-w-7xl mx-auto px-6">
+            <div className="max-w-[1400px] mx-auto px-6">
                 {isAllLoading ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[...Array(6)].map((_, i) => (
-                            <Skeleton key={i} className="h-64 rounded-[2.5rem] w-full" />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        {[...Array(8)].map((_, i) => (
+                            <Skeleton key={i} className="h-[200px] rounded-[2.5rem] w-full" />
                         ))}
                     </div>
                 ) : (
-                    <div className="space-y-24">
-                        {/* Dynamic Curated Section */}
+                    <div className="space-y-20">
+                        {/* Interactive Curated Section */}
                         <section>
-                            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-2 h-8 bg-[#215732] rounded-full" />
-                                        <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">
-                                            Curated {categories.find(c => c.id === activeMenu)?.label}
-                                        </h2>
-                                    </div>
-                                    <p className="text-gray-500 font-medium max-w-md">
-                                        Hand-picked collections featuring the finest Palestinian craftsmanship for {activeMenu}.
-                                    </p>
-                                </div>
-
-                                {/* High-End Switcher */}
-                                <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 dark:bg-white/5 rounded-[2rem] border border-gray-100 dark:border-white/10 shadow-sm self-start">
+                            <div className="flex items-center justify-between mb-12">
+                                <div className="flex items-center gap-1.5 p-1 bg-gray-50 dark:bg-white/5 rounded-full border border-gray-100 dark:border-white/10">
                                     {categories.map((cat) => (
                                         <button
                                             key={cat.id}
                                             onClick={() => setActiveMenu(cat.id)}
-                                            className={`px-6 py-2.5 rounded-full text-sm font-black transition-all duration-500 uppercase tracking-wider ${activeMenu === cat.id
-                                                ? 'bg-[#215732] text-white shadow-xl shadow-[#215732]/30 scale-105'
-                                                : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-white/50 dark:hover:bg-white/5'
+                                            className={`px-8 py-2.5 rounded-full text-sm font-black transition-all duration-500 uppercase tracking-widest ${activeMenu === cat.id
+                                                    ? 'bg-[#215732] text-white shadow-lg'
+                                                    : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
                                                 }`}
                                         >
                                             {cat.label}
@@ -156,26 +143,28 @@ export default function CategoriesPage() {
                             <AnimatePresence mode="wait">
                                 <motion.div
                                     key={activeMenu}
-                                    initial={{ opacity: 0, x: 20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    exit={{ opacity: 0, x: -20 }}
-                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    transition={{ duration: 0.3 }}
                                 >
                                     <MenuCategories handle={activeMenu} />
                                 </motion.div>
                             </AnimatePresence>
                         </section>
 
+                        {/* All Collections - The 4 Column Grid from Image */}
                         <section>
                             <div className="flex items-center gap-4 mb-10">
-                                <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">All Collections</h2>
-                                <div className="h-[2px] flex-1 bg-gray-100 dark:bg-white/5" />
+                                <h1 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">All Categories</h1>
+                                <div className="h-px flex-1 bg-gray-100 dark:bg-white/5" />
                             </div>
+
                             <motion.div
                                 variants={containerVariants}
                                 initial="hidden"
                                 animate="visible"
-                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
                             >
                                 {displayGroups.map((group, index) => {
                                     const styleIndex = index % categoriesStyles.length;
@@ -183,57 +172,36 @@ export default function CategoriesPage() {
                                     const mainCollection = group.parent || group.children[0];
 
                                     return (
-                                        <motion.div key={group.name} variants={itemVariants} className="group">
-                                            <div className={`relative overflow-hidden rounded-[2.5rem] ${currentStyle.gradient} min-h-[16rem] p-10 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1`}>
-                                                {/* Background Pattern */}
-                                                <div className="absolute inset-0 opacity-10 pointer-events-none">
-                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-white blur-[80px] rounded-full -mr-20 -mt-20" />
+                                        <motion.div key={group.name} variants={itemVariants}>
+                                            <Link
+                                                href={`/categories/${mainCollection.handle}`}
+                                                className="group block relative overflow-hidden rounded-[2.5rem] bg-gray-50 dark:bg-white/5 h-[220px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
+                                            >
+                                                {/* Background Color Layer */}
+                                                <div className={`absolute inset-0 ${currentStyle.gradient} transition-transform duration-700 group-hover:scale-105`} />
+
+                                                {/* Text Layer */}
+                                                <div className="relative z-20 h-full flex flex-col justify-center px-10">
+                                                    <h2 className="text-3xl font-black text-white tracking-tight leading-tight w-1/2 drop-shadow-sm">
+                                                        {group.name}
+                                                    </h2>
                                                 </div>
 
-                                                <div className="relative z-10 flex flex-col h-full justify-between">
-                                                    <div>
-                                                        <h2 className="text-4xl font-black text-white tracking-tight mb-4 drop-shadow-sm">
-                                                            {group.name}
-                                                        </h2>
-
-                                                        {/* Sub-categories List */}
-                                                        <div className="flex flex-wrap gap-2 mb-6">
-                                                            {group.children.map((child) => (
-                                                                <Link
-                                                                    key={child.id}
-                                                                    href={`/categories/${child.handle}`}
-                                                                    className="px-4 py-1.5 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white text-xs font-bold transition-colors border border-white/10"
-                                                                >
-                                                                    {child.displayTitle}
-                                                                </Link>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-
-                                                    <Link
-                                                        href={`/categories/${mainCollection.handle}`}
-                                                        className="group/btn w-fit flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-2xl font-black text-sm hover:bg-gray-100 transition-all shadow-lg active:scale-95"
-                                                    >
-                                                        Explore
-                                                        <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
-                                                    </Link>
-                                                </div>
-
-                                                {/* Image Cutout */}
-                                                <div className="absolute right-0 bottom-0 top-0 w-[45%] flex items-center justify-end pointer-events-none">
+                                                {/* Image Layer - Exact positioning from reference */}
+                                                <div className="absolute right-0 bottom-0 top-0 w-[55%] pointer-events-none z-10">
                                                     {mainCollection.image && (
-                                                        <div className="relative w-full h-[110%] mr-[-5%] mb-[-5%] transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-2">
+                                                        <div className="relative w-full h-[110%] mt-[-5%] mr-[-5%] transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-2 origin-bottom-right">
                                                             <Image
                                                                 src={mainCollection.image.url}
                                                                 alt={mainCollection.title}
                                                                 fill
-                                                                className="object-contain object-right-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                                                                sizes="(max-w-768px) 100vw, 40vw"
+                                                                className="object-contain object-right-bottom drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
+                                                                sizes="(max-w-768px) 50vw, 25vw"
                                                             />
                                                         </div>
                                                     )}
                                                 </div>
-                                            </div>
+                                            </Link>
                                         </motion.div>
                                     );
                                 })}

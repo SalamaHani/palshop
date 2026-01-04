@@ -33,9 +33,9 @@ export default function MenuCategories({ handle }: MenuCategoriesProps) {
 
     if (isLoading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => (
-                    <Skeleton key={i} className="h-64 rounded-[2.5rem] w-full" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                {[...Array(4)].map((_, i) => (
+                    <Skeleton key={i} className="h-[180px] rounded-[2.5rem] w-full" />
                 ))}
             </div>
         );
@@ -44,81 +44,53 @@ export default function MenuCategories({ handle }: MenuCategoriesProps) {
     const menuItems = data?.menu?.items || [];
 
     return (
-        <div className="space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {menuItems.map((item, index) => {
-                    const styleIndex = index % categoriesStyles.length;
-                    const currentStyle = categoriesStyles[styleIndex];
-                    const collection = item.resource;
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {menuItems.map((item, index) => {
+                const styleIndex = index % categoriesStyles.length;
+                const currentStyle = categoriesStyles[styleIndex];
+                const collection = item.resource;
 
-                    if (!collection || !('handle' in collection)) return null;
+                if (!collection || !('handle' in collection)) return null;
 
-                    return (
-                        <motion.div
-                            key={item.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="group"
+                return (
+                    <motion.div
+                        key={item.id}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.05 }}
+                    >
+                        <Link
+                            href={`/categories/${collection.handle}`}
+                            className="group block relative overflow-hidden rounded-[2.5rem] h-[180px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
                         >
-                            <div className={`relative overflow-hidden rounded-[2.5rem] ${currentStyle.gradient} min-h-[18rem] p-10 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1`}>
-                                <div className="relative z-10 flex flex-col h-full justify-between">
-                                    <div>
-                                        <h2 className="text-4xl font-black text-white tracking-tight mb-4 drop-shadow-sm">
-                                            {item.title}
-                                        </h2>
+                            {/* Background Color */}
+                            <div className={`absolute inset-0 ${currentStyle.gradient} transition-transform duration-700 group-hover:scale-105`} />
 
-                                        {/* Sub-items if any */}
-                                        {item.items && item.items.length > 0 && (
-                                            <div className="flex flex-wrap gap-2 mb-6">
-                                                {item.items.map((subItem) => {
-                                                    const subCollection = subItem.resource;
-                                                    const href = subCollection?.handle
-                                                        ? `/categories/${subCollection.handle}`
-                                                        : subItem.url.replace(/^https?:\/\/[^\/]+/, '');
-
-                                                    return (
-                                                        <Link
-                                                            key={subItem.id}
-                                                            href={href}
-                                                            className="px-4 py-1.5 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white text-xs font-bold transition-colors border border-white/10"
-                                                        >
-                                                            {subItem.title}
-                                                        </Link>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <Link
-                                        href={`/categories/${collection.handle}`}
-                                        className="group/btn w-fit flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-2xl font-black text-sm hover:bg-gray-100 transition-all shadow-lg active:scale-95"
-                                    >
-                                        Explore
-                                        <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
-                                    </Link>
-                                </div>
-
-                                {/* Collection Image */}
-                                <div className="absolute right-0 bottom-0 top-0 w-[50%] flex items-center justify-end pointer-events-none">
-                                    {collection.image && (
-                                        <div className="relative w-full h-[110%] mr-[-5%] mb-[-5%] transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-2">
-                                            <Image
-                                                src={collection.image.url}
-                                                alt={collection.title}
-                                                fill
-                                                className="object-contain object-right-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                                                sizes="(max-w-768px) 100vw, 40vw"
-                                            />
-                                        </div>
-                                    )}
-                                </div>
+                            {/* Title Section */}
+                            <div className="relative z-20 h-full flex flex-col justify-center px-8">
+                                <h2 className="text-2xl font-black text-white tracking-tight leading-tight w-1/2 drop-shadow-sm">
+                                    {item.title}
+                                </h2>
                             </div>
-                        </motion.div>
-                    );
-                })}
-            </div>
+
+                            {/* Collection Image */}
+                            <div className="absolute right-0 bottom-0 top-0 w-[55%] pointer-events-none z-10">
+                                {collection.image && (
+                                    <div className="relative w-full h-[110%] mt-[-5%] mr-[-5%] transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-2 origin-bottom-right">
+                                        <Image
+                                            src={collection.image.url}
+                                            alt={collection.title}
+                                            fill
+                                            className="object-contain object-right-bottom drop-shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
+                                            sizes="(max-w-768px) 50vw, 25vw"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </Link>
+                    </motion.div>
+                );
+            })}
         </div>
     );
 }

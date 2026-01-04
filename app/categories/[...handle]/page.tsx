@@ -146,9 +146,9 @@ export default function CategoriesDetailPage() {
 
                 {/* Curated Sub-collections if handle matches */}
                 {(targetHandle === 'women' || targetHandle === 'men' || targetHandle === 'home') && (
-                    <div className="mb-20">
-                        <div className="flex items-center gap-4 mb-8">
-                            <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Explore {targetHandle} categories</h2>
+                    <div className="mb-24 py-12">
+                        <div className="flex items-center gap-4 mb-10">
+                            <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Explore {targetHandle} categories</h2>
                             <div className="h-px flex-1 bg-gray-100 dark:bg-white/5" />
                         </div>
                         <MenuCategories handle={targetHandle} />
