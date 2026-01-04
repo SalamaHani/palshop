@@ -8,6 +8,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
+import MenuCategories from '@/components/view/MenuCategories';
 
 // Matching the reference image colors as closely as possible
 const categoriesStyles = [
@@ -39,14 +40,14 @@ const itemVariants = {
 } as const;
 
 export default function CategoriesPage() {
-    const { data, isLoading } = useStorefrontQuery<GetCollectionsQuery>(
+    const { data: allCollectionsData, isLoading: isAllLoading } = useStorefrontQuery<GetCollectionsQuery>(
         ['collections-all'],
         {
             query: GET_COLLECTIONS_QUERY,
         }
     );
 
-    const allCollections = data?.collections?.edges || [];
+    const allCollections = allCollectionsData?.collections?.edges || [];
 
     // Grouping Logic
     const groupedCollections: Record<string, { parent?: any; children: any[] }> = {};
@@ -101,88 +102,97 @@ export default function CategoriesPage() {
 
             {/* Grid */}
             <div className="max-w-7xl mx-auto px-6">
-                {isLoading ? (
-                    <div className="grid grid-cols-3 md:grid-cols-4 gap-5">
-                        {[...Array(4)].map((_, i) => (
-                            <Skeleton key={i} className="h-64 rounded-3xl w-full" />
+                {isAllLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {[...Array(6)].map((_, i) => (
+                            <Skeleton key={i} className="h-64 rounded-[2.5rem] w-full" />
                         ))}
                     </div>
                 ) : (
-                    <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className="grid grid-cols-3 md:grid-cols-4 gap-5"
-                    >
-                        {displayGroups.map((group, index) => {
-                            const styleIndex = index % categoriesStyles.length;
-                            const currentStyle = categoriesStyles[styleIndex];
-                            const mainCollection = group.parent || group.children[0];
+                    <div className="space-y-24">
+                        {/* Curated Section - Example for "Women" as requested */}
+                        <section>
+                            <div className="flex items-center gap-4 mb-10">
+                                <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Women's Collection</h2>
+                                <div className="h-[2px] flex-1 bg-gray-100 dark:bg-white/5" />
+                            </div>
+                            <MenuCategories handle="women" />
+                        </section>
 
-                            return (
-                                <motion.div key={group.name} variants={itemVariants} className="group">
-                                    <div className={`relative overflow-hidden rounded-[2.5rem] ${currentStyle.gradient} min-h-[16rem] p-10 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1`}>
-                                        {/* Background Pattern */}
-                                        <div className="absolute inset-0 opacity-10 pointer-events-none">
-                                            <div className="absolute top-0 right-0 w-64 h-64 bg-white blur-[80px] rounded-full -mr-20 -mt-20" />
-                                        </div>
+                        <section>
+                            <div className="flex items-center gap-4 mb-10">
+                                <h2 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">All Collections</h2>
+                                <div className="h-[2px] flex-1 bg-gray-100 dark:bg-white/5" />
+                            </div>
+                            <motion.div
+                                variants={containerVariants}
+                                initial="hidden"
+                                animate="visible"
+                                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                            >
+                                {displayGroups.map((group, index) => {
+                                    const styleIndex = index % categoriesStyles.length;
+                                    const currentStyle = categoriesStyles[styleIndex];
+                                    const mainCollection = group.parent || group.children[0];
 
-                                        <div className="relative z-10 flex flex-col h-full justify-between">
-                                            <div>
-                                                <h2 className="text-4xl font-black text-white tracking-tight mb-4 drop-shadow-sm">
-                                                    {group.name}
-                                                </h2>
+                                    return (
+                                        <motion.div key={group.name} variants={itemVariants} className="group">
+                                            <div className={`relative overflow-hidden rounded-[2.5rem] ${currentStyle.gradient} min-h-[16rem] p-10 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1`}>
+                                                {/* Background Pattern */}
+                                                <div className="absolute inset-0 opacity-10 pointer-events-none">
+                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-white blur-[80px] rounded-full -mr-20 -mt-20" />
+                                                </div>
 
-                                                {/* Sub-categories List */}
-                                                <div className="flex flex-wrap gap-2 mb-6">
-                                                    {group.children.map((child) => (
-                                                        <Link
-                                                            key={child.id}
-                                                            href={`/categories/${child.handle}`}
-                                                            className="px-4 py-1.5 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white text-xs font-bold transition-colors border border-white/10"
-                                                        >
-                                                            {child.displayTitle}
-                                                        </Link>
-                                                    ))}
-                                                    {group.parent && (
-                                                        <Link
-                                                            href={`/categories/${group.parent.handle}`}
-                                                            className="px-4 py-1.5 bg-white/10 hover:bg-white/30 backdrop-blur-md rounded-full text-white text-xs font-bold transition-colors border border-white/10"
-                                                        >
-                                                            View All
-                                                        </Link>
+                                                <div className="relative z-10 flex flex-col h-full justify-between">
+                                                    <div>
+                                                        <h2 className="text-4xl font-black text-white tracking-tight mb-4 drop-shadow-sm">
+                                                            {group.name}
+                                                        </h2>
+
+                                                        {/* Sub-categories List */}
+                                                        <div className="flex flex-wrap gap-2 mb-6">
+                                                            {group.children.map((child) => (
+                                                                <Link
+                                                                    key={child.id}
+                                                                    href={`/categories/${child.handle}`}
+                                                                    className="px-4 py-1.5 bg-white/20 hover:bg-white/40 backdrop-blur-md rounded-full text-white text-xs font-bold transition-colors border border-white/10"
+                                                                >
+                                                                    {child.displayTitle}
+                                                                </Link>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    <Link
+                                                        href={`/categories/${mainCollection.handle}`}
+                                                        className="group/btn w-fit flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-2xl font-black text-sm hover:bg-gray-100 transition-all shadow-lg active:scale-95"
+                                                    >
+                                                        Explore
+                                                        <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
+                                                    </Link>
+                                                </div>
+
+                                                {/* Image Cutout */}
+                                                <div className="absolute right-0 bottom-0 top-0 w-[45%] flex items-center justify-end pointer-events-none">
+                                                    {mainCollection.image && (
+                                                        <div className="relative w-full h-[110%] mr-[-5%] mb-[-5%] transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-2">
+                                                            <Image
+                                                                src={mainCollection.image.url}
+                                                                alt={mainCollection.title}
+                                                                fill
+                                                                className="object-contain object-right-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
+                                                                sizes="(max-w-768px) 100vw, 40vw"
+                                                            />
+                                                        </div>
                                                     )}
                                                 </div>
                                             </div>
-
-                                            <Link
-                                                href={`/categories/${mainCollection.handle}`}
-                                                className="group/btn w-fit flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-2xl font-black text-sm hover:bg-gray-100 transition-all shadow-lg active:scale-95"
-                                            >
-                                                Explore Collection
-                                                <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
-                                            </Link>
-                                        </div>
-
-                                        {/* Image Cutout */}
-                                        <div className="absolute right-0 bottom-0 top-0 w-[45%] flex items-center justify-end pointer-events-none">
-                                            {mainCollection.image && (
-                                                <div className="relative w-full h-[110%] mr-[-5%] mb-[-5%] transition-transform duration-700 group-hover:scale-110 group-hover:-rotate-2">
-                                                    <Image
-                                                        src={mainCollection.image.url}
-                                                        alt={mainCollection.title}
-                                                        fill
-                                                        className="object-contain object-right-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]"
-                                                        sizes="(max-w-768px) 100vw, 40vw"
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            );
-                        })}
-                    </motion.div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </motion.div>
+                        </section>
+                    </div>
                 )}
             </div>
 

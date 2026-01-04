@@ -129,3 +129,45 @@ export const GET_COLLECTION_BY_HANDLE_WITH_PAGINATION_QUERY = gql`
     }
   }
 `;
+export const GET_MENU_QUERY = gql`
+  query GetMenu($handle: String!) {
+    menu(handle: $handle) {
+      id
+      title
+      items {
+        id
+        title
+        url
+        resourceId
+        items {
+          id
+          title
+          url
+          resourceId
+          resource {
+            ... on Collection {
+              id
+              handle
+              title
+              image {
+                url
+                altText
+              }
+            }
+          }
+        }
+        resource {
+          ... on Collection {
+            id
+            handle
+            title
+            image {
+              url
+              altText
+            }
+          }
+        }
+      }
+    }
+  }
+`;
